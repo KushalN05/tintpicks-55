@@ -1,0 +1,190 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 202 44% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 202 44% 58%;
+    --radius: 0.75rem;
+    
+    /* Brand signature colors */
+    --brand-glow: 202 80% 70%;
+    --brand-whisper: 46 100% 95%;
+    --brand-deep: 202 100% 35%;
+    --brand-accent: 342 75% 75%;
+    --brand-warm: 23 83% 75%;
+    
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, hsl(var(--brand-glow)) 0%, hsl(var(--brand-accent)) 100%);
+    --gradient-whisper: linear-gradient(180deg, hsl(var(--brand-whisper)) 0%, rgba(255,255,255,0.8) 100%);
+    --gradient-deep: linear-gradient(135deg, hsl(var(--brand-deep)) 0%, hsl(202 100% 25%) 100%);
+    
+    /* Shadows */
+    --shadow-brand: 0 10px 30px -10px hsl(var(--brand-glow) / 0.3);
+    --shadow-float: 0 20px 40px -15px hsl(var(--brand-glow) / 0.2);
+    --shadow-glow: 0 0 40px hsl(var(--brand-glow) / 0.4);
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background: linear-gradient(135deg, 
+      hsl(var(--brand-whisper)) 0%, 
+      rgba(255,255,255,0.95) 40%,
+      hsl(202 30% 95%) 100%
+    );
+    background-attachment: fixed;
+    background-image: 
+      radial-gradient(circle at 20% 80%, hsl(var(--brand-glow) / 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(var(--brand-accent) / 0.1) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(127, 170, 196, 0.05)' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tour highlight effect */
+.tour-highlight {
+  position: relative;
+  z-index: 51 !important;
+  box-shadow: 0 0 0 4px rgba(122, 160, 196, 0.6), 0 0 20px rgba(122, 160, 196, 0.4) !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.ghibli-cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  filter: blur(10px);
+}
+
+/* Enhanced card styles */
+.ghibli-card {
+  @apply rounded-xl bg-white/80 backdrop-blur-md border border-white/40 transition-all duration-500 overflow-hidden;
+  box-shadow: var(--shadow-brand);
+}
+
+.ghibli-card:hover {
+  @apply scale-[1.02];
+  box-shadow: var(--shadow-float);
+}
+
+/* Brand signature elements */
+.brand-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+.gradient-brand {
+  background: var(--gradient-brand);
+}
+
+.gradient-whisper {
+  background: var(--gradient-whisper);
+}
+
+/* Advanced animations */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.8) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-8px) rotate(1deg); }
+  66% { transform: translateY(-4px) rotate(-1deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px hsl(var(--brand-glow) / 0.3); }
+  50% { box-shadow: 0 0 40px hsl(var(--brand-glow) / 0.6); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-float-gentle {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.shimmer-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
