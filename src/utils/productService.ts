@@ -20,23 +20,29 @@ export interface Product {
 }
 
 /**
- * Maps gender filter labels to common product-name search terms.
+ * Maps gender filter labels to PostgreSQL textSearch strings.
+ * We use textSearch to avoid substring mismatches (e.g. "her" matching "Thermal").
  */
-const GENDER_TERMS: Record<string, string[]> = {
-  'Mens': ['Men', "Men's", 'Mens', 'Male', 'Him', 'Boy'],
-  'Womens': ['Women', "Women's", 'Womens', 'Ladies', 'Female', 'Her', 'Girl'],
-  'Unisex': ['Unisex'],
+const GENDER_TERMS: Record<string, string> = {
+  'Mens': "men | mens | male | him | boy",
+  'Womens': "women | womens | ladies | female | her | girl",
+  'Unisex': "unisex",
 };
 
 /**
- * Maps category filter labels to common product-name search terms.
+ * Maps category filter labels to PostgreSQL textSearch strings.
  */
-const CATEGORY_TERMS: Record<string, string[]> = {
-  'Tops': ['Shirt', 'Blouse', 'Top', 'Tee', 'T-Shirt', 'Sweater', 'Hoodie'],
-  'Bottoms': ['Trouser', 'Pant', 'Chino', 'Jean', 'Denim', 'Skirt', 'Legging'],
-  'Shorts': ['Short'],
-  'Shoes': ['Shoe', 'Trainer', 'Sneaker', 'Boot', 'Sandal', 'Heel'],
-  'Outerwear': ['Jacket', 'Coat', 'Blazer', 'Parka', 'Bomber', 'Windbreaker'],
+const CATEGORY_TERMS: Record<string, string> = {
+  'Shirts': "shirt | blouse | top | tee | t-shirt",
+  'Trousers': "trouser | pant | chino | jean | denim",
+  'Jackets': "jacket | coat | blazer | parka | bomber",
+  'Dresses': "dress | gown | maxi | mini",
+  'Shoes': "shoe | trainer | sneaker | boot | sandal | heel",
+  'Shorts': "short | shorts",
+  'Skirts': "skirt | skirts",
+  'Hoodies': "hoodie | sweatshirt | pullover | sweater",
+  'Bags': "bag | tote | backpack | clutch | handbag",
+  'Accessories': "hat | scarf | belt | watch | sunglasses | jewellery | jewelry",
 };
 
 const NSFW_BLACKLIST = [
@@ -73,20 +79,14 @@ export const fetchProductsByColor = async (
       query = query.not('name', 'ilike', `%${keyword}%`);
     });
 
-    // 4. Enterprise Gender Match (Fallback to name since merchant_category is missing)
+    // 4. Enterprise Gender Match using textSearch
     if (gender !== 'All' && GENDER_TERMS[gender]) {
-      const genderOr = GENDER_TERMS[gender]
-        .map(term => `name.ilike.%${term}%`)
-        .join(',');
-      query = query.or(genderOr);
+      query = query.textSearch('name', GENDER_TERMS[gender]);
     }
 
-    // 5. Enterprise Category Match (Fallback to name)
+    // 5. Enterprise Category Match using textSearch
     if (category !== 'All' && CATEGORY_TERMS[category]) {
-      const categoryOr = CATEGORY_TERMS[category]
-        .map(term => `name.ilike.%${term}%`)
-        .join(',');
-      query = query.or(categoryOr);
+      query = query.textSearch('name', CATEGORY_TERMS[category]);
     }
 
     // 6. Limit Results
