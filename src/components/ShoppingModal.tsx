@@ -112,11 +112,20 @@ const ShoppingModal = ({
       setLoading(true);
       setProducts([]);
       fetchProductsByColor(color, 24)
-        .then((results) => setProducts(results))
-        .catch((err) => console.error('Product fetch error:', err))
+        .then((results) => {
+          // Strictly ensure it's an array to prevent .length or .map crashes
+          setProducts(Array.isArray(results) ? results : []);
+        })
+        .catch((err) => {
+          console.error('Product fetch error:', err);
+          setProducts([]); // Fallback to empty array on error
+        })
         .finally(() => setLoading(false));
     }
   }, [isOpen, color]);
+
+  // Defensive check for the header length render
+  const safeProductsCount = Array.isArray(products) ? products.length : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -134,7 +143,7 @@ const ShoppingModal = ({
                   Shop {colorName}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-ghibli-forest/50 mt-0.5">
-                  {color} · {products.length} items found
+                  {color} · {safeProductsCount} items found
                 </DialogDescription>
               </div>
             </div>
@@ -149,12 +158,12 @@ const ShoppingModal = ({
                 <SkeletonCard key={i} />
               ))}
             </div>
-          ) : products.length === 0 ? (
+          ) : !Array.isArray(products) || products.length === 0 ? (
             <EmptyState />
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-3">
               {products.map((product) => (
-                <ProductCard key={product.product_id} product={product} />
+                <ProductCard key={product.product_id || Math.random()} product={product} />
               ))}
             </div>
           )}
