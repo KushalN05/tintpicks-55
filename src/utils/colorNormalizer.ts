@@ -1,4 +1,4 @@
-import ntc from 'ntcjs';
+import ntc from './ntc';
 
 export const normalizeColorToHex = (rawColorString: string): string => {
   if (!rawColorString) return '#808080'; // Default gray

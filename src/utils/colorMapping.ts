@@ -1,4 +1,4 @@
-import ntc from 'ntcjs';
+import ntc from './ntc';
 
 export interface ColorInfo {
   name: string;
