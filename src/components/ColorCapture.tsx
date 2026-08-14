@@ -33,6 +33,7 @@ const ColorCapture = ({
 
   // Effect: start the camera when component mounts or user retries
   useEffect(() => {
+    let isMounted = true;
     let hintTimer: ReturnType<typeof setTimeout>;
     const startCamera = async () => {
       setShowTroubleHint(false);
@@ -40,6 +41,13 @@ const ColorCapture = ({
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
         });
+        
+        if (!isMounted) {
+          // If component unmounted while waiting for permissions, stop the stream immediately
+          stream.getTracks().forEach(t => t.stop());
+          return;
+        }
+
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -49,14 +57,16 @@ const ColorCapture = ({
         // Show trouble hint if camera doesn't load after ~2s
         hintTimer = setTimeout(() => {
           if (
-            !videoRef.current ||
+            isMounted && 
+            (!videoRef.current ||
             videoRef.current.readyState === 0 ||
-            !videoRef.current.srcObject
+            !videoRef.current.srcObject)
           ) {
             setShowTroubleHint(true);
           }
         }, 2000);
       } catch (error) {
+        if (!isMounted) return;
         toast({
           title: 'Camera Error',
           description: 'Unable to access camera. Please check permissions.',
@@ -70,6 +80,7 @@ const ColorCapture = ({
     startCamera();
 
     return () => {
+      isMounted = false;
       stopCamera();
       if (hintTimer) clearTimeout(hintTimer);
     };

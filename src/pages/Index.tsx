@@ -12,6 +12,7 @@ import MascotSection from "@/components/home/MascotSection";
 import ColorTabs from "@/components/home/ColorTabs";
 import ParticleSystem from "@/components/ParticleSystem";
 import { useHomePage } from "@/hooks/useHomePage";
+import FloatingActionButton from "@/components/FloatingActionButton";
 
 const Index = () => {
   const [showTour, setShowTour] = useState(false);
@@ -142,6 +143,12 @@ const Index = () => {
                 color={selectedColor}
               />
             </div>
+            
+            <FloatingActionButton 
+              onCameraClick={() => setShowCamera(true)}
+              onPaletteClick={() => setActiveTab('palette')}
+              className="fixed bottom-6 right-6 z-40"
+            />
           </>
         )}
       </div>

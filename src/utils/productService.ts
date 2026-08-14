@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { getRetailColorFamily } from './retailColorMapper';
+import colorNamer from 'color-namer';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -23,8 +23,8 @@ export interface Product {
  * Maps gender filter labels to common product-name search terms.
  */
 const GENDER_TERMS: Record<string, string[]> = {
-  'Mens': ['Men', "Men's", 'Mens', 'Male', 'Him'],
-  'Womens': ['Women', "Women's", 'Womens', 'Ladies', 'Female', 'Her'],
+  'Mens': ['Men', "Men's", 'Mens', 'Male', 'Him', 'Boy'],
+  'Womens': ['Women', "Women's", 'Womens', 'Ladies', 'Female', 'Her', 'Girl'],
   'Unisex': ['Unisex'],
 };
 
@@ -32,21 +32,21 @@ const GENDER_TERMS: Record<string, string[]> = {
  * Maps category filter labels to common product-name search terms.
  */
 const CATEGORY_TERMS: Record<string, string[]> = {
-  'Shirts': ['Shirt', 'Blouse', 'Top', 'Tee', 'T-Shirt'],
-  'Trousers': ['Trouser', 'Pant', 'Chino', 'Jean', 'Denim'],
-  'Jackets': ['Jacket', 'Coat', 'Blazer', 'Parka', 'Bomber'],
-  'Dresses': ['Dress', 'Gown', 'Maxi', 'Mini'],
-  'Shoes': ['Shoe', 'Trainer', 'Sneaker', 'Boot', 'Sandal', 'Heel'],
+  'Tops': ['Shirt', 'Blouse', 'Top', 'Tee', 'T-Shirt', 'Sweater', 'Hoodie'],
+  'Bottoms': ['Trouser', 'Pant', 'Chino', 'Jean', 'Denim', 'Skirt', 'Legging'],
   'Shorts': ['Short'],
-  'Skirts': ['Skirt'],
-  'Hoodies': ['Hoodie', 'Sweatshirt', 'Pullover', 'Sweater'],
-  'Bags': ['Bag', 'Tote', 'Backpack', 'Clutch', 'Handbag'],
-  'Accessories': ['Hat', 'Scarf', 'Belt', 'Watch', 'Sunglasses', 'Jewellery', 'Jewelry'],
+  'Shoes': ['Shoe', 'Trainer', 'Sneaker', 'Boot', 'Sandal', 'Heel'],
+  'Outerwear': ['Jacket', 'Coat', 'Blazer', 'Parka', 'Bomber', 'Windbreaker'],
 };
 
+const NSFW_BLACKLIST = [
+  'lingerie', 'underwear', 'bra', 'briefs', 'panties', 
+  'swim', 'bikini', 'thong', 'boxers'
+];
+
 /**
- * Fetches products from Supabase using the Fashion Color Mapper.
- * Searches by retail color keyword, then optionally filters by gender/category.
+ * Fetches products from Supabase using the exact color_name.
+ * Applies strict taxonomy filtering and NSFW blacklist.
  */
 export const fetchProductsByColor = async (
   hexCode: string,
@@ -55,16 +55,25 @@ export const fetchProductsByColor = async (
   limit: number = 30
 ): Promise<Product[]> => {
   try {
-    const retailKeyword = getRetailColorFamily(hexCode);
+    // 1. Generate strictly formatted hex and extract HTML color name
+    const strictHex = hexCode.startsWith('#') ? hexCode : `#${hexCode}`;
+    const names = colorNamer(strictHex);
+    const searchableColor = names.html[0].name.toLowerCase();
 
+    // 2. Base Query
     let query = supabaseProducts
       .from('products')
       .select('product_id, name, price, image_url, affiliate_url, hex_code')
       .not('image_url', 'is', null)
       .not('affiliate_url', 'is', null)
-      .ilike('name', `%${retailKeyword}%`);
+      .ilike('color_name', `%${searchableColor}%`);
 
-    // Apply gender filter using .or() with multiple term variants
+    // 3. Apply NSFW Blacklist
+    NSFW_BLACKLIST.forEach(keyword => {
+      query = query.not('name', 'ilike', `%${keyword}%`);
+    });
+
+    // 4. Enterprise Gender Match (Fallback to name since merchant_category is missing)
     if (gender !== 'All' && GENDER_TERMS[gender]) {
       const genderOr = GENDER_TERMS[gender]
         .map(term => `name.ilike.%${term}%`)
@@ -72,7 +81,7 @@ export const fetchProductsByColor = async (
       query = query.or(genderOr);
     }
 
-    // Apply category filter using .or() with multiple term variants
+    // 5. Enterprise Category Match (Fallback to name)
     if (category !== 'All' && CATEGORY_TERMS[category]) {
       const categoryOr = CATEGORY_TERMS[category]
         .map(term => `name.ilike.%${term}%`)
@@ -80,6 +89,7 @@ export const fetchProductsByColor = async (
       query = query.or(categoryOr);
     }
 
+    // 6. Limit Results
     const { data, error } = await query.limit(limit);
 
     if (error) {

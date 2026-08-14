@@ -49,7 +49,7 @@ const updateColorNames = async () => {
     // Fetch a batch of rows where color_name is null
     const { data: rows, error: fetchError } = await supabase
       .from('products')
-      .select('product_id, hex_code')
+      .select('*')
       .is('color_name', null)
       .not('hex_code', 'is', null)
       .limit(BATCH_SIZE);
@@ -66,9 +66,9 @@ const updateColorNames = async () => {
 
     console.log(`📦 Processing batch ${batchNumber} (${rows.length} rows)...`);
 
-    // Map each row to an update payload
+    // Map each row to an update payload containing all existing columns
     const updates = rows.map(row => ({
-      product_id: row.product_id,
+      ...row,
       color_name: getColorName(row.hex_code),
     }));
 

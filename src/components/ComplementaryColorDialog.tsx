@@ -118,7 +118,7 @@ const ComplementaryColorDialog = ({
       }
     });
 
-    return closestColor;
+    return closestColor.startsWith('#') ? closestColor : `#${closestColor}`;
   };
   
   // Find complementary colors (opposite on the color wheel)

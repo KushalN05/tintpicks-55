@@ -90,7 +90,7 @@ const EmptyState = () => (
       No exact matches found
     </h3>
     <p className="text-sm text-ghibli-forest/60 max-w-[280px]">
-      We couldn't find products matching this exact color right now. Try a nearby shade!
+      We couldn't find products matching this strict search. Please adjust your category or gender filters to see more results!
     </p>
   </div>
 );
@@ -172,16 +172,11 @@ const ShoppingModal = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Categories</SelectItem>
-                <SelectItem value="Shirts">Shirts & Tops</SelectItem>
-                <SelectItem value="Trousers">Trousers & Jeans</SelectItem>
-                <SelectItem value="Jackets">Jackets & Coats</SelectItem>
-                <SelectItem value="Dresses">Dresses</SelectItem>
-                <SelectItem value="Shoes">Shoes</SelectItem>
+                <SelectItem value="Tops">Tops</SelectItem>
+                <SelectItem value="Bottoms">Bottoms</SelectItem>
                 <SelectItem value="Shorts">Shorts</SelectItem>
-                <SelectItem value="Skirts">Skirts</SelectItem>
-                <SelectItem value="Hoodies">Hoodies & Sweaters</SelectItem>
-                <SelectItem value="Bags">Bags</SelectItem>
-                <SelectItem value="Accessories">Accessories</SelectItem>
+                <SelectItem value="Shoes">Shoes</SelectItem>
+                <SelectItem value="Outerwear">Outerwear</SelectItem>
               </SelectContent>
             </Select>
           </div>
