@@ -50,30 +50,35 @@ export const fetchProductsByColor = async (
   hexCode: string,
   limit: number = 24
 ): Promise<Product[]> => {
-  // Fetch a large pool of products that have valid images and affiliate links
-  const { data, error } = await supabaseProducts
-    .from('products')
-    .select('product_id, name, price, image_url, affiliate_url, hex_code')
-    .not('image_url', 'is', null)
-    .not('affiliate_url', 'is', null)
-    .not('hex_code', 'is', null)
-    .limit(2000);
+  try {
+    // Fetch a manageable pool of products to prevent browser freezes
+    const { data, error } = await supabaseProducts
+      .from('products')
+      .select('product_id, name, price, image_url, affiliate_url, hex_code')
+      .not('image_url', 'is', null)
+      .not('affiliate_url', 'is', null)
+      .not('hex_code', 'is', null)
+      .limit(100);
 
-  if (error) {
-    console.error('Error fetching products:', error.message);
+    if (error) {
+      console.error('Error fetching products:', error.message);
+      return [];
+    }
+
+    if (!data || data.length === 0) return [];
+
+    // Sort by color distance (closest match first)
+    const sorted = data
+      .filter((p) => p.hex_code && p.hex_code.startsWith('#'))
+      .sort((a, b) => {
+        const distA = colorDistance(hexCode, a.hex_code!);
+        const distB = colorDistance(hexCode, b.hex_code!);
+        return distA - distB;
+      });
+
+    return sorted.slice(0, limit);
+  } catch (error) {
+    console.error('Fatal error processing products client-side:', error);
     return [];
   }
-
-  if (!data || data.length === 0) return [];
-
-  // Sort by color distance (closest match first)
-  const sorted = data
-    .filter((p) => p.hex_code && p.hex_code.startsWith('#'))
-    .sort((a, b) => {
-      const distA = colorDistance(hexCode, a.hex_code!);
-      const distB = colorDistance(hexCode, b.hex_code!);
-      return distA - distB;
-    });
-
-  return sorted.slice(0, limit);
 };
