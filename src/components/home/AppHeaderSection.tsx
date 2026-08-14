@@ -6,9 +6,20 @@ interface AppHeaderSectionProps {
   userProfile?: any;
   onCameraClick?: () => void;
   onLogout?: () => void;
+  onColorAdd?: (color: string) => void;
+  onSavedPaletteClick?: () => void;
+  onStartTour?: () => void;
 }
 
-const AppHeaderSection = ({ userName, userProfile, onCameraClick, onLogout }: AppHeaderSectionProps) => {
+const AppHeaderSection = ({
+  userName,
+  userProfile,
+  onCameraClick,
+  onLogout,
+  onColorAdd = () => {},
+  onSavedPaletteClick = () => {},
+  onStartTour = () => {},
+}: AppHeaderSectionProps) => {
   return (
     <motion.div 
       initial={{ opacity: 0, y: -20 }}
@@ -16,7 +27,13 @@ const AppHeaderSection = ({ userName, userProfile, onCameraClick, onLogout }: Ap
       transition={{ duration: 0.6 }}
       className="app-header"
     >
-      <AppHeader onCameraClick={onCameraClick} onLogout={onLogout} />
+      <AppHeader
+        onCameraClick={onCameraClick}
+        onLogout={onLogout}
+        onColorAdd={onColorAdd}
+        onSavedPaletteClick={onSavedPaletteClick}
+        onStartTour={onStartTour}
+      />
       {userName && (
         <div className="text-center py-4">
           <motion.h2 

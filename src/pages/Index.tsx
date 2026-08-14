@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import React from "react";
 import ColorCapture from "@/components/ColorCapture";
-import ColorInput from "@/components/ColorInput";
 import ShoppingModal from "@/components/ShoppingModal";
 import UserProfileInitializer from "@/components/UserProfileInitializer";
 import YayLoader from "@/components/YayLoader";
@@ -12,13 +10,10 @@ import GhibliFloatingElements from "@/components/home/GhibliFloatingElements";
 import AppHeaderSection from "@/components/home/AppHeaderSection";
 import MascotSection from "@/components/home/MascotSection";
 import ColorTabs from "@/components/home/ColorTabs";
-
 import ParticleSystem from "@/components/ParticleSystem";
-import FloatingActionButton from "@/components/FloatingActionButton";
 import { useHomePage } from "@/hooks/useHomePage";
 
 const Index = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [showTour, setShowTour] = useState(false);
   const [userName, setUserName] = useState("");
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -45,7 +40,6 @@ const Index = () => {
   } = useHomePage();
   
   useEffect(() => {
-    // Load user profile
     loadUserProfile();
   }, []);
 
@@ -54,7 +48,6 @@ const Index = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get onboarding data for personalized greeting
       const { data: onboardingData } = await supabase
         .from('profiles')
         .select('*')
@@ -71,6 +64,7 @@ const Index = () => {
   };
 
   const handleTourComplete = async () => {
+    setShowTour(false);
     if (userProfile && !userProfile.onboarding_completed) {
       setUserProfile({ ...userProfile, onboarding_completed: true });
       await supabase
@@ -88,8 +82,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-ghibli-gradient relative">
-      {/* Tour Component */}
-      {userProfile?.onboarding_completed === false && (
+      {/* Tour — for new users OR manual replay from hamburger menu */}
+      {(userProfile?.onboarding_completed === false || showTour) && (
         <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />
       )}
       
@@ -105,13 +99,18 @@ const Index = () => {
           <ColorCapture onCapture={handleColorCapture} onClose={() => setShowCamera(false)} />
         ) : (
           <>
-            <AppHeaderSection userName={userName} userProfile={userProfile} onCameraClick={() => setShowCamera(true)} onLogout={handleLogout} />
+            <AppHeaderSection
+              userName={userName}
+              userProfile={userProfile}
+              onCameraClick={() => setShowCamera(true)}
+              onLogout={handleLogout}
+              onColorAdd={handleColorAdd}
+              onSavedPaletteClick={() => setActiveTab('palette')}
+              onStartTour={() => setShowTour(true)}
+            />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="py-6 md:py-4 flex flex-col md:flex-row items-center justify-between gap-6 animate-fade-in camera-button">
-                <div className="w-full md:w-3/4 animate-slide-up">
-                  <ColorInput onAdd={handleColorAdd} onClear={handleClearColors} />
-                </div>
+              <div className="py-6 md:py-4 flex justify-center animate-fade-in">
                 <div className="animate-scale-in">
                   <MascotSection mascotMood={mascotMood} />
                 </div>
@@ -143,12 +142,6 @@ const Index = () => {
                 color={selectedColor}
               />
             </div>
-
-            {/* Floating Action Button */}
-            <FloatingActionButton 
-              onCameraClick={() => setShowCamera(true)}
-              onPaletteClick={() => setActiveTab('palette')}
-            />
           </>
         )}
       </div>
