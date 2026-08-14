@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import React from "react";
 import BlobMascot from "@/components/BlobMascot";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const OnboardingLazy = React.lazy(() => import("./pages/Onboarding"));
 
@@ -64,43 +65,45 @@ const RedirectIfAuthed = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SessionContextProvider supabaseClient={supabase}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public route */}
-            <Route
-              path="/login"
-              element={
-                <RedirectIfAuthed>
-                  <Login />
-                </RedirectIfAuthed>
-              }
-            />
-
-            {/* Protected routes */}
-            <Route element={<RequireAuth />}>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <SessionContextProvider supabaseClient={supabase}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public route */}
               <Route
-                path="/onboarding"
+                path="/login"
                 element={
-                  <React.Suspense fallback={null}>
-                    <OnboardingLazy />
-                  </React.Suspense>
+                  <RedirectIfAuthed>
+                    <Login />
+                  </RedirectIfAuthed>
                 }
               />
-              <Route path="/" element={<Index />} />
-            </Route>
 
-            {/* Catch-all → login */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SessionContextProvider>
-  </QueryClientProvider>
+              {/* Protected routes */}
+              <Route element={<RequireAuth />}>
+                <Route
+                  path="/onboarding"
+                  element={
+                    <React.Suspense fallback={null}>
+                      <OnboardingLazy />
+                    </React.Suspense>
+                  }
+                />
+                <Route path="/" element={<Index />} />
+              </Route>
+
+              {/* Catch-all → login */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </SessionContextProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
