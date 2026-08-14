@@ -20,8 +20,33 @@ export interface Product {
 }
 
 /**
+ * Maps gender filter labels to common product-name search terms.
+ */
+const GENDER_TERMS: Record<string, string[]> = {
+  'Mens': ['Men', "Men's", 'Mens', 'Male', 'Him'],
+  'Womens': ['Women', "Women's", 'Womens', 'Ladies', 'Female', 'Her'],
+  'Unisex': ['Unisex'],
+};
+
+/**
+ * Maps category filter labels to common product-name search terms.
+ */
+const CATEGORY_TERMS: Record<string, string[]> = {
+  'Shirts': ['Shirt', 'Blouse', 'Top', 'Tee', 'T-Shirt'],
+  'Trousers': ['Trouser', 'Pant', 'Chino', 'Jean', 'Denim'],
+  'Jackets': ['Jacket', 'Coat', 'Blazer', 'Parka', 'Bomber'],
+  'Dresses': ['Dress', 'Gown', 'Maxi', 'Mini'],
+  'Shoes': ['Shoe', 'Trainer', 'Sneaker', 'Boot', 'Sandal', 'Heel'],
+  'Shorts': ['Short'],
+  'Skirts': ['Skirt'],
+  'Hoodies': ['Hoodie', 'Sweatshirt', 'Pullover', 'Sweater'],
+  'Bags': ['Bag', 'Tote', 'Backpack', 'Clutch', 'Handbag'],
+  'Accessories': ['Hat', 'Scarf', 'Belt', 'Watch', 'Sunglasses', 'Jewellery', 'Jewelry'],
+};
+
+/**
  * Fetches products from Supabase using the Fashion Color Mapper.
- * Maps the exact hex to a retail keyword, then searches Supabase natively.
+ * Searches by retail color keyword, then optionally filters by gender/category.
  */
 export const fetchProductsByColor = async (
   hexCode: string,
@@ -39,13 +64,20 @@ export const fetchProductsByColor = async (
       .not('affiliate_url', 'is', null)
       .ilike('name', `%${retailKeyword}%`);
 
-    if (gender !== 'All') {
-      // Map standard terms if necessary or just directly use ilike
-      query = query.ilike('name', `%${gender}%`);
+    // Apply gender filter using .or() with multiple term variants
+    if (gender !== 'All' && GENDER_TERMS[gender]) {
+      const genderOr = GENDER_TERMS[gender]
+        .map(term => `name.ilike.%${term}%`)
+        .join(',');
+      query = query.or(genderOr);
     }
 
-    if (category !== 'All') {
-      query = query.ilike('name', `%${category}%`);
+    // Apply category filter using .or() with multiple term variants
+    if (category !== 'All' && CATEGORY_TERMS[category]) {
+      const categoryOr = CATEGORY_TERMS[category]
+        .map(term => `name.ilike.%${term}%`)
+        .join(',');
+      query = query.or(categoryOr);
     }
 
     const { data, error } = await query.limit(limit);
@@ -61,3 +93,4 @@ export const fetchProductsByColor = async (
     return [];
   }
 };
+

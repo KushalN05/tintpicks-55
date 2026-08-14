@@ -213,10 +213,7 @@ const ComplementaryColorDialog = ({
         variant="outline"
         size="sm"
         className="w-full border-ghibli-blue text-ghibli-blue hover:bg-ghibli-blue/10 rounded-full text-xs md:text-sm"
-        onClick={() => {
-          onClose();
-          setTimeout(() => onShop(color), 100);
-        }}
+        onClick={() => onShop(color)}
       >
         <ShoppingBag className="mr-1 h-3 w-3 md:h-4 md:w-4" />
         Shop

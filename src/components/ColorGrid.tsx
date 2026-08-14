@@ -87,7 +87,11 @@ const ColorGrid = ({ colors, onShop }: { colors: Color[]; onShop: (color: string
           isOpen={showComplementary}
           onClose={() => setShowComplementary(false)}
           originalColor={selectedColor}
-          onShop={onShop}
+          onShop={(color: string) => {
+            setShowComplementary(false);
+            // Delay to let the dialog unmount before opening the shopping modal
+            setTimeout(() => onShop(color), 200);
+          }}
         />
       )}
     </div>

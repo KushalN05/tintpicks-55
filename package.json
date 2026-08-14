@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "sync-feed": "tsx scripts/syncFeed.ts",
-    "profile-colors": "tsx scripts/profileColors.ts"
+    "profile-colors": "tsx scripts/profileColors.ts",
+    "update-colors": "tsx scripts/updateColorNames.ts"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.2",
