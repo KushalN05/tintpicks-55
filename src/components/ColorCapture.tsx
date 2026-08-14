@@ -13,6 +13,7 @@ const ColorCapture = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [showTroubleHint, setShowTroubleHint] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -20,12 +21,14 @@ const ColorCapture = ({
 
   // Utility to stop the camera
   const stopCamera = () => {
-    if (videoRef.current?.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach((track) => track.stop());
-      setIsStreaming(false);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+    setIsStreaming(false);
   };
 
   // Effect: start the camera when component mounts or user retries
@@ -37,6 +40,7 @@ const ColorCapture = ({
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
         });
+        streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           setIsStreaming(true);

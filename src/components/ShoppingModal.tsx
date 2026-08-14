@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, ExternalLink, Loader2, PackageX, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getColorName } from '../utils/colorMapping';
 import { fetchProductsByColor, Product } from '../utils/productService';
 
@@ -105,13 +106,15 @@ const ShoppingModal = ({
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [gender, setGender] = useState('All');
+  const [category, setCategory] = useState('All');
   const colorName = getColorName(color);
 
   useEffect(() => {
     if (isOpen && color) {
       setLoading(true);
       setProducts([]);
-      fetchProductsByColor(color, 24)
+      fetchProductsByColor(color, gender, category, 24)
         .then((results) => {
           // Strictly ensure it's an array to prevent .length or .map crashes
           setProducts(Array.isArray(results) ? results : []);
@@ -122,7 +125,7 @@ const ShoppingModal = ({
         })
         .finally(() => setLoading(false));
     }
-  }, [isOpen, color]);
+  }, [isOpen, color, gender, category]);
 
   // Defensive check for the header length render
   const safeProductsCount = Array.isArray(products) ? products.length : 0;
@@ -148,6 +151,34 @@ const ShoppingModal = ({
               </div>
             </div>
           </DialogHeader>
+
+          {/* Filters */}
+          <div className="flex gap-2 mt-4">
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger className="w-[130px] h-8 text-xs">
+                <SelectValue placeholder="Gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Genders</SelectItem>
+                <SelectItem value="Mens">Mens</SelectItem>
+                <SelectItem value="Womens">Womens</SelectItem>
+                <SelectItem value="Unisex">Unisex</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="w-[130px] h-8 text-xs">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Categories</SelectItem>
+                <SelectItem value="Tops">Tops</SelectItem>
+                <SelectItem value="Bottoms">Bottoms</SelectItem>
+                <SelectItem value="Shoes">Shoes</SelectItem>
+                <SelectItem value="Outerwear">Outerwear</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Content */}

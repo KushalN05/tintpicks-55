@@ -20,14 +20,7 @@ const AppHeader = ({ onCameraClick, onLogout, onColorAdd, onSavedPaletteClick, o
         <div className="md:hidden py-3 flex items-center justify-between gap-2">
           <BrandLogo size="sm" showName={true} animate={true} />
 
-          <Button
-            id="tour-camera"
-            className="rounded-full shadow-md gradient-brand hover:scale-105 text-white group transition-all duration-300 brand-glow h-9 px-4 text-sm"
-            onClick={onCameraClick}
-          >
-            <Camera className="mr-1.5 h-3.5 w-3.5 group-hover:animate-bounce-subtle" />
-            Capture
-          </Button>
+
 
           <HamburgerMenu
             onLogout={onLogout}
@@ -46,15 +39,7 @@ const AppHeader = ({ onCameraClick, onLogout, onColorAdd, onSavedPaletteClick, o
             </p>
           </div>
           <div className="flex gap-3 items-center animate-scale-in">
-            <Button
-              id="tour-camera"
-              size="lg"
-              className="rounded-full shadow-lg gradient-brand hover:scale-105 text-white group transition-all duration-300 brand-glow"
-              onClick={onCameraClick}
-            >
-              <Camera className="mr-2 h-5 w-5 group-hover:animate-bounce-subtle" />
-              Capture Color
-            </Button>
+
 
             <HamburgerMenu
               onLogout={onLogout}
