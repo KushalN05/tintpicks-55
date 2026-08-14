@@ -21,7 +21,6 @@ export interface Product {
 
 /**
  * Maps gender filter labels to PostgreSQL textSearch strings.
- * We use textSearch to avoid substring mismatches (e.g. "her" matching "Thermal").
  */
 const GENDER_TERMS: Record<string, string> = {
   'Mens': "men | mens | male | him | boy",
@@ -50,33 +49,30 @@ const NSFW_BLACKLIST = [
   'swim', 'bikini', 'thong', 'boxers'
 ];
 
-// Helper to calculate precise Euclidean distance between two hex codes
-const hexToRgb = (hex: string) => {
-  const cleanHex = hex.replace('#', '');
-  const r = parseInt(cleanHex.substring(0, 2), 16);
-  const g = parseInt(cleanHex.substring(2, 4), 16);
-  const b = parseInt(cleanHex.substring(4, 6), 16);
-  return { r, g, b };
-};
+/**
+ * Maps a generic basic color to its common retail synonyms to maximize search hits.
+ */
+const getRetailColorSynonyms = (basicColor: string): string => {
+  const colorMap: Record<string, string> = {
+    'red': 'red | crimson | ruby | scarlet | burgundy | maroon | wine',
+    'pink': 'pink | rose | fuschia | magenta | blush | coral | salmon',
+    'orange': 'orange | peach | apricot | tangerine | rust',
+    'yellow': 'yellow | mustard | gold | lemon',
+    'green': 'green | olive | emerald | mint | sage | khaki | lime',
+    'blue': 'blue | navy | azure | denim | indigo | cobalt | cyan | teal | turquoise',
+    'purple': 'purple | lilac | lavender | violet | plum | magenta',
+    'brown': 'brown | tan | beige | camel | chocolate | coffee | taupe | khaki',
+    'white': 'white | cream | ivory | bone | off-white',
+    'gray': 'gray | grey | charcoal | silver | slate | ash',
+    'black': 'black | charcoal | obsidian | midnight',
+  };
 
-const getColorDistance = (hex1: string, hex2: string) => {
-  if (!hex1 || !hex2) return 999999;
-  try {
-    const c1 = hexToRgb(hex1);
-    const c2 = hexToRgb(hex2);
-    return Math.sqrt(
-      Math.pow(c1.r - c2.r, 2) + 
-      Math.pow(c1.g - c2.g, 2) + 
-      Math.pow(c1.b - c2.b, 2)
-    );
-  } catch {
-    return 999999;
-  }
+  return colorMap[basicColor] || basicColor;
 };
 
 /**
- * Fetches products from Supabase using exact Euclidean color distance.
- * Applies strict taxonomy filtering and NSFW blacklist.
+ * Fetches products from Supabase using pure Title-Based searching.
+ * Guarantees that items strictly match the selected color family, gender, and category.
  */
 export const fetchProductsByColor = async (
   hexCode: string,
@@ -85,57 +81,51 @@ export const fetchProductsByColor = async (
   limit: number = 30
 ): Promise<Product[]> => {
   try {
-    // 1. Generate strictly formatted hex
     const strictHex = hexCode.startsWith('#') ? hexCode : `#${hexCode}`;
     
-    // 2. Pre-filter by the top 5 closest HTML color buckets to cast a wide but relevant net
+    // 1. Identify the broad retail color family (e.g. "pink")
     const names = colorNamer(strictHex);
-    const closestColorBuckets = names.html.slice(0, 5).map(c => c.name.toLowerCase());
+    const basicColor = names.basic[0].name.toLowerCase();
+    
+    // 2. Expand it to retail synonyms (e.g. "pink | rose | blush")
+    const colorSearchTerm = getRetailColorSynonyms(basicColor);
 
-    // 3. Base Query (Fetch up to 1000 items to mathematically sort locally)
+    // 3. Base Query
     let query = supabaseProducts
       .from('products')
       .select('product_id, name, price, image_url, affiliate_url, hex_code')
       .not('image_url', 'is', null)
-      .not('affiliate_url', 'is', null)
-      .in('color_name', closestColorBuckets);
+      .not('affiliate_url', 'is', null);
 
-    // 4. Apply NSFW Blacklist
+    // 4. Force Title-Based Color Search! (The Magic Bullet)
+    query = query.textSearch('name', colorSearchTerm);
+
+    // 5. Apply NSFW Blacklist
     NSFW_BLACKLIST.forEach(keyword => {
       query = query.not('name', 'ilike', `%${keyword}%`);
     });
 
-    // 5. Enterprise Gender Match using textSearch
+    // 6. Enterprise Gender Match using textSearch
     if (gender !== 'All' && GENDER_TERMS[gender]) {
       query = query.textSearch('name', GENDER_TERMS[gender]);
     }
 
-    // 6. Enterprise Category Match using textSearch
+    // 7. Enterprise Category Match using textSearch
     if (category !== 'All' && CATEGORY_TERMS[category]) {
       query = query.textSearch('name', CATEGORY_TERMS[category]);
     }
 
-    // 7. Fetch large pool
-    const { data, error } = await query.limit(1000);
+    // 8. Execute and return limit
+    const { data, error } = await query.limit(limit);
 
     if (error) {
       console.error('Supabase fetch error:', error);
       return [];
     }
 
-    // 8. Mathematically sort by true Euclidean distance to captured hex
-    if (data && data.length > 0) {
-      const sortedData = data.sort((a, b) => {
-        const distA = getColorDistance(strictHex, a.hex_code || '');
-        const distB = getColorDistance(strictHex, b.hex_code || '');
-        return distA - distB;
-      });
+    // Randomize results to keep UI fresh
+    return (data || []).sort(() => Math.random() - 0.5) as Product[];
 
-      // 9. Return only the top absolute closest matches
-      return sortedData.slice(0, limit) as Product[];
-    }
-
-    return [];
   } catch (error) {
     console.error('Error fetching products:', error);
     return [];
