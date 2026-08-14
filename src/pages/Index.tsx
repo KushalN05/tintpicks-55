@@ -77,7 +77,7 @@ const Index = () => {
   const tourSteps: TourStep[] = [
     { targetId: 'tour-camera', text: "Hi, I'm Tinti! Tap here to scan a color you love." },
     { targetId: 'tour-harmonies', text: "I'll instantly show you perfect matching colors!" },
-    { targetId: 'tour-save', text: "Click Save to add it to your Cloud Wardrobe!" },
+    { targetId: 'hamburger-menu-btn', text: "Open the menu to add Hex codes and see your Saved Palettes!" },
   ];
 
   return (

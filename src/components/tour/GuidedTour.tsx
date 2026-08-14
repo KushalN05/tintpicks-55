@@ -21,7 +21,23 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
   useEffect(() => {
     const updatePosition = () => {
       if (!step) return;
-      const el = document.getElementById(step.targetId);
+      
+      // AppHeader duplicates buttons for mobile/desktop, so getElementById might return the hidden one (0x0).
+      // Query all matching IDs and pick the first one that is actually visible.
+      const elements = document.querySelectorAll(`[id="${step.targetId}"]`);
+      let el: Element | null = null;
+      for (let i = 0; i < elements.length; i++) {
+        const rect = elements[i].getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          el = elements[i];
+          break;
+        }
+      }
+      
+      if (!el) {
+        el = document.getElementById(step.targetId); // Fallback
+      }
+
       if (el) {
         // If element is not fully in viewport, scroll to it
         const rect = el.getBoundingClientRect();
