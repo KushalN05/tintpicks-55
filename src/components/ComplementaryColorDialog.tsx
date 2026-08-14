@@ -10,14 +10,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getColorName } from '../utils/colors/colorMapping';
-import { blues } from '../utils/colors/blues';
-import { reds } from '../utils/colors/reds';
-import { greens } from '../utils/colors/greens';
-import { whites } from '../utils/colors/whites';
-import { blacks } from '../utils/colors/blacks';
-import { oranges } from '../utils/colors/oranges';
-import { purples } from '../utils/colors/purples';
+import { getColorName, getAllNamedColors } from '../utils/colorMapping';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ComplementaryColorDialogProps {
@@ -34,7 +27,7 @@ const ComplementaryColorDialog = ({
   onShop,
 }: ComplementaryColorDialogProps) => {
   const isMobile = useIsMobile();
-  const allColors = [...blues, ...reds, ...greens, ...whites, ...blacks, ...oranges, ...purples];
+  const allColors = getAllNamedColors();
   
   // Convert hex to RGB
   const hexToRgb = (hex: string) => {

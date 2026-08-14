@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Environment Variables and Data
+.env
+.env.*
+*.csv.gz
+unique_colors.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

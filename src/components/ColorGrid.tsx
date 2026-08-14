@@ -2,11 +2,10 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Palette, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getColorName } from '../utils/colorMapping';
+import { getColorName, getColorAnalysis } from '../utils/colorMapping';
 import ComplementaryColorDialog from './ComplementaryColorDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { getColorAnalysis } from '../utils/colors/colorUtils';
 
 interface Color {
   id?: string;
