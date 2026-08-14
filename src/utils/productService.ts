@@ -50,8 +50,32 @@ const NSFW_BLACKLIST = [
   'swim', 'bikini', 'thong', 'boxers'
 ];
 
+// Helper to calculate precise Euclidean distance between two hex codes
+const hexToRgb = (hex: string) => {
+  const cleanHex = hex.replace('#', '');
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  return { r, g, b };
+};
+
+const getColorDistance = (hex1: string, hex2: string) => {
+  if (!hex1 || !hex2) return 999999;
+  try {
+    const c1 = hexToRgb(hex1);
+    const c2 = hexToRgb(hex2);
+    return Math.sqrt(
+      Math.pow(c1.r - c2.r, 2) + 
+      Math.pow(c1.g - c2.g, 2) + 
+      Math.pow(c1.b - c2.b, 2)
+    );
+  } catch {
+    return 999999;
+  }
+};
+
 /**
- * Fetches products from Supabase using the exact color_name.
+ * Fetches products from Supabase using exact Euclidean color distance.
  * Applies strict taxonomy filtering and NSFW blacklist.
  */
 export const fetchProductsByColor = async (
@@ -61,46 +85,59 @@ export const fetchProductsByColor = async (
   limit: number = 30
 ): Promise<Product[]> => {
   try {
-    // 1. Generate strictly formatted hex and extract HTML color name
+    // 1. Generate strictly formatted hex
     const strictHex = hexCode.startsWith('#') ? hexCode : `#${hexCode}`;
+    
+    // 2. Pre-filter by the top 5 closest HTML color buckets to cast a wide but relevant net
     const names = colorNamer(strictHex);
-    const searchableColor = names.html[0].name.toLowerCase();
+    const closestColorBuckets = names.html.slice(0, 5).map(c => c.name.toLowerCase());
 
-    // 2. Base Query
+    // 3. Base Query (Fetch up to 1000 items to mathematically sort locally)
     let query = supabaseProducts
       .from('products')
       .select('product_id, name, price, image_url, affiliate_url, hex_code')
       .not('image_url', 'is', null)
       .not('affiliate_url', 'is', null)
-      .ilike('color_name', `%${searchableColor}%`);
+      .in('color_name', closestColorBuckets);
 
-    // 3. Apply NSFW Blacklist
+    // 4. Apply NSFW Blacklist
     NSFW_BLACKLIST.forEach(keyword => {
       query = query.not('name', 'ilike', `%${keyword}%`);
     });
 
-    // 4. Enterprise Gender Match using textSearch
+    // 5. Enterprise Gender Match using textSearch
     if (gender !== 'All' && GENDER_TERMS[gender]) {
       query = query.textSearch('name', GENDER_TERMS[gender]);
     }
 
-    // 5. Enterprise Category Match using textSearch
+    // 6. Enterprise Category Match using textSearch
     if (category !== 'All' && CATEGORY_TERMS[category]) {
       query = query.textSearch('name', CATEGORY_TERMS[category]);
     }
 
-    // 6. Limit Results
-    const { data, error } = await query.limit(limit);
+    // 7. Fetch large pool
+    const { data, error } = await query.limit(1000);
 
     if (error) {
-      console.error('Error fetching products:', error.message);
+      console.error('Supabase fetch error:', error);
       return [];
     }
 
-    return data || [];
+    // 8. Mathematically sort by true Euclidean distance to captured hex
+    if (data && data.length > 0) {
+      const sortedData = data.sort((a, b) => {
+        const distA = getColorDistance(strictHex, a.hex_code || '');
+        const distB = getColorDistance(strictHex, b.hex_code || '');
+        return distA - distB;
+      });
+
+      // 9. Return only the top absolute closest matches
+      return sortedData.slice(0, limit) as Product[];
+    }
+
+    return [];
   } catch (error) {
-    console.error('Fatal error processing products:', error);
+    console.error('Error fetching products:', error);
     return [];
   }
 };
-

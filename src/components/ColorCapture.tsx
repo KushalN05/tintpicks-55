@@ -85,14 +85,9 @@ const ColorCapture = ({
       if (hintTimer) clearTimeout(hintTimer);
     };
     // note: this effect depends on retryCount, so retry reloads cam
-  }, [toast, onClose, retryCount]);
-
-  // Ensure camera is always stopped when component unmounts
-  useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, []);
+    // Using empty dependency array (except retryCount) to prevent infinite re-renders from inline props
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retryCount]);
 
   const handleClose = () => {
     stopCamera();
