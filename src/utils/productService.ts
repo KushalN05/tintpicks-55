@@ -50,13 +50,12 @@ const NSFW_BLACKLIST = [
 ];
 
 /**
- * Blacklisted junk keywords that signal low-quality, obscure, or off-brand products.
- * Since we have no merchant_name column, we filter on product title substrings.
+ * Strict whitelist of reputable brands to curate the fashion feed.
+ * Since there is no merchant_name column, we use textSearch on the product title.
  */
-const JUNK_KEYWORDS = [
-  'viaduct', 'costume', 'cosplay', 'halloween', 'fancy dress',
-  'cheap', 'wholesale', 'bulk', 'lot of', 'pack of',
-  'replica', 'knockoff', 'imitation'
+const TRUSTED_BRANDS = [
+  'ASOS', 'Nike', 'Adidas', 'Mango', 'Zara', 'Topshop', 'H&M', 
+  'Boohoo', 'PrettyLittleThing', 'New Balance', 'Puma', 'Vans', 'Converse'
 ];
 
 /**
@@ -109,9 +108,13 @@ export const fetchProductsByColor = async (
 
     // 4. Force Title-Based Color Search! (The Magic Bullet)
     query = query.textSearch('name', colorSearchTerm);
+    
+    // 5. Strict Brand Whitelist (Matches any trusted brand)
+    const brandQuery = TRUSTED_BRANDS.map(b => `'${b}'`).join(' | ');
+    query = query.textSearch('name', brandQuery);
 
-    // 5. Apply NSFW + Junk Brand Blacklists
-    [...NSFW_BLACKLIST, ...JUNK_KEYWORDS].forEach(keyword => {
+    // 6. Apply NSFW Blacklist
+    NSFW_BLACKLIST.forEach(keyword => {
       query = query.not('name', 'ilike', `%${keyword}%`);
     });
 
