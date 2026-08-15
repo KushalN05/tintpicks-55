@@ -50,6 +50,16 @@ const NSFW_BLACKLIST = [
 ];
 
 /**
+ * Blacklisted junk keywords that signal low-quality, obscure, or off-brand products.
+ * Since we have no merchant_name column, we filter on product title substrings.
+ */
+const JUNK_KEYWORDS = [
+  'viaduct', 'costume', 'cosplay', 'halloween', 'fancy dress',
+  'cheap', 'wholesale', 'bulk', 'lot of', 'pack of',
+  'replica', 'knockoff', 'imitation'
+];
+
+/**
  * Maps a generic basic color to its common retail synonyms to maximize search hits.
  */
 const getRetailColorSynonyms = (basicColor: string): string => {
@@ -100,8 +110,8 @@ export const fetchProductsByColor = async (
     // 4. Force Title-Based Color Search! (The Magic Bullet)
     query = query.textSearch('name', colorSearchTerm);
 
-    // 5. Apply NSFW Blacklist
-    NSFW_BLACKLIST.forEach(keyword => {
+    // 5. Apply NSFW + Junk Brand Blacklists
+    [...NSFW_BLACKLIST, ...JUNK_KEYWORDS].forEach(keyword => {
       query = query.not('name', 'ilike', `%${keyword}%`);
     });
 

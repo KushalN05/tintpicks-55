@@ -88,6 +88,7 @@ const ColorGrid = ({ colors, onShop }: { colors: Color[]; onShop: (color: string
           onClose={() => setShowComplementary(false)}
           originalColor={selectedColor}
           onShop={(color: string) => {
+            setShowComplementary(false);
             onShop(color);
           }}
         />

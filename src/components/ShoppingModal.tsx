@@ -11,57 +11,50 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   return (
     <div className="group flex flex-col overflow-hidden transition-all duration-500">
-      {/* Luxury Image Container */}
-      <div className="relative w-full aspect-[3/4] bg-ghibli-cream/20 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-500">
+      {/* Strict Fashion Image Container */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-stone-100">
         {!imgError && product.image_url ? (
           <img
             src={product.image_url}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            className="object-cover object-center w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
             onError={() => setImgError(true)}
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-ghibli-cream/40">
-            <ShoppingBag className="h-10 w-10 text-ghibli-forest/20" />
+          <div className="w-full h-full flex items-center justify-center">
+            <ShoppingBag className="h-8 w-8 text-stone-300" />
           </div>
         )}
 
-        {/* Hover Overlay with Action */}
-        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-          {product.affiliate_url && (
+        {/* Hover Overlay — slides up on hover */}
+        {product.affiliate_url && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
             <a
               href={product.affiliate_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-3/4 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-75"
+              className="w-4/5 translate-y-3 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-75"
             >
               <Button
-                className="w-full bg-white/90 backdrop-blur-sm hover:bg-white text-ghibli-forest rounded-none uppercase tracking-wider text-[10px] font-semibold"
+                className="w-full bg-white hover:bg-stone-50 text-stone-900 rounded-none uppercase tracking-widest text-[10px] font-semibold h-9 shadow-lg"
               >
-                View Item
+                <ExternalLink className="h-3 w-3 mr-1.5" />
+                Shop Now
               </Button>
             </a>
-          )}
-        </div>
-
-        {/* Color Marker */}
-        {product.hex_code && (
-          <div
-            className="absolute top-3 right-3 w-4 h-4 rounded-full border border-white/50 shadow-sm"
-            style={{ backgroundColor: product.hex_code }}
-          />
+          </div>
         )}
       </div>
 
-      {/* Elegant Typography Info */}
-      <div className="flex flex-col pt-4 gap-1 px-1">
-        <h3 className="text-[11px] uppercase tracking-wider font-medium text-ghibli-forest/70 line-clamp-2 leading-relaxed">
+      {/* Product Info — fashion typography */}
+      <div className="flex flex-col pt-3 gap-1 px-0.5">
+        <p className="text-xs text-stone-500 uppercase tracking-wide line-clamp-2 leading-relaxed font-medium">
           {product.name}
-        </h3>
+        </p>
         {product.price && (
-          <p className="text-sm font-semibold text-ghibli-forest mt-1">
-            {product.price}
+          <p className="text-sm font-bold text-stone-900 font-serif tracking-tight mt-0.5">
+            £{product.price}
           </p>
         )}
       </div>
@@ -71,11 +64,11 @@ const ProductCard = ({ product }: { product: Product }) => {
 
 const SkeletonCard = () => (
   <div className="flex flex-col animate-pulse">
-    <div className="w-full aspect-[3/4] bg-ghibli-cream/30" />
-    <div className="pt-4 flex flex-col gap-2 px-1">
-      <div className="h-3 bg-ghibli-cream/50 w-full" />
-      <div className="h-3 bg-ghibli-cream/50 w-2/3" />
-      <div className="h-4 bg-ghibli-cream/50 w-1/3 mt-2" />
+    <div className="aspect-[3/4] w-full rounded-md bg-stone-200" />
+    <div className="pt-3 flex flex-col gap-2 px-0.5">
+      <div className="h-3 bg-stone-200 rounded w-full" />
+      <div className="h-3 bg-stone-200 rounded w-2/3" />
+      <div className="h-4 bg-stone-300 rounded w-1/4 mt-1" />
     </div>
   </div>
 );
