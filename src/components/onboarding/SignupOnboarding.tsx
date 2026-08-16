@@ -26,7 +26,7 @@ const calcAge = (dob: string) => {
 };
 
 const genders = ["Female", "Male", "Non-binary", "Prefer not to say"];
-const pronouns = ["she/her", "he/him", "they/them", "prefer not to say"];
+const pronounsList = ["she/her", "he/him", "they/them", "prefer not to say"];
 
 const SignupOnboarding: React.FC = () => {
   const navigate = useNavigate();
@@ -43,7 +43,6 @@ const SignupOnboarding: React.FC = () => {
   });
 
   useEffect(() => {
-    // SEO basics
     document.title = "Onboarding | TintPicks";
   }, []);
 
@@ -107,23 +106,23 @@ const SignupOnboarding: React.FC = () => {
 
   return (
     <main className="w-full max-w-xl mx-auto">
-      <section className="ghibli-card p-6 sm:p-8">
+      <section className="minimal-card p-6 sm:p-8">
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-ghibli-forest">Welcome! Let’s personalize TintPicks</h1>
-          <p className="text-ghibli-forest/70">Only takes a minute. You can edit this later in your profile.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Welcome! Let's personalize TintPicks</h1>
+          <p className="text-muted-foreground text-sm mt-1">Only takes a minute. You can edit this later in your profile.</p>
         </div>
 
         {/* Progress */}
-        <div className="w-full bg-ghibli-cream h-2 rounded-full mb-6">
+        <div className="w-full bg-muted h-1.5 rounded-full mb-6">
           <div
-            className="bg-ghibli-blue h-2 rounded-full transition-all"
+            className="bg-foreground h-1.5 rounded-full transition-all"
             style={{ width: `${((step + 1) / 4) * 100}%` }}
           />
         </div>
 
         {step === 0 && (
           <div className="space-y-4">
-            <Label htmlFor="name" className="text-ghibli-forest">Your name</Label>
+            <Label htmlFor="name" className="text-foreground">Your name</Label>
             <Input
               id="name"
               value={data.name}
@@ -135,7 +134,7 @@ const SignupOnboarding: React.FC = () => {
 
         {step === 1 && (
           <div className="space-y-4">
-            <Label htmlFor="dob" className="text-ghibli-forest">Date of birth</Label>
+            <Label htmlFor="dob" className="text-foreground">Date of birth</Label>
             <Input
               id="dob"
               type="date"
@@ -143,16 +142,16 @@ const SignupOnboarding: React.FC = () => {
               onChange={(e) => handleDobChange(e.target.value)}
             />
             {data.dob && (
-              <p className="text-sm text-ghibli-forest/70">We calculate your age automatically: <span className="font-medium text-ghibli-forest">{data.age}</span></p>
+              <p className="text-sm text-muted-foreground">We calculate your age automatically: <span className="font-medium text-foreground">{data.age}</span></p>
             )}
-            <p className="text-xs text-ghibli-forest/60">You must be at least {minAge}.</p>
+            <p className="text-xs text-muted-foreground">You must be at least {minAge}.</p>
           </div>
         )}
 
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <Label className="text-ghibli-forest mb-2 block">Gender</Label>
+              <Label className="text-foreground mb-2 block">Gender</Label>
               <RadioGroup value={data.gender} onValueChange={(v) => setData((d) => ({ ...d, gender: v }))}>
                 {genders.map((g) => (
                   <div key={g} className="flex items-center space-x-2">
@@ -164,9 +163,9 @@ const SignupOnboarding: React.FC = () => {
             </div>
 
             <div>
-              <Label className="text-ghibli-forest mb-2 block">Pronouns</Label>
+              <Label className="text-foreground mb-2 block">Pronouns</Label>
               <RadioGroup value={data.pronouns} onValueChange={(v) => setData((d) => ({ ...d, pronouns: v }))}>
-                {pronouns.map((p) => (
+                {pronounsList.map((p) => (
                   <div key={p} className="flex items-center space-x-2">
                     <RadioGroupItem id={`pr-${p}`} value={p} />
                     <Label htmlFor={`pr-${p}`}>{p}</Label>
@@ -179,15 +178,15 @@ const SignupOnboarding: React.FC = () => {
 
         {step === 3 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-ghibli-forest">Review</h2>
-            <ul className="text-ghibli-forest/80 space-y-1">
-              <li><span className="font-medium">Name:</span> {data.name}</li>
-              <li><span className="font-medium">DOB:</span> {data.dob}</li>
-              <li><span className="font-medium">Age:</span> {data.age}</li>
-              <li><span className="font-medium">Gender:</span> {data.gender}</li>
-              <li><span className="font-medium">Pronouns:</span> {data.pronouns}</li>
+            <h2 className="text-xl font-semibold text-foreground">Review</h2>
+            <ul className="text-muted-foreground space-y-1">
+              <li><span className="font-medium text-foreground">Name:</span> {data.name}</li>
+              <li><span className="font-medium text-foreground">DOB:</span> {data.dob}</li>
+              <li><span className="font-medium text-foreground">Age:</span> {data.age}</li>
+              <li><span className="font-medium text-foreground">Gender:</span> {data.gender}</li>
+              <li><span className="font-medium text-foreground">Pronouns:</span> {data.pronouns}</li>
             </ul>
-            <label className="flex items-center gap-2 text-ghibli-forest/80">
+            <label className="flex items-center gap-2 text-muted-foreground">
               <input
                 type="checkbox"
                 checked={data.consent}
@@ -199,13 +198,12 @@ const SignupOnboarding: React.FC = () => {
         )}
 
         {error && (
-          <p className="text-red-600 mt-4">{error}</p>
+          <p className="text-destructive mt-4">{error}</p>
         )}
 
         <div className="mt-8 flex items-center justify-between">
           <Button
             variant="outline"
-            className="border-ghibli-blue/30 text-ghibli-forest hover:bg-ghibli-cream/50"
             onClick={() => setStep((s) => Math.max(0, s - 1))}
             disabled={step === 0 || saving}
           >
@@ -214,7 +212,6 @@ const SignupOnboarding: React.FC = () => {
 
           {step < 3 ? (
             <Button
-              className="bg-ghibli-blue text-white hover:bg-ghibli-blue/90"
               onClick={() => setStep((s) => Math.min(3, s + 1))}
               disabled={!canNext || saving}
             >
@@ -222,7 +219,6 @@ const SignupOnboarding: React.FC = () => {
             </Button>
           ) : (
             <Button
-              className="bg-ghibli-blue text-white hover:bg-ghibli-blue/90"
               onClick={handleSubmit}
               disabled={!canNext || saving}
             >

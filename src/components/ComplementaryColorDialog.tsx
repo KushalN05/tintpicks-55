@@ -202,17 +202,17 @@ const ComplementaryColorDialog = ({
   const monochromaticColors = findMonochromaticColors(originalColor);
 
   const ColorCard = ({ color }: { color: string }) => (
-    <div className="text-center ghibli-card p-3 md:p-4 hover:scale-105 transition-transform min-w-[140px]">
+    <div className="text-center minimal-card p-3 md:p-4 hover:scale-105 transition-transform min-w-[140px]">
       <div
         className="h-16 md:h-24 w-full rounded-lg mb-2"
         style={{ backgroundColor: color }}
       />
-      <p className="font-medium text-ghibli-forest font-ghibli text-sm md:text-base line-clamp-2">{getColorName(color)}</p>
-      <p className="text-xs md:text-sm text-ghibli-forest/70 mb-2">{color}</p>
+      <p className="font-medium text-foreground font-sans text-sm md:text-base line-clamp-2">{getColorName(color)}</p>
+      <p className="text-xs md:text-sm text-muted-foreground mb-2">{color}</p>
       <Button
         variant="outline"
         size="sm"
-        className="w-full border-ghibli-blue text-ghibli-blue hover:bg-ghibli-blue/10 rounded-full text-xs md:text-sm"
+        className="w-full border-border text-foreground hover:bg-foreground/10 rounded-full text-xs md:text-sm"
         onClick={() => onShop(color)}
       >
         <ShoppingBag className="mr-1 h-3 w-3 md:h-4 md:w-4" />
@@ -223,16 +223,16 @@ const ComplementaryColorDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] bg-ghibli-beige/95 backdrop-blur-sm border-ghibli-blue/30 rounded-xl overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] bg-card backdrop-blur-sm border-border rounded-xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-ghibli-forest font-ghibli text-lg md:text-xl">Color Harmony</DialogTitle>
-          <DialogDescription className="text-ghibli-forest/80 text-sm md:text-base">
+          <DialogTitle className="text-foreground font-sans text-lg md:text-xl">Color Harmony</DialogTitle>
+          <DialogDescription className="text-muted-foreground text-sm md:text-base">
             Discover the perfect color combinations for your wardrobe
           </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="complementary" className="mt-4">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 bg-ghibli-cream/70 h-auto">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 bg-muted h-auto">
             <TabsTrigger value="complementary" className="text-xs md:text-sm px-2 py-2">Complementary</TabsTrigger>
             <TabsTrigger value="analogous" className="text-xs md:text-sm px-2 py-2">Analogous</TabsTrigger>
             <TabsTrigger value="triadic" className="text-xs md:text-sm px-2 py-2">Triadic</TabsTrigger>

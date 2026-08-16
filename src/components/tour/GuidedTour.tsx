@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import BlobMascot from '@/components/BlobMascot';
 
 export interface TourStep {
   targetId: string;
@@ -108,13 +108,9 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
         }}
       >
         <div className="relative animate-slide-up">
-          {/* Tinti Mascot - slightly overlapping the card */}
-          <div className="absolute -top-12 -left-4 w-20 h-20 animate-float">
-            <BlobMascot size="sm" mood="excited" />
-          </div>
           
           {/* Dialogue Bubble */}
-          <div className="ghibli-card p-5 ml-6 bg-white/95 backdrop-blur-xl shadow-2xl relative overflow-visible">
+          <div className="minimal-card p-5 bg-white/95 backdrop-blur-xl shadow-2xl relative overflow-visible">
             {/* Speech bubble tail */}
             <div 
               className="absolute w-4 h-4 bg-white/95 border-l border-t border-white/40 transform -rotate-45"
@@ -125,14 +121,14 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
               }}
             />
             
-            <p className="text-ghibli-forest font-medium mb-4 relative z-10 leading-snug">
+            <p className="text-foreground font-medium mb-4 relative z-10 leading-snug">
               {step.text}
             </p>
             
             <div className="flex justify-between items-center relative z-10">
               <button 
                 onClick={onComplete}
-                className="text-xs text-ghibli-forest/50 hover:text-ghibli-forest transition-colors font-medium tracking-wide uppercase"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium tracking-wide uppercase"
               >
                 Skip Tour
               </button>
@@ -145,7 +141,7 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
                     onComplete();
                   }
                 }}
-                className="bg-ghibli-blue hover:bg-ghibli-blue/90 text-white rounded-full h-8 px-5 text-sm shadow-md transition-all hover:scale-105 active:scale-95"
+                className="bg-foreground hover:bg-foreground/10 text-white rounded-full h-8 px-5 text-sm shadow-md transition-all hover:scale-105 active:scale-95"
               >
                 {currentStep < steps.length - 1 ? 'Next' : 'Got it!'}
               </Button>

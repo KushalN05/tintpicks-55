@@ -5,8 +5,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, ArrowLeft, Palette, Camera, Sparkles, Heart } from 'lucide-react';
-import BlobMascot from '@/components/BlobMascot';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface OnboardingStepsProps {
   onComplete: (data: OnboardingData) => void;
@@ -67,30 +66,27 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-ghibli-forest/70">Step {currentStep} of {totalSteps}</span>
-          <span className="text-sm text-ghibli-forest/70">{Math.round(progress)}% complete</span>
+          <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+          <span className="text-sm text-muted-foreground">{Math.round(progress)}% complete</span>
         </div>
-        <Progress value={progress} className="h-2 bg-ghibli-cream" />
+        <Progress value={progress} className="h-1.5" />
       </div>
 
       {/* Step Content */}
-      <div className="ghibli-card p-8 mb-6 min-h-[400px] flex flex-col justify-between">
+      <div className="minimal-card p-8 mb-6 min-h-[400px] flex flex-col justify-between">
         {/* Step 1: Welcome & Name */}
         {currentStep === 1 && (
           <div className="text-center space-y-6">
-            <div className="w-24 h-24 mx-auto animate-float">
-              <BlobMascot size="lg" mood="happy" />
-            </div>
             <div>
-              <h2 className="text-3xl font-bold text-ghibli-forest mb-2 font-ghibli">
-                Welcome to TintPicks!
+              <h2 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
+                Welcome to TintPicks
               </h2>
-              <p className="text-ghibli-forest/70 mb-6">
-                I'm Tinti, your color companion. Let's create your perfect color journey together.
+              <p className="text-muted-foreground mb-6">
+                Let's create your perfect color journey together.
               </p>
             </div>
             <div className="space-y-4 max-w-sm mx-auto">
-              <Label htmlFor="name" className="text-ghibli-forest font-medium">
+              <Label htmlFor="name" className="text-foreground font-medium">
                 What should I call you?
               </Label>
               <Input
@@ -98,7 +94,7 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
                 value={formData.name}
                 onChange={(e) => updateFormData('name', e.target.value)}
                 placeholder="Enter your name"
-                className="bg-white/70 border-ghibli-blue/30 focus:border-ghibli-blue text-center"
+                className="text-center"
               />
             </div>
           </div>
@@ -108,38 +104,37 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
         {currentStep === 2 && (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <Palette className="w-16 h-16 text-ghibli-blue mx-auto mb-4 animate-bounce-subtle" />
-              <h2 className="text-2xl font-bold text-ghibli-forest mb-2 font-ghibli">
+              <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
                 How comfortable are you with colors?
               </h2>
-              <p className="text-ghibli-forest/70">
+              <p className="text-muted-foreground">
                 This helps me tailor the experience just for you.
               </p>
             </div>
             <RadioGroup
               value={formData.colorExperience}
               onValueChange={(value) => updateFormData('colorExperience', value)}
-              className="space-y-4"
+              className="space-y-3"
             >
-              <div className="flex items-center space-x-3 p-4 rounded-lg border border-ghibli-blue/20 hover:bg-ghibli-cream/30 transition-colors">
+              <div className="flex items-center space-x-3 p-4 rounded-md border border-border hover:bg-muted/50 transition-colors">
                 <RadioGroupItem value="beginner" id="beginner" />
                 <Label htmlFor="beginner" className="flex-1 cursor-pointer">
-                  <div className="font-medium text-ghibli-forest">I'm new to color coordination</div>
-                  <div className="text-sm text-ghibli-forest/60">I'd love to learn the basics</div>
+                  <div className="font-medium text-foreground">I'm new to color coordination</div>
+                  <div className="text-sm text-muted-foreground">I'd love to learn the basics</div>
                 </Label>
               </div>
-              <div className="flex items-center space-x-3 p-4 rounded-lg border border-ghibli-blue/20 hover:bg-ghibli-cream/30 transition-colors">
+              <div className="flex items-center space-x-3 p-4 rounded-md border border-border hover:bg-muted/50 transition-colors">
                 <RadioGroupItem value="intermediate" id="intermediate" />
                 <Label htmlFor="intermediate" className="flex-1 cursor-pointer">
-                  <div className="font-medium text-ghibli-forest">I have some experience</div>
-                  <div className="text-sm text-ghibli-forest/60">I know some basics but want to improve</div>
+                  <div className="font-medium text-foreground">I have some experience</div>
+                  <div className="text-sm text-muted-foreground">I know some basics but want to improve</div>
                 </Label>
               </div>
-              <div className="flex items-center space-x-3 p-4 rounded-lg border border-ghibli-blue/20 hover:bg-ghibli-cream/30 transition-colors">
+              <div className="flex items-center space-x-3 p-4 rounded-md border border-border hover:bg-muted/50 transition-colors">
                 <RadioGroupItem value="advanced" id="advanced" />
                 <Label htmlFor="advanced" className="flex-1 cursor-pointer">
-                  <div className="font-medium text-ghibli-forest">I'm quite experienced</div>
-                  <div className="text-sm text-ghibli-forest/60">I'm looking for advanced tools and inspiration</div>
+                  <div className="font-medium text-foreground">I'm quite experienced</div>
+                  <div className="text-sm text-muted-foreground">I'm looking for advanced tools and inspiration</div>
                 </Label>
               </div>
             </RadioGroup>
@@ -150,15 +145,14 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
         {currentStep === 3 && (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <Heart className="w-16 h-16 text-ghibli-pink mx-auto mb-4 animate-glow" />
-              <h2 className="text-2xl font-bold text-ghibli-forest mb-2 font-ghibli">
+              <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
                 What interests you most?
               </h2>
-              <p className="text-ghibli-forest/70">
-                Select all that apply. This helps me show you relevant content.
+              <p className="text-muted-foreground">
+                Select all that apply.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {[
                 'Fashion & Style',
                 'Home Decor',
@@ -171,10 +165,10 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
               ].map((interest) => (
                 <div
                   key={interest}
-                  className={`p-4 rounded-lg border transition-all cursor-pointer ${
+                  className={`p-4 rounded-md border transition-all cursor-pointer ${
                     formData.interests.includes(interest)
-                      ? 'border-ghibli-blue bg-ghibli-cream/50'
-                      : 'border-ghibli-blue/20 hover:bg-ghibli-cream/30'
+                      ? 'border-foreground bg-muted'
+                      : 'border-border hover:bg-muted/50'
                   }`}
                   onClick={() => toggleArrayValue('interests', interest)}
                 >
@@ -182,9 +176,8 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
                     <Checkbox
                       checked={formData.interests.includes(interest)}
                       onChange={() => {}}
-                      className="data-[state=checked]:bg-ghibli-blue"
                     />
-                    <Label className="font-medium text-ghibli-forest cursor-pointer">
+                    <Label className="font-medium text-foreground cursor-pointer">
                       {interest}
                     </Label>
                   </div>
@@ -198,11 +191,10 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
         {currentStep === 4 && (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <Sparkles className="w-16 h-16 text-ghibli-purple mx-auto mb-4 animate-wiggle" />
-              <h2 className="text-2xl font-bold text-ghibli-forest mb-2 font-ghibli">
+              <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
                 What are your color goals?
               </h2>
-              <p className="text-ghibli-forest/70">
+              <p className="text-muted-foreground">
                 Let me know what you'd like to achieve with TintPicks.
               </p>
             </div>
@@ -218,10 +210,10 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
               ].map((goal) => (
                 <div
                   key={goal}
-                  className={`p-4 rounded-lg border transition-all cursor-pointer ${
+                  className={`p-4 rounded-md border transition-all cursor-pointer ${
                     formData.goals.includes(goal)
-                      ? 'border-ghibli-green bg-ghibli-cream/50'
-                      : 'border-ghibli-blue/20 hover:bg-ghibli-cream/30'
+                      ? 'border-foreground bg-muted'
+                      : 'border-border hover:bg-muted/50'
                   }`}
                   onClick={() => toggleArrayValue('goals', goal)}
                 >
@@ -229,9 +221,8 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
                     <Checkbox
                       checked={formData.goals.includes(goal)}
                       onChange={() => {}}
-                      className="data-[state=checked]:bg-ghibli-green"
                     />
-                    <Label className="font-medium text-ghibli-forest cursor-pointer">
+                    <Label className="font-medium text-foreground cursor-pointer">
                       {goal}
                     </Label>
                   </div>
@@ -245,18 +236,17 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
         {currentStep === 5 && (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <Camera className="w-16 h-16 text-ghibli-orange mx-auto mb-4 animate-float" />
-              <h2 className="text-2xl font-bold text-ghibli-forest mb-2 font-ghibli">
+              <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
                 What's your style vibe?
               </h2>
-              <p className="text-ghibli-forest/70">
+              <p className="text-muted-foreground">
                 This helps me recommend colors that match your aesthetic.
               </p>
             </div>
             <RadioGroup
               value={formData.stylePreference}
               onValueChange={(value) => updateFormData('stylePreference', value)}
-              className="space-y-4"
+              className="space-y-3"
             >
               {[
                 { id: 'minimalist', label: 'Minimalist & Clean', desc: 'Simple, elegant, timeless' },
@@ -268,12 +258,12 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
               ].map((style) => (
                 <div
                   key={style.id}
-                  className="flex items-center space-x-3 p-4 rounded-lg border border-ghibli-blue/20 hover:bg-ghibli-cream/30 transition-colors"
+                  className="flex items-center space-x-3 p-4 rounded-md border border-border hover:bg-muted/50 transition-colors"
                 >
                   <RadioGroupItem value={style.id} id={style.id} />
                   <Label htmlFor={style.id} className="flex-1 cursor-pointer">
-                    <div className="font-medium text-ghibli-forest">{style.label}</div>
-                    <div className="text-sm text-ghibli-forest/60">{style.desc}</div>
+                    <div className="font-medium text-foreground">{style.label}</div>
+                    <div className="text-sm text-muted-foreground">{style.desc}</div>
                   </Label>
                 </div>
               ))}
@@ -287,7 +277,6 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
         <Button
           variant="outline"
           onClick={handlePrevious}
-          className="border-ghibli-blue/30 text-ghibli-forest hover:bg-ghibli-cream/50"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {currentStep === 1 ? 'Back to Login' : 'Previous'}
@@ -300,7 +289,6 @@ const OnboardingSteps = ({ onComplete, onBack }: OnboardingStepsProps) => {
             (currentStep === 2 && !formData.colorExperience) ||
             (currentStep === 5 && !formData.stylePreference)
           }
-          className="bg-ghibli-green text-white hover:bg-ghibli-green/90"
         >
           {currentStep === totalSteps ? 'Complete Setup' : 'Continue'}
           <ArrowRight className="w-4 h-4 ml-2" />

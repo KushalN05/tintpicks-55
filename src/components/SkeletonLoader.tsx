@@ -32,7 +32,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
     <motion.div
       key={index}
       variants={itemVariants}
-      className="ghibli-card p-4 space-y-3"
+      className="minimal-card p-4 space-y-3"
     >
       <Skeleton className="h-4 w-3/4" />
       <Skeleton className="h-32 w-full rounded-lg" />
@@ -51,7 +51,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
     <motion.div
       key={index}
       variants={itemVariants}
-      className="flex items-center space-x-4 p-4 ghibli-card"
+      className="flex items-center space-x-4 p-4 minimal-card"
     >
       <Skeleton className="h-12 w-12 rounded-full" />
       <div className="space-y-2 flex-1">
@@ -66,7 +66,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
     <motion.div
       key={index}
       variants={itemVariants}
-      className="aspect-square rounded-lg overflow-hidden ghibli-card p-2"
+      className="aspect-square rounded-lg overflow-hidden minimal-card p-2"
     >
       <Skeleton className="w-full h-full rounded-md" />
     </motion.div>

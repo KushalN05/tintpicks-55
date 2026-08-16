@@ -14,17 +14,17 @@ interface AppHeaderProps {
 
 const AppHeader = ({ onCameraClick, onLogout, onColorAdd, onSavedPaletteClick, onStartTour }: AppHeaderProps) => {
   return (
-    <div className="sticky top-0 z-10 gradient-whisper backdrop-blur-lg border-b border-white/30 shadow-sm">
+    <div className="sticky top-0 z-10  backdrop-blur-lg border-b border-white/30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Mobile Layout */}
         <div className="md:hidden py-3 flex items-center justify-between gap-2">
           <BrandLogo size="sm" showName={true} animate={true} />
           <Button
             id="tour-camera"
-            className="rounded-full shadow-md gradient-brand hover:scale-105 text-white group transition-all duration-300 brand-glow h-9 px-4 text-sm"
+            className="rounded-full shadow-md  hover:scale-105 text-white group transition-all duration-300  h-9 px-4 text-sm"
             onClick={onCameraClick}
           >
-            <Camera className="mr-1.5 h-3.5 w-3.5 group-hover:animate-bounce-subtle" />
+            <Camera className="mr-1.5 h-3.5 w-3.5 group-hover:animate-fade-in" />
             Capture
           </Button>
           <HamburgerMenu
@@ -43,13 +43,13 @@ const AppHeader = ({ onCameraClick, onLogout, onColorAdd, onSavedPaletteClick, o
               Your color journey awaits
             </p>
           </div>
-          <div className="flex gap-3 items-center animate-scale-in">            <Button
+          <div className="flex gap-3 items-center animate-fade-in">            <Button
               id="tour-camera"
               size="lg"
-              className="rounded-full shadow-lg gradient-brand hover:scale-105 text-white group transition-all duration-300 brand-glow"
+              className="rounded-full shadow-lg  hover:scale-105 text-white group transition-all duration-300 "
               onClick={onCameraClick}
             >
-              <Camera className="mr-2 h-5 w-5 group-hover:animate-bounce-subtle" />
+              <Camera className="mr-2 h-5 w-5 group-hover:animate-fade-in" />
               Capture Color
             </Button>
             <HamburgerMenu

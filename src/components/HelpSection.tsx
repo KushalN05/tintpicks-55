@@ -6,10 +6,10 @@ const HelpSection = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-ghibli-forest mb-2">
+        <h2 className="text-3xl font-bold text-foreground mb-2">
           Need Help?
         </h2>
-        <p className="text-ghibli-forest/70 text-lg">
+        <p className="text-muted-foreground text-lg">
           Everything you need to know about using TintPicks
         </p>
       </div>

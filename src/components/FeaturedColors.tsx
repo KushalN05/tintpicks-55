@@ -31,13 +31,13 @@ const FeaturedColors = ({ onSelect }: { onSelect: (color: string) => void }) => 
 
   return (
     <div className="relative p-4 my-4">
-      <h2 className="text-xl font-ghibli font-semibold mb-5 text-ghibli-forest">Featured Colors</h2>
+      <h2 className="text-xl font-sans font-semibold mb-5 text-foreground">Featured Colors</h2>
       
       <div className="relative">
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white/90 shadow-sm rounded-full text-ghibli-forest"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white/90 shadow-sm rounded-full text-foreground"
           onClick={() => scroll('left')}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -61,8 +61,8 @@ const FeaturedColors = ({ onSelect }: { onSelect: (color: string) => void }) => 
                   className="h-32 rounded-xl shadow-sm cursor-pointer transition-all hover:shadow-md hover:scale-105 hover:rotate-2"
                   style={{ backgroundColor: color.hex }}
                 />
-                <p className="mt-2 text-sm text-ghibli-forest font-medium">{colorName}</p>
-                <p className="text-xs text-ghibli-forest/70">{color.hex}</p>
+                <p className="mt-2 text-sm text-foreground font-medium">{colorName}</p>
+                <p className="text-xs text-muted-foreground">{color.hex}</p>
               </div>
             );
           })}
@@ -71,7 +71,7 @@ const FeaturedColors = ({ onSelect }: { onSelect: (color: string) => void }) => 
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white/90 shadow-sm rounded-full text-ghibli-forest"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white/90 shadow-sm rounded-full text-foreground"
           onClick={() => scroll('right')}
         >
           <ChevronRight className="h-4 w-4" />

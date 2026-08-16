@@ -28,18 +28,18 @@ const ColorInput = ({ onAdd, onClear }: { onAdd: (color: string) => void; onClea
   };
 
   return (
-    <form onSubmit={handleSubmit} className="ghibli-card p-4 flex gap-2 shadow-sm">
+    <form onSubmit={handleSubmit} className="minimal-card p-4 flex gap-2 shadow-sm">
       <Input
         type="text"
         placeholder="#000000"
         value={hexValue}
         onChange={(e) => setHexValue(e.target.value)}
-        className="flex-1 border-ghibli-blue/30 text-ghibli-forest bg-white/50 placeholder:text-ghibli-forest/50 rounded-full"
+        className="flex-1 border-border text-foreground bg-white/50 placeholder:text-muted-foreground rounded-full"
       />
       <Button 
         id="tour-save"
         type="submit" 
-        className="bg-ghibli-blue hover:bg-ghibli-blue/90 text-white rounded-full"
+        className="bg-foreground hover:bg-foreground/10 text-white rounded-full"
       >
         <Plus className="h-4 w-4" />
       </Button>
@@ -47,7 +47,7 @@ const ColorInput = ({ onAdd, onClear }: { onAdd: (color: string) => void; onClea
         type="button" 
         variant="outline"
         onClick={onClear}
-        className="border-ghibli-pink text-ghibli-pink hover:bg-ghibli-pink/10 rounded-full"
+        className="border-border text-foreground hover:bg-foreground/10 rounded-full"
       >
         <X className="h-4 w-4" />
       </Button>

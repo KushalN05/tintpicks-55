@@ -40,7 +40,7 @@ const AppHeaderSection = ({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-2xl font-bold text-ghibli-forest font-ghibli"
+            className="text-2xl font-bold text-foreground font-sans"
           >
             Welcome back, {userName}! 🎨
           </motion.h2>
@@ -49,7 +49,7 @@ const AppHeaderSection = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-ghibli-forest/70 mt-2"
+              className="text-muted-foreground mt-2"
             >
               Ready to explore more beautiful colors?
             </motion.p>

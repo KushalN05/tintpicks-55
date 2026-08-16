@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FeaturedColors from "@/components/FeaturedColors";
 import ColorGrid from "@/components/ColorGrid";
 import ColorSwiper from "@/components/ColorSwiper";
-import YayLoader from "@/components/YayLoader";
 import { SavedColor } from "@/hooks/useHomePage";
 
 interface ColorTabsProps {

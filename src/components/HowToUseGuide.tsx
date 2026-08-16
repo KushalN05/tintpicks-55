@@ -71,7 +71,7 @@ const HowToUseGuide = () => {
           <CollapsibleTrigger asChild>
             <Button 
               variant="outline" 
-              className="flex items-center gap-2 rounded-full border-ghibli-blue text-ghibli-blue hover:bg-ghibli-blue/10 mb-2"
+              className="flex items-center gap-2 rounded-full border-border text-foreground hover:bg-foreground/10 mb-2"
             >
               <Info size={16} />
               <span>{isOpen ? "Hide Guide" : "How to Use TintPicks"}</span>
@@ -80,11 +80,11 @@ const HowToUseGuide = () => {
         </div>
         
         <CollapsibleContent className="mt-2">
-          <Card className="p-4 bg-ghibli-cream/70 backdrop-blur-sm border-ghibli-blue/20 overflow-hidden relative">
+          <Card className="p-4 bg-muted backdrop-blur-sm border-border overflow-hidden relative">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="absolute top-2 right-2 rounded-full hover:bg-ghibli-red/10 text-ghibli-forest"
+              className="absolute top-2 right-2 rounded-full hover:bg-muted text-foreground"
               onClick={() => setIsOpen(false)}
             >
               <X size={18} />
@@ -93,26 +93,26 @@ const HowToUseGuide = () => {
             <div className="flex flex-col md:flex-row gap-6 items-center">
               {/* Character and Quote Section */}
               <div className="relative w-full md:w-1/3 flex flex-col items-center">
-                <div className="relative animate-float" style={{ animationDuration: '6s' }}>
+                <div className="relative animate-fade-in" style={{ animationDuration: '6s' }}>
                   <img 
                     src="/lovable-uploads/539dce15-cb88-4d10-8ae0-d0a8a0e60874.png" 
                     alt="Tintpicks Character" 
                     className="h-32 mx-auto mb-2"
                   />
-                  <div className="absolute inset-0 bg-ghibli-green/20 rounded-full blur-xl -z-10"></div>
-                  <div className="absolute w-8 h-8 -top-2 -right-3 bg-ghibli-pink/30 rounded-full blur-md animate-float" style={{ animationDuration: '7s', animationDelay: '0.5s' }}></div>
-                  <div className="absolute w-6 h-6 -bottom-1 -left-2 bg-ghibli-blue/30 rounded-full blur-md animate-float" style={{ animationDuration: '5s', animationDelay: '1s' }}></div>
+                  <div className="absolute inset-0 bg-foreground/10 rounded-full blur-xl -z-10"></div>
+                  <div className="absolute w-8 h-8 -top-2 -right-3 bg-foreground/10 rounded-full blur-md animate-fade-in" style={{ animationDuration: '7s', animationDelay: '0.5s' }}></div>
+                  <div className="absolute w-6 h-6 -bottom-1 -left-2 bg-foreground/10 rounded-full blur-md animate-fade-in" style={{ animationDuration: '5s', animationDelay: '1s' }}></div>
                 </div>
                 
-                <div className="relative mt-4 p-4 bg-white/80 rounded-xl border border-ghibli-green/30 min-h-[120px] flex items-center justify-center w-full">
-                  <p className="text-ghibli-forest font-ghibli text-center italic">"{quotes[currentQuote]}"</p>
+                <div className="relative mt-4 p-4 bg-white/80 rounded-xl border border-border/30 min-h-[120px] flex items-center justify-center w-full">
+                  <p className="text-foreground font-sans text-center italic">"{quotes[currentQuote]}"</p>
                   <div className="absolute top-1/2 -left-3 transform -translate-y-1/2">
-                    <Button variant="ghost" size="icon" onClick={prevQuote} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-ghibli-forest">
+                    <Button variant="ghost" size="icon" onClick={prevQuote} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-foreground">
                       <ChevronLeft size={18} />
                     </Button>
                   </div>
                   <div className="absolute top-1/2 -right-3 transform -translate-y-1/2">
-                    <Button variant="ghost" size="icon" onClick={nextQuote} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-ghibli-forest">
+                    <Button variant="ghost" size="icon" onClick={nextQuote} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-foreground">
                       <ChevronRight size={18} />
                     </Button>
                   </div>
@@ -121,30 +121,30 @@ const HowToUseGuide = () => {
               
               {/* Tips Section */}
               <div className="w-full md:w-2/3">
-                <h3 className="text-xl font-ghibli text-ghibli-forest mb-3">Getting Started</h3>
+                <h3 className="text-xl font-sans text-foreground mb-3">Getting Started</h3>
                 
-                <div className="relative p-4 bg-white/80 rounded-xl border border-ghibli-blue/30 min-h-[160px]">
+                <div className="relative p-4 bg-white/80 rounded-xl border border-border min-h-[160px]">
                   <div className="flex flex-col items-center">
-                    <h4 className="text-lg font-ghibli text-ghibli-blue mb-2">{tips[currentTip].title}</h4>
-                    <p className="text-ghibli-forest text-center mb-4">{tips[currentTip].description}</p>
+                    <h4 className="text-lg font-sans text-foreground mb-2">{tips[currentTip].title}</h4>
+                    <p className="text-foreground text-center mb-4">{tips[currentTip].description}</p>
                     
                     <div className="flex justify-center gap-2 mt-2">
                       {tips.map((_, index) => (
                         <div 
                           key={index} 
-                          className={`w-2 h-2 rounded-full ${index === currentTip ? 'bg-ghibli-blue' : 'bg-ghibli-blue/30'}`}
+                          className={`w-2 h-2 rounded-full ${index === currentTip ? 'bg-foreground' : 'bg-foreground/10'}`}
                         />
                       ))}
                     </div>
                   </div>
                   
                   <div className="absolute top-1/2 -left-3 transform -translate-y-1/2">
-                    <Button variant="ghost" size="icon" onClick={prevTip} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-ghibli-forest">
+                    <Button variant="ghost" size="icon" onClick={prevTip} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-foreground">
                       <ChevronLeft size={18} />
                     </Button>
                   </div>
                   <div className="absolute top-1/2 -right-3 transform -translate-y-1/2">
-                    <Button variant="ghost" size="icon" onClick={nextTip} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-ghibli-forest">
+                    <Button variant="ghost" size="icon" onClick={nextTip} className="rounded-full bg-white/80 hover:bg-white shadow-sm text-foreground">
                       <ChevronRight size={18} />
                     </Button>
                   </div>

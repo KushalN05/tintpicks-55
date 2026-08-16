@@ -15,7 +15,7 @@ interface HamburgerMenuProps {
 /* ── Section label ── */
 const SectionLabel = ({ label }: { label: string }) => (
   <div className="px-5 pt-6 pb-2">
-    <p className="text-[10px] font-bold uppercase tracking-widest text-ghibli-forest/40">
+    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
       {label}
     </p>
   </div>
@@ -42,18 +42,18 @@ const MenuRow = ({
       transition-colors duration-150 rounded-xl
       ${destructive
         ? 'text-red-500 hover:bg-red-50'
-        : 'text-ghibli-forest hover:bg-ghibli-blue/10'
+        : 'text-foreground hover:bg-foreground/10'
       }
     `}
   >
-    <Icon className={`h-4 w-4 shrink-0 ${destructive ? 'text-red-400' : 'text-ghibli-forest/50'}`} />
+    <Icon className={`h-4 w-4 shrink-0 ${destructive ? 'text-red-400' : 'text-muted-foreground'}`} />
     <span className="flex-1 text-left">{label}</span>
     {badge && (
-      <span className="text-[10px] font-bold uppercase tracking-wide bg-ghibli-cream text-ghibli-forest/50 px-2 py-0.5 rounded-full border border-ghibli-blue/20">
+      <span className="text-[10px] font-bold uppercase tracking-wide bg-muted text-muted-foreground px-2 py-0.5 rounded-full border border-border">
         {badge}
       </span>
     )}
-    {!destructive && !badge && <ChevronRight className="h-3.5 w-3.5 text-ghibli-forest/20" />}
+    {!destructive && !badge && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
   </button>
 );
 
@@ -99,7 +99,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
         id="hamburger-menu-btn"
         onClick={() => setIsOpen(true)}
         aria-label="Open menu"
-        className="flex items-center justify-center h-10 w-10 rounded-full text-ghibli-forest hover:bg-ghibli-blue/10 transition-colors duration-200"
+        className="flex items-center justify-center h-10 w-10 rounded-full text-foreground hover:bg-foreground/10 transition-colors duration-200"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -119,24 +119,24 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           <div
             className={`
               fixed top-0 right-0 z-[9999] h-full w-80
-              bg-white shadow-2xl border-l border-ghibli-blue/10
+              bg-white shadow-2xl border-l border-border
               flex flex-col
               transition-transform duration-300 ease-in-out
               ${isOpen ? 'translate-x-0' : 'translate-x-full'}
             `}
           >
             {/* ─ Header ─ */}
-            <div className="flex items-center justify-between px-5 py-5 border-b border-ghibli-blue/10">
+            <div className="flex items-center justify-between px-5 py-5 border-b border-border">
               <div>
-                <p className="font-bold text-ghibli-forest text-lg leading-tight font-ghibli">TintPicks</p>
-                <p className="text-xs text-ghibli-forest/40 mt-0.5">Your Color World 🎨</p>
+                <p className="font-bold text-foreground text-lg leading-tight font-sans">TintPicks</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Your Color World 🎨</p>
               </div>
               <button
                 onClick={close}
                 aria-label="Close menu"
-                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-ghibli-blue/10 transition-colors"
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-foreground/10 transition-colors"
               >
-                <X className="h-4 w-4 text-ghibli-forest/50" />
+                <X className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
 
@@ -165,7 +165,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 <form onSubmit={handleHexSubmit} className="space-y-2">
                   <div className="flex gap-2">
                     <div
-                      className="h-10 w-10 rounded-lg border border-ghibli-blue/20 shrink-0 transition-colors duration-200"
+                      className="h-10 w-10 rounded-lg border border-border shrink-0 transition-colors duration-200"
                       style={{
                         backgroundColor:
                           /^#?[0-9A-Fa-f]{3,6}$/.test(hexValue.trim())
@@ -180,13 +180,13 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                       value={hexValue}
                       onChange={(e) => { setHexValue(e.target.value); setHexError(''); }}
                       maxLength={7}
-                      className="flex-1 border border-ghibli-blue/20 rounded-lg px-3 py-2 text-sm text-ghibli-forest placeholder-ghibli-forest/30 bg-white focus:outline-none focus:ring-2 focus:ring-ghibli-blue/30 focus:border-ghibli-blue/40 transition"
+                      className="flex-1 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-muted-foreground bg-white focus:outline-none focus:ring-2 focus:ring-ring focus:border-border transition"
                     />
                   </div>
                   {hexError && <p className="text-xs text-red-500">{hexError}</p>}
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 gradient-brand text-white text-sm font-medium py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+                    className="w-full flex items-center justify-center gap-2  text-white text-sm font-medium py-2.5 rounded-lg hover:opacity-90 transition-opacity"
                   >
                     <Plus className="h-4 w-4" />
                     Add Color
@@ -206,7 +206,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             </div>
 
             {/* ─ Footer: Logout ─ */}
-            <div className="px-3 py-4 border-t border-ghibli-blue/10">
+            <div className="px-3 py-4 border-t border-border">
               <MenuRow
                 icon={LogOut}
                 label="Log Out"

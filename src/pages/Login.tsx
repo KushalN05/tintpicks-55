@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Cloud, Wind } from 'lucide-react';
-import BlobMascot from '@/components/BlobMascot';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,7 +23,7 @@ const Login = () => {
           .eq('id', session.user.id)
           .single();
         setAuthLoading(false);
-        navigate('/');
+        navigate('/app');
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
       }
@@ -39,37 +37,14 @@ const Login = () => {
           .select('*')
           .eq('id', session.user.id)
           .single();
-        navigate('/');
+        navigate('/app');
       }
     };
 
     checkSession();
 
-    // Floating clouds effect
-    const createCloud = () => {
-      const cloud = document.createElement('div');
-      cloud.classList.add('ghibli-cloud');
-      const size = Math.random() * 100 + 50;
-      cloud.style.width = `${size}px`;
-      cloud.style.height = `${size / 2}px`;
-      const posX = Math.random() * window.innerWidth;
-      const posY = Math.random() * (window.innerHeight / 2);
-      cloud.style.left = `${posX}px`;
-      cloud.style.top = `${posY}px`;
-      document.querySelector('.clouds-container')?.appendChild(cloud);
-      setTimeout(() => {
-        cloud.style.left = `${posX + 300}px`;
-        cloud.style.opacity = '0';
-        setTimeout(() => cloud.remove(), 20000);
-      }, 100);
-    };
-
-    const cloudInterval = setInterval(createCloud, 5000);
-    for (let i = 0; i < 5; i++) createCloud();
-
     return () => {
       subscription.unsubscribe();
-      clearInterval(cloudInterval);
     };
   }, [navigate]);
 
@@ -90,115 +65,54 @@ const Login = () => {
   // Loading screen during auth processing
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-ghibli-gradient relative overflow-hidden flex items-center justify-center px-4">
-        <div className="clouds-container absolute inset-0 pointer-events-none overflow-hidden" />
-        <div
-          className="absolute inset-0 pointer-events-none opacity-10"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(122, 160, 196, 0.2) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(122, 160, 196, 0.2) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-          }}
-        />
-        <div className="flex flex-col items-center text-center">
-          <div className="w-32 h-32 mb-6 relative animate-float">
-            <div className="flex justify-center">
-              <BlobMascot size="lg" mood={authPhase === 'signup' ? 'excited' : 'happy'} className="relative z-10" />
-            </div>
-            <div className="absolute inset-0 bg-white/60 rounded-full blur-xl -z-0" />
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="flex flex-col items-center text-center gap-6">
+          <div className="w-12 h-12 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-2">
+              {authPhase === 'signup' ? 'Creating your account' : 'Welcome back'}
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              {authMessage || (authPhase === 'signup'
+                ? 'Setting up your profile...'
+                : 'Loading your preferences...')}
+            </p>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-ghibli-forest mb-3 font-ghibli">
-            {authPhase === 'signup' ? 'Creating your account' : 'Welcome back'}
-          </h1>
-          <p className="text-lg text-ghibli-forest/80 max-w-xl">
-            {authMessage || (authPhase === 'signup'
-              ? 'Setting up your personalized color journey...'
-              : 'Loading your palettes and preferences...')}
-          </p>
         </div>
       </div>
     );
   }
 
-  // Main login screen — centered, single-screen
+  // Main login screen
   return (
-    <div className="min-h-screen bg-ghibli-gradient relative overflow-hidden flex items-center justify-center px-4">
-      {/* Clouds Container */}
-      <div className="clouds-container absolute inset-0 pointer-events-none overflow-hidden" />
-
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-10"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(122, 160, 196, 0.2) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(122, 160, 196, 0.2) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-        }}
-      />
-
-      {/* Floating decorative elements */}
-      <div className="absolute top-20 left-10 w-20 h-20 text-ghibli-blue/30 animate-float">
-        <Cloud size={80} />
-      </div>
-      <div
-        className="absolute bottom-20 right-10 w-20 h-20 text-ghibli-pink/30 animate-float"
-        style={{ animationDelay: '2s' }}
-      >
-        <Cloud size={60} />
-      </div>
-      <div className="absolute top-40 right-20 w-16 h-16 text-ghibli-purple/30 animate-sway">
-        <Wind size={60} />
-      </div>
-      <div
-        className="absolute bottom-40 left-20 w-12 h-12 text-ghibli-orange/20 animate-float"
-        style={{ animationDelay: '4s' }}
-      >
-        <Cloud size={48} />
-      </div>
-
-      {/* ───── Login Card ───── */}
-      <div
-        className="ghibli-card relative w-full max-w-md p-8 sm:p-10 text-center animate-scale-in"
-        style={{ transform: 'rotate(-1deg)' }}
-      >
-        {/* Shimmer accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl bg-ghibli-sunset shimmer-effect overflow-hidden" />
-
-        {/* Mascot */}
-        <div className="flex justify-center mb-2">
-          <div className="relative animate-float">
-            <BlobMascot size="lg" mood="happy" className="relative z-10" />
-            <div className="absolute inset-0 bg-white/60 rounded-full blur-xl -z-0" />
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      {/* Login Card */}
+      <div className="w-full max-w-md text-center">
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <div className="w-12 h-12 bg-foreground rounded-md flex items-center justify-center">
+            <span className="text-background font-bold text-2xl">T</span>
           </div>
         </div>
 
-        {/* Greeting pill */}
-        <div className="inline-flex items-center gap-1.5 bg-white/60 backdrop-blur-sm px-4 py-1 rounded-full text-sm font-medium text-ghibli-forest border border-ghibli-blue/30 shadow-sm mb-5">
-          <span className="animate-wiggle inline-block">👋</span> Meet Tinti!
-        </div>
-
         {/* Headline */}
-        <h1 className="text-3xl sm:text-4xl font-bold text-ghibli-forest mb-3 font-ghibli leading-tight">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tighter text-foreground mb-3">
           Welcome to TintPicks
         </h1>
-        <p className="text-ghibli-forest/70 mb-8 max-w-xs mx-auto leading-relaxed">
-          Discover complementary colors that make your wardrobe pop. Sign in to get started.
+        <p className="text-muted-foreground mb-10 max-w-xs mx-auto leading-relaxed text-sm">
+          A precision styling tool for building cohesive, color-matched outfits.
         </p>
 
-        {/* ── Google Sign-In Button ── */}
+        {/* Google Sign-In Button */}
         <button
           id="google-sign-in"
           onClick={handleGoogleSignIn}
           disabled={googleLoading}
-          className="group relative w-full flex items-center justify-center gap-3 rounded-full px-6 py-3.5
-                     bg-white border border-ghibli-blue/20 shadow-md
-                     hover:shadow-lg hover:border-ghibli-blue/40 hover:scale-[1.02]
+          className="group relative w-full flex items-center justify-center gap-3 rounded-md px-6 py-3.5
+                     bg-card border border-border shadow-sm
+                     hover:shadow-md hover:border-foreground/20
                      active:scale-[0.98]
-                     transition-all duration-300 ease-out
+                     transition-all duration-200 ease-out
                      disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {/* Google "G" icon */}
@@ -221,23 +135,20 @@ const Login = () => {
             />
           </svg>
 
-          <span className="text-[15px] font-medium text-gray-700 group-hover:text-ghibli-forest transition-colors">
+          <span className="text-sm font-medium text-foreground">
             {googleLoading ? 'Redirecting…' : 'Sign in with Google'}
           </span>
-
-          {/* Subtle glow on hover */}
-          <div className="absolute inset-0 rounded-full bg-ghibli-blue/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         </button>
 
         {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px bg-ghibli-blue/15" />
-          <span className="text-xs text-ghibli-forest/40 uppercase tracking-wider font-medium">secure login</span>
-          <div className="flex-1 h-px bg-ghibli-blue/15" />
+        <div className="flex items-center gap-3 my-8">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground uppercase tracking-widest font-medium">secure login</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* Trust signals */}
-        <p className="text-xs text-ghibli-forest/50 leading-relaxed">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           We use Google's secure authentication.
           <br />
           No passwords to remember — ever.

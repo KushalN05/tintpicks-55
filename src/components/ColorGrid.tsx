@@ -32,7 +32,7 @@ const ColorGrid = ({ colors, onShop }: { colors: Color[]; onShop: (color: string
         return (
           <div
             key={color.id ?? index}
-            className="ghibli-card group hover:translate-y-[-5px]"
+            className="minimal-card group hover:translate-y-[-5px]"
           >
             <div
               className="h-32 w-full rounded-t-xl"
@@ -40,7 +40,7 @@ const ColorGrid = ({ colors, onShop }: { colors: Color[]; onShop: (color: string
             />
             <div className="p-4">
               <div className="flex items-center">
-                <p className="text-ghibli-forest font-medium font-ghibli">{colorName}</p>
+                <p className="text-foreground font-medium font-sans">{colorName}</p>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
@@ -56,12 +56,12 @@ const ColorGrid = ({ colors, onShop }: { colors: Color[]; onShop: (color: string
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <p className="text-ghibli-forest/70 text-sm mb-3">{color.hex}</p>
+              <p className="text-muted-foreground text-sm mb-3">{color.hex}</p>
               <div className="flex flex-col space-y-2">
                 <Button
                   variant="outline"
                   size={isMobile ? "sm" : "default"}
-                  className="w-full border-ghibli-blue text-ghibli-blue hover:bg-ghibli-blue/10 rounded-full"
+                  className="w-full border-border text-foreground hover:bg-foreground/10 rounded-full"
                   onClick={() => onShop(color.hex)}
                 >
                   <ShoppingBag className="mr-2 h-4 w-4" />
@@ -70,7 +70,7 @@ const ColorGrid = ({ colors, onShop }: { colors: Color[]; onShop: (color: string
                 <Button
                   variant="outline"
                   size={isMobile ? "sm" : "default"}
-                  className="w-full border-ghibli-green text-ghibli-green hover:bg-ghibli-green/10 rounded-full"
+                  className="w-full border-border text-foreground hover:bg-foreground/10 rounded-full"
                   onClick={() => handleViewComplementary(color.hex)}
                 >
                   <Palette className="mr-2 h-4 w-4" />

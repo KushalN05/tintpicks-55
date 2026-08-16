@@ -123,8 +123,8 @@ const ColorSwiper: React.FC<ColorSwiperProps> = ({ onFirstColorSave, onColorSave
 
   return (
     <div className="flex flex-col items-center mt-8 mb-12">
-      <h2 className="text-2xl font-ghibli text-ghibli-forest mb-1">Discover Colors</h2>
-      <p className="mb-4 text-ghibli-forest/75 text-sm md:text-base max-w-md text-center">
+      <h2 className="text-2xl font-sans text-foreground mb-1">Discover Colors</h2>
+      <p className="mb-4 text-muted-foreground text-sm md:text-base max-w-md text-center">
         Swipe to like or dismiss a color. Save your favorites!
       </p>
       <div className="relative flex flex-col items-center w-full max-w-xs">
@@ -144,15 +144,15 @@ const ColorSwiper: React.FC<ColorSwiperProps> = ({ onFirstColorSave, onColorSave
           >
             {/* Color swatch card */}
             <div
-              className="rounded-3xl border-2 border-ghibli-blue/40 shadow-xl overflow-hidden w-64 h-80 flex flex-col"
+              className="rounded-3xl border-2 border-border shadow-xl overflow-hidden w-64 h-80 flex flex-col"
               style={{ backgroundColor: current.hex }}
             >
               <div className="flex-1" />
-              <div className="p-5 bg-white/80 backdrop-blur-md rounded-b-3xl border-t border-ghibli-blue/10">
+              <div className="p-5 bg-white/80 backdrop-blur-md rounded-b-3xl border-t border-border">
                 <div className="flex flex-col items-center">
-                  <span className="text-xl font-bold text-ghibli-forest mb-1">{current.name}</span>
-                  <span className="text-base capitalize text-ghibli-blue/80 mb-1">{current.category ?? 'General'}</span>
-                  <span className="font-mono text-ghibli-forest/70">{current.hex}</span>
+                  <span className="text-xl font-bold text-foreground mb-1">{current.name}</span>
+                  <span className="text-base capitalize text-muted-foreground mb-1">{current.category ?? 'General'}</span>
+                  <span className="font-mono text-muted-foreground">{current.hex}</span>
                 </div>
               </div>
             </div>
@@ -164,7 +164,7 @@ const ColorSwiper: React.FC<ColorSwiperProps> = ({ onFirstColorSave, onColorSave
           </motion.div>
         </AnimatePresence>
       </div>
-      <h3 className="text-lg font-semibold text-ghibli-forest mt-10 mb-3">Recommended</h3>
+      <h3 className="text-lg font-semibold text-foreground mt-10 mb-3">Recommended</h3>
       <RecommendationList recommendations={recommendations} />
     </div>
   );

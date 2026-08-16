@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Camera, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,6 @@ const ColorCapture = ({
   const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
 
-  // Utility to stop the camera
   const stopCamera = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -31,7 +29,6 @@ const ColorCapture = ({
     setIsStreaming(false);
   };
 
-  // Effect: start the camera when component mounts or user retries
   useEffect(() => {
     let isMounted = true;
     let hintTimer: ReturnType<typeof setTimeout>;
@@ -43,7 +40,6 @@ const ColorCapture = ({
         });
         
         if (!isMounted) {
-          // If component unmounted while waiting for permissions, stop the stream immediately
           stream.getTracks().forEach(t => t.stop());
           return;
         }
@@ -54,7 +50,7 @@ const ColorCapture = ({
           setIsStreaming(true);
           setShowTroubleHint(false);
         }
-        // Show trouble hint if camera doesn't load after ~2s
+        
         hintTimer = setTimeout(() => {
           if (
             isMounted && 
@@ -84,8 +80,6 @@ const ColorCapture = ({
       stopCamera();
       if (hintTimer) clearTimeout(hintTimer);
     };
-    // note: this effect depends on retryCount, so retry reloads cam
-    // Using empty dependency array (except retryCount) to prevent infinite re-renders from inline props
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [retryCount]);
 
@@ -94,7 +88,6 @@ const ColorCapture = ({
     onClose();
   };
 
-  // Let user retry starting the camera on demand
   const handleRetryCamera = () => {
     stopCamera();
     setRetryCount((n) => n + 1);
@@ -117,7 +110,7 @@ const ColorCapture = ({
           .toString(16)
           .padStart(2, '0')}${pixel[1]
           .toString(16)
-          .padStart(2, '0')}${pixel[2].toString(16).padStart(2, '0')}`;
+          .padStart(2, '0')}${pixel[2].toString(16).padStart(2, '0')}`.toUpperCase();
 
         stopCamera();
         onCapture(hex);
@@ -126,7 +119,7 @@ const ColorCapture = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black flex flex-col">
+    <div className="fixed inset-0 bg-black flex flex-col z-50 animate-fade-in">
       <div className="relative flex-1">
         <video
           ref={videoRef}
@@ -136,50 +129,50 @@ const ColorCapture = ({
         />
         <canvas ref={canvasRef} className="hidden" />
 
-        {/* Crosshair */}
+        {/* Minimalist Crosshair */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-20 h-20 border-2 border-white rounded-full flex items-center justify-center">
-            <div className="w-1 h-1 bg-white rounded-full" />
+          <div className="w-16 h-16 border border-white/50 rounded-full flex items-center justify-center">
+            <div className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_4px_rgba(0,0,0,0.5)]" />
           </div>
         </div>
 
         {/* Camera controls */}
-        <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4">
+        <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-6 bg-gradient-to-b from-black/50 to-transparent">
           <Button
-            className="bg-white text-black hover:bg-gray-200 rounded-full w-16 h-16 flex items-center justify-center"
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-white/20 rounded-full"
+            onClick={handleClose}
+          >
+            <X className="h-6 w-6" />
+          </Button>
+        </div>
+
+        <div className="absolute bottom-12 left-0 right-0 flex justify-center items-center pointer-events-auto">
+          <Button
+            className="bg-white text-black hover:bg-gray-200 rounded-full w-20 h-20 flex items-center justify-center shadow-lg"
             onClick={captureColor}
             disabled={!isStreaming}
           >
             <Camera className="h-8 w-8" />
           </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="bg-black/20 hover:bg-black/40"
-            onClick={handleClose}
-          >
-            <X className="h-6 w-6 text-white" />
-          </Button>
         </div>
 
         {/* Help: Trouble loading camera? */}
-        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center mb-8 space-y-2 pointer-events-auto">
-          <span className="text-white/70 text-xs text-center px-4">
-            Aim the circle at a color, then tap the camera button to pick it.
-          </span>
+        <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center space-y-2 pointer-events-auto">
           {showTroubleHint && (
-            <div className="flex flex-col items-center space-y-2 mt-2">
-              <span className="text-yellow-200 text-xs text-center">
-                Having trouble? If the camera appears black or stuck, you can retry below!
+            <div className="flex flex-col items-center space-y-2 mt-2 bg-black/40 px-4 py-2 rounded-xl backdrop-blur-sm">
+              <span className="text-white/90 text-xs text-center">
+                Having trouble?
               </span>
               <Button
                 size="sm"
-                className="flex items-center gap-1 bg-white/80 text-black hover:bg-white font-semibold px-4 py-2 mt-1 rounded-full"
+                variant="secondary"
+                className="flex items-center gap-1 rounded-full h-8 text-xs font-medium"
                 onClick={handleRetryCamera}
                 type="button"
               >
-                <RefreshCw className="inline h-4 w-4 mr-1" /> Retry Camera
+                <RefreshCw className="inline h-3 w-3 mr-1" /> Retry Camera
               </Button>
             </div>
           )}

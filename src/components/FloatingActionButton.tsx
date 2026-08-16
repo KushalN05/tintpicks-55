@@ -130,7 +130,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
         <Button
           size="lg"
           onClick={toggleMenu}
-          className="h-14 w-14 rounded-full gradient-brand hover:scale-110 shadow-lg hover:shadow-xl transition-all duration-300 group brand-glow"
+          className="h-14 w-14 rounded-full  hover:scale-110 shadow-lg hover:shadow-xl transition-all duration-300 group "
         >
           <motion.div
             variants={mainButtonVariants}

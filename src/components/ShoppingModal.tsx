@@ -75,13 +75,13 @@ const SkeletonCard = () => (
 
 const EmptyState = () => (
   <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-    <div className="w-16 h-16 bg-ghibli-cream/30 rounded-full flex items-center justify-center mb-6">
-      <PackageX className="h-8 w-8 text-ghibli-forest/30" />
+    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6">
+      <PackageX className="h-8 w-8 text-muted-foreground" />
     </div>
-    <h3 className="text-base font-ghibli uppercase tracking-widest text-ghibli-forest mb-3">
+    <h3 className="text-base font-sans uppercase tracking-widest text-foreground mb-3">
       No Items Found
     </h3>
-    <p className="text-sm text-ghibli-forest/60 max-w-[240px] leading-relaxed">
+    <p className="text-sm text-muted-foreground max-w-[240px] leading-relaxed">
       We couldn't find exact matches. Try adjusting the category or gender filters to explore more.
     </p>
   </div>
@@ -128,18 +128,18 @@ const ShoppingModal = ({
         className="w-full sm:max-w-md lg:max-w-lg bg-white p-0 border-l-0 shadow-2xl overflow-y-auto"
       >
         {/* Glassmorphism Sticky Header */}
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-ghibli-cream/40 px-6 py-6 transition-all">
+        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-border px-6 py-6 transition-all">
           <SheetHeader className="gap-0 mb-6">
             <div className="flex flex-col items-center gap-4 text-center">
               <div
-                className="w-12 h-12 rounded-full shadow-sm border border-ghibli-cream/50"
+                className="w-12 h-12 rounded-full shadow-sm border border-border"
                 style={{ backgroundColor: color }}
               />
               <div>
-                <SheetTitle className="text-ghibli-forest font-ghibli text-xl tracking-wide">
+                <SheetTitle className="text-foreground font-sans text-xl tracking-wide">
                   Shop {colorName}
                 </SheetTitle>
-                <SheetDescription className="text-xs uppercase tracking-widest text-ghibli-forest/50 mt-1.5">
+                <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground mt-1.5">
                   {color} · {safeProductsCount} items
                 </SheetDescription>
               </div>
@@ -149,7 +149,7 @@ const ShoppingModal = ({
           {/* Minimalist Filters */}
           <div className="flex gap-3">
             <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger className="flex-1 bg-transparent border-t-0 border-x-0 border-b border-ghibli-cream/50 rounded-none focus:ring-0 focus:border-ghibli-forest px-1 shadow-none">
+              <SelectTrigger className="flex-1 bg-transparent border-t-0 border-x-0 border-b border-border rounded-none focus:ring-0 focus:border-foreground px-1 shadow-none">
                 <SelectValue placeholder="Gender" />
               </SelectTrigger>
               <SelectContent>
@@ -161,7 +161,7 @@ const ShoppingModal = ({
             </Select>
 
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="flex-1 bg-transparent border-t-0 border-x-0 border-b border-ghibli-cream/50 rounded-none focus:ring-0 focus:border-ghibli-forest px-1 shadow-none">
+              <SelectTrigger className="flex-1 bg-transparent border-t-0 border-x-0 border-b border-border rounded-none focus:ring-0 focus:border-foreground px-1 shadow-none">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>

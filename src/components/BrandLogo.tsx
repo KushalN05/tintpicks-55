@@ -91,8 +91,8 @@ const BrandLogo: React.FC<BrandLogoProps> = ({
           />
           
           {/* Glow effects */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-400/30 to-pink-400/30 rounded-full blur-xl -z-10 animate-pulse-glow"></div>
-          <div className="absolute inset-0 bg-gradient-brand rounded-full blur-2xl opacity-20 -z-20 animate-float-gentle"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400/30 to-pink-400/30 rounded-full blur-xl -z-10 animate-pulse"></div>
+          <div className="absolute inset-0 bg- rounded-full blur-2xl opacity-20 -z-20 animate-fade-in-gentle"></div>
         </div>
 
         {/* Floating sparkles */}
@@ -100,7 +100,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({
           className={`absolute -top-1 -right-1 text-yellow-400 ${sparkle}`}
           variants={sparkleVariants}
         >
-          <Sparkles className="w-full h-full animate-sparkle" />
+          <Sparkles className="w-full h-full animate-fade-in" />
         </motion.div>
         
         <motion.div 
@@ -108,7 +108,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({
           variants={sparkleVariants}
           style={{ animationDelay: '1s' }}
         >
-          <Sparkles className="w-full h-full animate-sparkle" />
+          <Sparkles className="w-full h-full animate-fade-in" />
         </motion.div>
       </motion.div>
 
@@ -118,7 +118,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({
           className="text-center"
           variants={textVariants}
         >
-          <h1 className={`font-ghibli font-bold bg-gradient-brand bg-clip-text text-transparent ${text} leading-tight`}>
+          <h1 className={`font-sans font-bold bg- bg-clip-text text-transparent ${text} leading-tight`}>
             TintPicks
           </h1>
           <p className="text-xs text-muted-foreground font-medium tracking-wide opacity-80">

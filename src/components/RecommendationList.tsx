@@ -23,9 +23,9 @@ const RecommendationList: React.FC<RecommendationListProps> = ({ recommendations
           style={{ backgroundColor: color.hex }}
         />
         <div className="w-full flex-1 flex flex-col items-center">
-          <p className="text-xs font-semibold truncate text-ghibli-forest">{color.name}</p>
-          <p className="text-[10px] text-ghibli-blue/70 capitalize">{color.category || ''}</p>
-          <span className="mt-1 text-[11px] font-mono text-ghibli-forest/40">{color.hex}</span>
+          <p className="text-xs font-semibold truncate text-foreground">{color.name}</p>
+          <p className="text-[10px] text-muted-foreground capitalize">{color.category || ''}</p>
+          <span className="mt-1 text-[11px] font-mono text-muted-foreground">{color.hex}</span>
         </div>
       </div>
     ))}

@@ -183,14 +183,14 @@ const AppTour = ({ isVisible, onComplete, userName }: AppTourProps) => {
           className="fixed z-50 pointer-events-auto"
           style={position}
         >
-          <div className="bg-white rounded-xl shadow-xl border border-ghibli-blue/20 p-6 max-w-sm">
+          <div className="bg-white rounded-xl shadow-xl border border-border p-6 max-w-sm">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 {currentStepData.icon && (
-                  <div className="text-ghibli-blue">{currentStepData.icon}</div>
+                  <div className="text-foreground">{currentStepData.icon}</div>
                 )}
-                <h3 className="font-bold text-ghibli-forest text-lg">
+                <h3 className="font-bold text-foreground text-lg">
                   {currentStepData.title}
                 </h3>
               </div>
@@ -198,14 +198,14 @@ const AppTour = ({ isVisible, onComplete, userName }: AppTourProps) => {
                 variant="ghost"
                 size="sm"
                 onClick={handleComplete}
-                className="text-ghibli-forest hover:bg-ghibli-cream/50"
+                className="text-foreground hover:bg-muted"
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
             {/* Content */}
-            <p className="text-ghibli-forest/70 mb-6">
+            <p className="text-muted-foreground mb-6">
               {currentStep === 0 
                 ? `Hi ${userName}! Let me show you around TintPicks. ${currentStepData.description}`
                 : currentStepData.description
@@ -214,13 +214,13 @@ const AppTour = ({ isVisible, onComplete, userName }: AppTourProps) => {
 
             {/* Progress */}
             <div className="flex items-center space-x-2 mb-4">
-              <div className="flex-1 bg-ghibli-cream rounded-full h-2">
+              <div className="flex-1 bg-muted rounded-full h-2">
                 <div
-                  className="bg-ghibli-blue h-2 rounded-full transition-all duration-300"
+                  className="bg-foreground h-2 rounded-full transition-all duration-300"
                   style={{ width: `${((currentStep + 1) / tourSteps.length) * 100}%` }}
                 />
               </div>
-              <span className="text-sm text-ghibli-forest/60">
+              <span className="text-sm text-muted-foreground">
                 {currentStep + 1}/{tourSteps.length}
               </span>
             </div>
@@ -232,7 +232,7 @@ const AppTour = ({ isVisible, onComplete, userName }: AppTourProps) => {
                 size="sm"
                 onClick={handlePrevious}
                 disabled={currentStep === 0}
-                className="border-ghibli-blue/30 text-ghibli-forest hover:bg-ghibli-cream/50"
+                className="border-border text-foreground hover:bg-muted"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Previous
@@ -241,7 +241,7 @@ const AppTour = ({ isVisible, onComplete, userName }: AppTourProps) => {
               <Button
                 size="sm"
                 onClick={handleNext}
-                className="bg-ghibli-blue text-white hover:bg-ghibli-blue/90"
+                className="bg-foreground text-white hover:bg-foreground/10"
               >
                 {currentStep === tourSteps.length - 1 ? 'Finish' : 'Next'}
                 <ArrowRight className="w-4 h-4 ml-1" />
@@ -251,7 +251,7 @@ const AppTour = ({ isVisible, onComplete, userName }: AppTourProps) => {
 
           {/* Arrow pointer */}
           <div
-            className="absolute w-3 h-3 bg-white border-l border-t border-ghibli-blue/20 transform rotate-45"
+            className="absolute w-3 h-3 bg-white border-l border-t border-border transform rotate-45"
             style={{
               [currentStepData.position === 'top' ? 'bottom' : 'top']: '-6px',
               left: '50%',

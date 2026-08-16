@@ -35,8 +35,8 @@ const FAQ = () => {
   ];
 
   return (
-    <div className="ghibli-card p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold text-ghibli-forest mb-6 text-center">
+    <div className="minimal-card p-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
         Frequently Asked Questions
       </h2>
       <Accordion type="single" collapsible className="space-y-2">
@@ -44,12 +44,12 @@ const FAQ = () => {
           <AccordionItem 
             key={index} 
             value={`item-${index}`}
-            className="border border-ghibli-blue/20 rounded-lg px-4"
+            className="border border-border rounded-lg px-4"
           >
-            <AccordionTrigger className="text-left text-ghibli-forest hover:text-ghibli-blue">
+            <AccordionTrigger className="text-left text-foreground hover:text-foreground">
               {faq.question}
             </AccordionTrigger>
-            <AccordionContent className="text-ghibli-forest/80 leading-relaxed">
+            <AccordionContent className="text-muted-foreground leading-relaxed">
               {faq.answer}
             </AccordionContent>
           </AccordionItem>

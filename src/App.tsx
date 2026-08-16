@@ -7,8 +7,8 @@ import { SessionContextProvider, useSessionContext } from '@supabase/auth-helper
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import LandingPage from "./pages/LandingPage";
 import React from "react";
-import BlobMascot from "@/components/BlobMascot";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const OnboardingLazy = React.lazy(() => import("./pages/Onboarding"));
@@ -24,12 +24,8 @@ const RequireAuth = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-ghibli-gradient flex flex-col items-center justify-center">
-        <div className="w-32 h-32 relative animate-float mb-6">
-          <div className="absolute inset-0 bg-white/60 rounded-full blur-xl -z-0" />
-          <BlobMascot size="lg" mood="happy" className="relative z-10" />
-        </div>
-        <div className="brand-glow animate-pulse-glow w-16 h-2 bg-ghibli-blue/50 rounded-full" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-foreground border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -49,18 +45,16 @@ const RedirectIfAuthed = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-ghibli-gradient flex flex-col items-center justify-center">
-        <div className="w-32 h-32 relative animate-float mb-6">
-          <div className="absolute inset-0 bg-white/60 rounded-full blur-xl -z-0" />
-          <BlobMascot size="lg" mood="happy" className="relative z-10" />
-        </div>
-        <div className="brand-glow animate-pulse-glow w-16 h-2 bg-ghibli-blue/50 rounded-full" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-foreground border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  // If logged in already, Login.tsx's own checkSession will handle routing
-  // to / or /onboarding, so we let it render.
+  if (session) {
+    return <Navigate to="/app" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -74,6 +68,14 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               {/* Public route */}
+              <Route
+                path="/"
+                element={
+                  <RedirectIfAuthed>
+                    <LandingPage />
+                  </RedirectIfAuthed>
+                }
+              />
               <Route
                 path="/login"
                 element={
@@ -93,11 +95,11 @@ const App = () => (
                     </React.Suspense>
                   }
                 />
-                <Route path="/" element={<Index />} />
+                <Route path="/app" element={<Index />} />
               </Route>
 
-              {/* Catch-all → login */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              {/* Catch-all → root */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

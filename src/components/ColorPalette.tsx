@@ -100,7 +100,7 @@ const ColorPalette = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ghibli-blue"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-border"></div>
       </div>
     );
   }
@@ -108,9 +108,9 @@ const ColorPalette = () => {
   if (savedColors.length === 0) {
     return (
       <div className="text-center p-8">
-        <Palette className="h-12 w-12 text-ghibli-blue/50 mx-auto mb-4" />
-        <h3 className="text-xl font-medium text-ghibli-forest">Your palette is empty</h3>
-        <p className="text-ghibli-forest/70 mt-2">
+        <Palette className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-xl font-medium text-foreground">Your palette is empty</h3>
+        <p className="text-muted-foreground mt-2">
           Save colors from the color swiper or color grid to build your palette
         </p>
       </div>
@@ -119,15 +119,15 @@ const ColorPalette = () => {
 
   return (
     <div className="my-8">
-      <h2 className="text-2xl font-ghibli text-ghibli-forest mb-6">Your Color Palette</h2>
+      <h2 className="text-2xl font-sans text-foreground mb-6">Your Color Palette</h2>
       
-      <Card className="border border-ghibli-blue/20">
+      <Card className="border border-border">
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <CardTitle className="text-lg">Saved Colors ({savedColors.length})</CardTitle>
             
             <div className="relative w-full sm:w-auto max-w-xs">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ghibli-forest/50" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search colors..." 
                 className="pl-9 pr-4 py-2 w-full"
@@ -139,7 +139,7 @@ const ColorPalette = () => {
         </CardHeader>
         <CardContent>
           {filteredColors.length === 0 ? (
-            <p className="text-center py-6 text-ghibli-forest/70">No colors match your search</p>
+            <p className="text-center py-6 text-muted-foreground">No colors match your search</p>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
               {filteredColors.map((color) => (

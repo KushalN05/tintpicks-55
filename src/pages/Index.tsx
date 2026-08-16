@@ -1,44 +1,22 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
-import React from "react";
 import ColorCapture from "@/components/ColorCapture";
-import ShoppingModal from "@/components/ShoppingModal";
-import UserProfileInitializer from "@/components/UserProfileInitializer";
-import YayLoader from "@/components/YayLoader";
-import GhibliFloatingElements from "@/components/home/GhibliFloatingElements";
-import AppHeaderSection from "@/components/home/AppHeaderSection";
-import MascotSection from "@/components/home/MascotSection";
-import ColorTabs from "@/components/home/ColorTabs";
-import ParticleSystem from "@/components/ParticleSystem";
+import FashionStylingBoard from "@/components/FashionStylingBoard";
+import { Button } from "@/components/ui/button";
+import { Camera, LogOut } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
-import FloatingActionButton from "@/components/FloatingActionButton";
 
 const Index = () => {
-  const [showTour, setShowTour] = useState(false);
   const [userName, setUserName] = useState("");
   const [userProfile, setUserProfile] = useState<any>(null);
   
   const {
     showCamera,
     setShowCamera,
-    showShoppingModal,
-    setShowShoppingModal,
-    selectedColor,
-    savedColors,
-    setSavedColors,
-    mascotMood,
-    activeTab,
-    setActiveTab,
-    showYay,
-    handleShowYay,
-    handleColorCapture,
-    handleColorAdd,
-    handleClearColors,
     handleLogout,
-    handleShop,
-    handleColorSaveFromDiscover,
   } = useHomePage();
+
+  const [capturedColor, setCapturedColor] = useState<string | null>(null);
   
   useEffect(() => {
     loadUserProfile();
@@ -64,94 +42,51 @@ const Index = () => {
     }
   };
 
-  const handleTourComplete = async () => {
-    setShowTour(false);
-    if (userProfile && !userProfile.onboarding_completed) {
-      setUserProfile({ ...userProfile, onboarding_completed: true });
-      await supabase
-        .from('profiles')
-        .update({ onboarding_completed: true })
-        .eq('id', userProfile.id);
-    }
+  const handleCapture = (hex: string) => {
+    setCapturedColor(hex);
+    setShowCamera(false);
   };
 
-  const tourSteps: TourStep[] = [
-    { targetId: 'tour-camera', text: "Hi, I'm Tinti! Tap here to scan a color you love." },
-    { targetId: 'tour-harmonies', text: "I'll instantly show you perfect matching colors!" },
-    { targetId: 'hamburger-menu-btn', text: "Open the menu to add Hex codes and see your Saved Palettes!" },
-  ];
-
   return (
-    <div className="min-h-screen bg-ghibli-gradient relative">
-      {/* Tour — for new users OR manual replay from hamburger menu */}
-      {(userProfile?.onboarding_completed === false || showTour) && (
-        <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />
-      )}
-      
-      {/* Main Content */}
-      <div className="min-h-screen relative overflow-x-hidden">
-        <YayLoader show={showYay} />
-        <ParticleSystem trigger={showYay} />
-        <GhibliFloatingElements />
+    <div className="min-h-screen bg-background text-foreground relative flex flex-col">
+      {/* Sleek Minimalist Header */}
+      <header className="w-full border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-foreground rounded-sm flex items-center justify-center">
+              <span className="text-background font-bold text-lg">T</span>
+            </div>
+            <span className="font-semibold text-lg tracking-tight">TintPicks</span>
+          </div>
 
-        <UserProfileInitializer onColorsLoaded={setSavedColors} />
+          <div className="flex items-center gap-4">
+            {userName && <span className="text-sm font-medium text-muted-foreground">Hello, {userName}</span>}
+            <Button variant="ghost" size="icon" onClick={() => setShowCamera(true)} className="rounded-full">
+              <Camera className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="rounded-full">
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </header>
 
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
         {showCamera ? (
-          <ColorCapture onCapture={handleColorCapture} onClose={() => setShowCamera(false)} />
+          <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
         ) : (
-          <>
-            <AppHeaderSection
-              userName={userName}
-              userProfile={userProfile}
-              onCameraClick={() => setShowCamera(true)}
-              onLogout={handleLogout}
-              onColorAdd={handleColorAdd}
-              onSavedPaletteClick={() => setActiveTab('palette')}
-              onStartTour={() => setShowTour(true)}
-            />
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="py-6 md:py-4 flex justify-center animate-fade-in">
-                <div className="animate-scale-in">
-                  <MascotSection mascotMood={mascotMood} />
-                </div>
-              </div>
+          <div className="w-full animate-fade-in">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4">Style Architect</h1>
+              <p className="text-muted-foreground max-w-lg mx-auto">
+                Build a cohesive look. Tap the camera to scan a color from real life, or anchor a layer to begin.
+              </p>
             </div>
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 animate-fade-in">
-              <div className="color-grid">
-                <ColorTabs
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  savedColors={savedColors}
-                  onShop={handleShop}
-                  onColorAdd={handleColorAdd}
-                  onShowYay={handleShowYay}
-                  onColorSaveFromDiscover={handleColorSaveFromDiscover}
-                />
-              </div>
-            </div>
-
-            <div className="recommendations">
-              {/* Recommendations section placeholder */}
-            </div>
-
-            <div className="shopping-section">
-              <ShoppingModal
-                isOpen={showShoppingModal}
-                onClose={() => setShowShoppingModal(false)}
-                color={selectedColor}
-              />
-            </div>
-            
-            <FloatingActionButton 
-              onCameraClick={() => setShowCamera(true)}
-              onPaletteClick={() => setActiveTab('palette')}
-              className="fixed bottom-6 right-6 z-40"
-            />
-          </>
+            <FashionStylingBoard capturedColor={capturedColor} />
+          </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
