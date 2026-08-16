@@ -20,39 +20,41 @@ const StylingMannequin: React.FC<StylingMannequinProps> = ({
   const renderTop = () => {
     const isActive = selectedLayer === 'top';
     const fill = colors.top || 'transparent';
-    if (equipped.top === 'shirt') return <Shirt className="absolute inset-0 cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('top')} />;
-    if (equipped.top === 'tshirt') return <TShirt className="absolute inset-0 cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('top')} />;
+    if (equipped.top === 'shirt') return <Shirt className="h-full aspect-[111.5/373] pointer-events-auto cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('top')} />;
+    if (equipped.top === 'tshirt') return <TShirt className="h-full aspect-[111.5/373] pointer-events-auto cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('top')} />;
     return null;
   };
 
   const renderBottom = () => {
     const isActive = selectedLayer === 'bottom';
     const fill = colors.bottom || 'transparent';
-    if (equipped.bottom === 'trousers') return <Trousers className="absolute inset-0 cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('bottom')} />;
-    if (equipped.bottom === 'shorts') return <Shorts className="absolute inset-0 cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('bottom')} />;
+    if (equipped.bottom === 'trousers') return <Trousers className="h-full aspect-[111.5/373] pointer-events-auto cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('bottom')} />;
+    if (equipped.bottom === 'shorts') return <Shorts className="h-full aspect-[111.5/373] pointer-events-auto cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('bottom')} />;
     return null;
   };
 
   const renderOuterwear = () => {
     const isActive = selectedLayer === 'outerwear';
     const fill = colors.outerwear || 'transparent';
-    if (equipped.outerwear === 'jacket') return <Jacket className="absolute inset-0 cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('outerwear')} />;
+    if (equipped.outerwear === 'jacket') return <Jacket className="h-full aspect-[111.5/373] pointer-events-auto cursor-pointer" fillColor={fill} isActive={isActive} onClick={() => onLayerClick('outerwear')} />;
     return null;
   };
 
   return (
-    <div className="relative w-full max-w-sm mx-auto aspect-[1/2] flex justify-center items-center">
+    <div className="relative w-[320px] h-[520px] mx-auto flex items-center justify-center bg-transparent">
       {/* Base Layer */}
-      <HumanoidBase className="absolute inset-0 pointer-events-none" />
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+        <HumanoidBase className="h-full aspect-[111.5/373]" />
+      </div>
       
-      {/* Garments (rendered in z-index order: bottom -> top -> outerwear) */}
-      <div className="absolute inset-0 z-10">
+      {/* Garments (rendered in z-index order) */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
         {renderBottom()}
       </div>
-      <div className="absolute inset-0 z-20">
+      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
         {renderTop()}
       </div>
-      <div className="absolute inset-0 z-30">
+      <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
         {renderOuterwear()}
       </div>
     </div>
