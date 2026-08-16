@@ -148,9 +148,9 @@ const ColorCapture = ({
           </Button>
         </div>
 
-        <div className="absolute bottom-12 left-0 right-0 flex justify-center items-center pointer-events-auto">
+        <div className="absolute bottom-24 pb-[env(safe-area-inset-bottom)] left-0 right-0 flex justify-center items-center pointer-events-auto">
           <Button
-            className="bg-white text-black hover:bg-gray-200 rounded-full w-20 h-20 flex items-center justify-center shadow-lg"
+            className="bg-white text-black hover:bg-gray-200 rounded-full w-20 h-20 flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             onClick={captureColor}
             disabled={!isStreaming}
           >

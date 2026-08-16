@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import ColorCapture from "@/components/ColorCapture";
 import FashionStylingBoard from "@/components/FashionStylingBoard";
 import { Button } from "@/components/ui/button";
-import { Camera, LogOut } from "lucide-react";
+import { Camera } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 const Index = () => {
   const [userName, setUserName] = useState("");
@@ -14,6 +15,7 @@ const Index = () => {
     showCamera,
     setShowCamera,
     handleLogout,
+    handleColorAdd,
   } = useHomePage();
 
   const [capturedColor, setCapturedColor] = useState<string | null>(null);
@@ -64,9 +66,12 @@ const Index = () => {
             <Button variant="ghost" size="icon" onClick={() => setShowCamera(true)} className="rounded-full">
               <Camera className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="rounded-full">
-              <LogOut className="h-5 w-5" />
-            </Button>
+            <HamburgerMenu
+              onLogout={handleLogout}
+              onColorAdd={handleColorAdd}
+              onSavedPaletteClick={() => {}}
+              onStartTour={() => {}}
+            />
           </div>
         </div>
       </header>

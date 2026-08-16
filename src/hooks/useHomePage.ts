@@ -54,7 +54,7 @@ export function useHomePage(): UseHomePageProps {
   // Ensure login
   React.useEffect(() => {
     if (!session) {
-      navigate("/login");
+      navigate("/");
     }
   }, [navigate, session]);
 
@@ -188,7 +188,7 @@ export function useHomePage(): UseHomePageProps {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/login");
+    navigate("/");
   };
 
   const handleShop = (color: string) => {

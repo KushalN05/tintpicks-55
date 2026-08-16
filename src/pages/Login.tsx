@@ -25,7 +25,7 @@ const Login = () => {
         setAuthLoading(false);
         navigate('/app');
       } else if (event === 'SIGNED_OUT') {
-        navigate('/login');
+        navigate('/');
       }
     });
 
