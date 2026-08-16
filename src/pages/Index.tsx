@@ -16,6 +16,8 @@ const Index = () => {
     setShowCamera,
     handleLogout,
     handleColorAdd,
+    handleColorCapture,
+    savedColors,
   } = useHomePage();
 
   const [capturedColor, setCapturedColor] = useState<string | null>(null);
@@ -44,7 +46,8 @@ const Index = () => {
     }
   };
 
-  const handleCapture = (hex: string) => {
+  const handleCapture = async (hex: string) => {
+    await handleColorCapture(hex);
     setCapturedColor(hex);
     setShowCamera(false);
   };
@@ -88,7 +91,10 @@ const Index = () => {
                 Build a cohesive look. Tap the camera to scan a color from real life, or anchor a layer to begin.
               </p>
             </div>
-            <FashionStylingBoard capturedColor={capturedColor} />
+            <FashionStylingBoard 
+              capturedColor={capturedColor} 
+              savedColors={savedColors} 
+            />
           </div>
         )}
       </main>

@@ -6,11 +6,13 @@ import { Label } from '@/components/ui/label';
 
 interface FashionStylingBoardProps {
   capturedColor: string | null;
+  savedColors?: { id: string; hex: string }[];
   onColorSave?: (hex: string) => void;
 }
 
 const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
   capturedColor,
+  savedColors = [],
   onColorSave,
 }) => {
   const [colors, setColors] = useState<Record<GarmentLayer, string>>({
@@ -27,46 +29,37 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
     shoes: false,
   });
 
-  const [anchoredLayer, setAnchoredLayer] = useState<GarmentLayer>('torso');
+  const [selectedLayer, setSelectedLayer] = useState<GarmentLayer>('torso');
   const [carouselColors, setCarouselColors] = useState<string[]>([]);
   
-  // When capturedColor changes, we prompt or immediately apply it.
-  // For this component, we'll assume it's applied to the anchored layer.
+  // When capturedColor changes, we apply it to the selected layer
   useEffect(() => {
     if (capturedColor) {
-      setColors(prev => ({ ...prev, [anchoredLayer]: capturedColor }));
+      setColors(prev => ({ ...prev, [selectedLayer]: capturedColor }));
     }
   }, [capturedColor]);
 
-  // Update carousel colors when the anchored layer's color changes
+  // Update carousel colors when the selected layer's color changes
   useEffect(() => {
-    const baseColor = colors[anchoredLayer];
+    const baseColor = colors[selectedLayer];
     const { monochromatic, analogous, neutrals } = generateFashionPalette(baseColor);
     
-    // Combine and shuffle or group them
+    // Combine and deduplicate
     const newColors = [...new Set([...monochromatic, ...analogous, ...neutrals])];
     setCarouselColors(newColors);
-  }, [colors, anchoredLayer]);
+  }, [colors, selectedLayer]);
 
   const handleLayerClick = (layer: GarmentLayer) => {
-    setAnchoredLayer(layer);
+    setSelectedLayer(layer);
   };
 
-  const handleCarouselColorClick = (hex: string) => {
-    // Apply to the opposite of the anchored layer, or just to whatever isn't anchored
-    // A simple logic: if torso is anchored, apply to legs. If legs, apply to torso.
-    let targetLayer: GarmentLayer = 'legs';
-    if (anchoredLayer === 'torso') targetLayer = 'legs';
-    if (anchoredLayer === 'legs') targetLayer = 'torso';
-    if (anchoredLayer === 'outerwear') targetLayer = 'torso';
-    if (anchoredLayer === 'shoes') targetLayer = 'legs';
-
-    // If the chosen target layer is not active, activate it
-    if (!activeLayers[targetLayer]) {
-      setActiveLayers(prev => ({ ...prev, [targetLayer]: true }));
+  const handleColorClick = (hex: string) => {
+    // If the chosen layer is not active, activate it
+    if (!activeLayers[selectedLayer]) {
+      setActiveLayers(prev => ({ ...prev, [selectedLayer]: true }));
     }
 
-    setColors(prev => ({ ...prev, [targetLayer]: hex }));
+    setColors(prev => ({ ...prev, [selectedLayer]: hex }));
   };
 
   const toggleLayer = (layer: GarmentLayer) => {
@@ -78,13 +71,13 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
       {/* Left side: Mannequin & Controls */}
       <div className="flex-1 w-full flex flex-col items-center">
         <h2 className="text-2xl font-semibold tracking-tight mb-2">Styling Canvas</h2>
-        <p className="text-sm text-muted-foreground mb-6">Select a layer to anchor it, then pick matching colors.</p>
+        <p className="text-sm text-muted-foreground mb-6">Click a layer on the mannequin to edit it, then pick a color.</p>
         
         <StylingMannequin
           colors={colors}
           activeLayers={activeLayers}
           onLayerClick={handleLayerClick}
-          selectedLayer={anchoredLayer}
+          selectedLayer={selectedLayer}
         />
 
         <div className="flex items-center gap-6 mt-8">
@@ -108,26 +101,49 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
       </div>
 
       {/* Right side: Carousel / Matching Palette */}
-      <div className="flex-1 w-full flex flex-col">
-        <h3 className="text-xl font-medium mb-4">Fashion Matches</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Based on your anchored layer ({anchoredLayer}), here are safe pairings.
-        </p>
-
-        <div className="flex flex-wrap gap-4">
-          {carouselColors.map((hex, i) => (
-            <div 
-              key={`${hex}-${i}`}
-              onClick={() => handleCarouselColorClick(hex)}
-              className="w-16 h-16 rounded-full border border-border cursor-pointer transition-transform hover:scale-110 shadow-sm flex items-center justify-center group"
-              style={{ backgroundColor: hex }}
-            >
-              {/* Optional hover state to show save button or hex */}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 text-[10px] px-1 rounded backdrop-blur-sm">
-                {hex}
-              </div>
+      <div className="flex-1 w-full flex flex-col space-y-12">
+        <div>
+          <h3 className="text-xl font-medium mb-4">Saved Colors</h3>
+          {savedColors.length === 0 ? (
+            <p className="text-sm text-muted-foreground">You haven't saved any colors yet. Tap the camera to capture one.</p>
+          ) : (
+            <div className="flex flex-wrap gap-4">
+              {savedColors.map((sc) => (
+                <div 
+                  key={sc.id}
+                  onClick={() => handleColorClick(sc.hex)}
+                  className="w-16 h-16 rounded-full border border-border cursor-pointer transition-transform hover:scale-110 shadow-sm flex items-center justify-center group"
+                  style={{ backgroundColor: sc.hex }}
+                >
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 text-[10px] px-1 rounded backdrop-blur-sm">
+                    {sc.hex}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
+
+        <div>
+          <h3 className="text-xl font-medium mb-4">Fashion Matches</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Safe pairings based on your selected {selectedLayer}.
+          </p>
+
+          <div className="flex flex-wrap gap-4">
+            {carouselColors.map((hex, i) => (
+              <div 
+                key={`${hex}-${i}`}
+                onClick={() => handleColorClick(hex)}
+                className="w-16 h-16 rounded-full border border-border cursor-pointer transition-transform hover:scale-110 shadow-sm flex items-center justify-center group"
+                style={{ backgroundColor: hex }}
+              >
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 text-[10px] px-1 rounded backdrop-blur-sm">
+                  {hex}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
