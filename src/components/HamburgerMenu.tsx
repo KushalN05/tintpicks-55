@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Menu, X, LogOut, CreditCard, Palette, Hash,
-  PlayCircle, ChevronRight, Plus
+  PlayCircle, ChevronRight, Plus, History
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface HamburgerMenuProps {
   onLogout: () => void;
@@ -68,6 +69,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   const [hexValue, setHexValue] = useState('');
   const [hexError, setHexError] = useState('');
   const hexInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const [mounted, setMounted] = useState(false);
   
@@ -147,15 +149,15 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               <SectionLabel label="Account" />
               <div className="px-2 space-y-0.5">
                 <MenuRow
+                  icon={History}
+                  label="Colour History"
+                  onClick={() => { close(); navigate('/history'); }}
+                />
+                <MenuRow
                   icon={CreditCard}
                   label="Subscriptions"
                   badge="Coming Soon"
                   onClick={() => close()}
-                />
-                <MenuRow
-                  icon={Palette}
-                  label="Saved Palettes"
-                  onClick={() => { close(); onSavedPaletteClick(); }}
                 />
               </div>
 

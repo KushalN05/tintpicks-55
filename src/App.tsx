@@ -7,6 +7,8 @@ import { SessionContextProvider, useSessionContext } from '@supabase/auth-helper
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import History from "./pages/History";
+import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import React from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -96,6 +98,7 @@ const App = () => (
                   }
                 />
                 <Route path="/app" element={<Index />} />
+                <Route path="/history" element={<History />} />
               </Route>
 
               {/* Catch-all → root */}

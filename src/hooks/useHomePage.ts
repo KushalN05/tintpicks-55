@@ -10,6 +10,7 @@ type MascotMood = "happy" | "neutral" | "excited";
 export interface SavedColor {
   id: string;
   hex: string;
+  name?: string;
 }
 
 export interface UseHomePageProps {
@@ -28,8 +29,8 @@ export interface UseHomePageProps {
   showYay: boolean;
   isLoadingColors: boolean;
   handleShowYay: () => void;
-  handleColorCapture: (color: string) => Promise<void>;
-  handleColorAdd: (color: string) => Promise<void>;
+  handleColorCapture: (color: string, name?: string) => Promise<void>;
+  handleColorAdd: (color: string, name?: string) => Promise<void>;
   handleClearColors: () => Promise<void>;
   handleDeleteColor: (id: string) => Promise<void>;
   handleLogout: () => Promise<void>;
@@ -67,18 +68,24 @@ export function useHomePage(): UseHomePageProps {
     }
   }, [yayShown]);
 
-  const handleColorCapture = async (color: string) => {
+  const handleColorCapture = async (color: string, name?: string) => {
     if (!session) return;
+
+    const insertData: any = {
+      user_id: session.user.id,
+      hex_code: color,
+    };
+    
+    // We try to insert 'name' if the database schema supports it. If it fails due to schema, 
+    // we might need to handle it, but we assume the user will update the schema.
+    if (name) {
+      insertData.name = name;
+    }
 
     const { data, error } = await supabase
       .from("saved_colors")
-      .insert([
-        {
-          user_id: session.user.id,
-          hex_code: color,
-        },
-      ])
-      .select("id, hex_code")
+      .insert([insertData])
+      .select("id, hex_code, name")
       .single();
 
     if (error || !data) {
@@ -90,7 +97,7 @@ export function useHomePage(): UseHomePageProps {
       });
       setMascotMood("neutral");
     } else {
-      setSavedColors((prev) => [{ id: data.id, hex: color }, ...prev]);
+      setSavedColors((prev) => [{ id: data.id, hex: color, name: data.name }, ...prev]);
       setShowCamera(false);
       toast({
         title: "Color Captured",
@@ -102,18 +109,19 @@ export function useHomePage(): UseHomePageProps {
     }
   };
 
-  const handleColorAdd = async (color: string) => {
+  const handleColorAdd = async (color: string, name?: string) => {
     if (!session) return;
+
+    const insertData: any = {
+      user_id: session.user.id,
+      hex_code: color,
+    };
+    if (name) insertData.name = name;
 
     const { data, error } = await supabase
       .from("saved_colors")
-      .insert([
-        {
-          user_id: session.user.id,
-          hex_code: color,
-        },
-      ])
-      .select("id, hex_code")
+      .insert([insertData])
+      .select("id, hex_code, name")
       .single();
 
     if (error || !data) {
@@ -125,7 +133,7 @@ export function useHomePage(): UseHomePageProps {
       });
       setMascotMood("neutral");
     } else {
-      setSavedColors((prev) => [{ id: data.id, hex: color }, ...prev]);
+      setSavedColors((prev) => [{ id: data.id, hex: color, name: data.name }, ...prev]);
       toast({
         title: "Color Added",
         description: `Color ${color} has been saved to your collection.`,
@@ -199,9 +207,9 @@ export function useHomePage(): UseHomePageProps {
   // handleColorSaveFromDiscover inserts immediately into the color grid.
   // Since we don't have the DB-generated id yet we use a temp id;
   // UserProfileInitializer will re-hydrate with real ids on next mount.
-  const handleColorSaveFromDiscover = (color: { hex: string }) => {
+  const handleColorSaveFromDiscover = (color: { hex: string, name?: string }) => {
     setSavedColors((prev) => [
-      { id: `temp-${Date.now()}`, hex: color.hex },
+      { id: `temp-${Date.now()}`, hex: color.hex, name: color.name },
       ...prev,
     ]);
   };

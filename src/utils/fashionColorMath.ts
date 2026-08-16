@@ -44,26 +44,42 @@ export const hslToHex = (h: number, s: number, l: number): string => {
   return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
 };
 
-export const getMonochromaticColors = (hex: string, count: number = 4): string[] => {
+export const getMonochromaticColors = (hex: string, count: number = 3): string[] => {
   const [h, s, l] = hexToHsl(hex);
   const colors: string[] = [];
-  // Generate variations in lightness
   const step = 80 / (count + 1);
   for (let i = 1; i <= count + 1; i++) {
     const newL = Math.max(10, Math.min(90, 10 + (i * step)));
-    if (Math.abs(newL - l) > 5) { // Ensure it's distinctly different from original
+    if (Math.abs(newL - l) > 5) {
       colors.push(hslToHex(h, s, newL));
     }
   }
   return colors.slice(0, count);
 };
 
-export const getAnalogousColors = (hex: string, count: number = 4): string[] => {
+export const getAnalogousColors = (hex: string): string[] => {
   const [h, s, l] = hexToHsl(hex);
   const colors: string[] = [];
-  // Generate adjacent hues
-  const step = 30; // 30 degrees apart
-  const offsets = [-2, -1, 1, 2].slice(0, count);
+  const step = 30;
+  const offsets = [-1, 1];
+  for (const offset of offsets) {
+    const newH = (h + (offset * step) + 360) % 360;
+    colors.push(hslToHex(newH, s, l));
+  }
+  return colors;
+};
+
+export const getComplementaryColor = (hex: string): string => {
+  const [h, s, l] = hexToHsl(hex);
+  const newH = (h + 180) % 360;
+  return hslToHex(newH, s, l);
+};
+
+export const getTriadicColors = (hex: string): string[] => {
+  const [h, s, l] = hexToHsl(hex);
+  const colors: string[] = [];
+  const step = 120;
+  const offsets = [1, 2];
   for (const offset of offsets) {
     const newH = (h + (offset * step) + 360) % 360;
     colors.push(hslToHex(newH, s, l));
@@ -73,27 +89,32 @@ export const getAnalogousColors = (hex: string, count: number = 4): string[] => 
 
 export const getFashionNeutrals = (): string[] => {
   return [
-    "#2F4F4F", // Dark Slate Gray (Charcoal/Stone)
+    "#2F4F4F", // Dark Slate Gray
     "#1C2833", // Navy Dark
-    "#000000", // Black
     "#F5F5DC", // Beige
-    "#FFFDD0", // Cream
-    "#808080", // Gray
     "#FFFFFF"  // White
   ];
 };
 
 /**
- * Returns an array of suggested fashion colors to pair with the base hex.
+ * Returns a single array of fashion colors based on analogous, monochromatic,
+ * triadic, complementary, and neutrals.
  */
-export const generateFashionPalette = (baseHex: string): {
-  monochromatic: string[];
-  analogous: string[];
-  neutrals: string[];
-} => {
-  return {
-    monochromatic: getMonochromaticColors(baseHex),
-    analogous: getAnalogousColors(baseHex),
-    neutrals: getFashionNeutrals()
-  };
+export const generateFashionPalette = (baseHex: string): string[] => {
+  const monochromatic = getMonochromaticColors(baseHex);
+  const analogous = getAnalogousColors(baseHex);
+  const triadic = getTriadicColors(baseHex);
+  const complementary = getComplementaryColor(baseHex);
+  const neutrals = getFashionNeutrals();
+
+  const allColors = [
+    ...monochromatic,
+    ...analogous,
+    ...triadic,
+    complementary,
+    ...neutrals
+  ];
+  
+  // Deduplicate
+  return [...new Set(allColors)];
 };

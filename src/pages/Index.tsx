@@ -5,6 +5,8 @@ import FashionStylingBoard, { CapturedItemConfig } from "@/components/FashionSty
 import { GarmentCategory, GarmentType } from "@/components/StylingMannequin";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Camera } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
 import HamburgerMenu from "@/components/HamburgerMenu";
@@ -23,6 +25,7 @@ const Index = () => {
   } = useHomePage();
 
   const [pendingHex, setPendingHex] = useState<string | null>(null);
+  const [pendingName, setPendingName] = useState<string>("");
   const [capturedItem, setCapturedItem] = useState<CapturedItemConfig | null>(null);
   
   useEffect(() => {
@@ -49,14 +52,20 @@ const Index = () => {
     }
   };
 
-  const handleCapture = async (hex: string) => {
-    await handleColorCapture(hex);
+  const handleCapture = (hex: string) => {
+    // We don't save immediately. We wait for the modal to get the name and garment.
     setPendingHex(hex);
+    setPendingName(""); // Reset name
     setShowCamera(false);
   };
 
-  const handleSelectCapturedGarment = (category: GarmentCategory, item: GarmentType) => {
+  const handleSelectCapturedGarment = async (category: GarmentCategory, item: GarmentType) => {
     if (pendingHex) {
+      const finalName = pendingName.trim() || `Colour #${savedColors.length + 1}`;
+      
+      // Save to database
+      await handleColorCapture(pendingHex, finalName);
+
       setCapturedItem({
         category,
         item,
@@ -64,6 +73,7 @@ const Index = () => {
         timestamp: Date.now()
       });
       setPendingHex(null);
+      setPendingName("");
     }
   };
 
@@ -95,21 +105,47 @@ const Index = () => {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+      <main className="flex-1 flex flex-col items-center justify-center p-4">
         {showCamera ? (
           <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
         ) : (
-          <div className="w-full animate-fade-in">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4">Style Architect</h1>
-              <p className="text-muted-foreground max-w-lg mx-auto">
-                Build a cohesive look. Tap the camera to scan a color from real life, or anchor a layer to begin.
-              </p>
-            </div>
-            <FashionStylingBoard 
-              capturedItem={capturedItem} 
-              savedColors={savedColors} 
-            />
+          <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in relative">
+            {savedColors.length === 0 ? (
+              <div className="flex flex-col items-center justify-center flex-1 w-full relative">
+                {/* Just the mannequin faintly in the background, or nothing but text */}
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-center opacity-20 pointer-events-none absolute z-0 select-none">
+                  Capture<br/>A Colour
+                </h1>
+                
+                <div className="z-10 mt-8">
+                  <Button 
+                    size="lg" 
+                    className="rounded-full w-24 h-24 flex flex-col items-center justify-center shadow-2xl hover:scale-105 transition-transform"
+                    onClick={() => setShowCamera(true)}
+                  >
+                    <Camera className="w-10 h-10 mb-1" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-full pb-24">
+                <FashionStylingBoard 
+                  capturedItem={capturedItem} 
+                  savedColors={savedColors} 
+                />
+              </div>
+            )}
+
+            {/* Floating Camera Button (Only if colors exist) */}
+            {savedColors.length > 0 && (
+              <Button 
+                size="icon"
+                className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-2xl hover:scale-105 transition-transform z-50 bg-primary text-primary-foreground"
+                onClick={() => setShowCamera(true)}
+              >
+                <Camera className="w-8 h-8" />
+              </Button>
+            )}
           </div>
         )}
 
@@ -121,20 +157,33 @@ const Index = () => {
                 Select the clothing item that matches your captured color.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <h4 className="text-sm font-medium">Tops</h4>
-                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
+                <Label htmlFor="color-name">Name this color (optional)</Label>
+                <Input 
+                  id="color-name" 
+                  placeholder={`e.g. Navy Blue Jacket`} 
+                  value={pendingName}
+                  onChange={(e) => setPendingName(e.target.value)}
+                  className="col-span-3"
+                />
               </div>
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Bottoms</h4>
-                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
-              </div>
-              <div className="space-y-2 col-span-2">
-                <h4 className="text-sm font-medium">Outerwear</h4>
-                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
+
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">Tops</h4>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">Bottoms</h4>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">Outerwear</h4>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
+                </div>
               </div>
             </div>
           </DialogContent>
