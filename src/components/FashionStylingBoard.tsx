@@ -1,47 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import StylingMannequin, { GarmentLayer } from './StylingMannequin';
+import React, { useState, useEffect, useCallback } from 'react';
+import StylingMannequin, { GarmentCategory, GarmentType } from './StylingMannequin';
 import { generateFashionPalette } from '@/utils/fashionColorMath';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import useEmblaCarousel from 'embla-carousel-react';
+import { Shirt, Pants, X } from 'lucide-react';
+import { Button } from './ui/button';
+
+export interface CapturedItemConfig {
+  item: GarmentType;
+  category: GarmentCategory;
+  hex: string;
+  timestamp: number; // for tracking new captures
+}
 
 interface FashionStylingBoardProps {
-  capturedColor: string | null;
+  capturedItem?: CapturedItemConfig | null;
   savedColors?: { id: string; hex: string }[];
-  onColorSave?: (hex: string) => void;
 }
 
 const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
-  capturedColor,
+  capturedItem,
   savedColors = [],
-  onColorSave,
 }) => {
-  const [colors, setColors] = useState<Record<GarmentLayer, string>>({
-    torso: '#F5F5DC',
-    legs: '#1C2833',
-    outerwear: '#2F4F4F',
-    shoes: '#000000',
+  const [colors, setColors] = useState<Record<GarmentCategory, string>>({
+    top: '#F5F5DC',
+    bottom: '#1C2833',
+    outerwear: 'transparent',
   });
 
-  const [activeLayers, setActiveLayers] = useState<Record<GarmentLayer, boolean>>({
-    torso: true,
-    legs: true,
-    outerwear: false,
-    shoes: false,
+  const [equipped, setEquipped] = useState<Record<GarmentCategory, GarmentType>>({
+    top: 'shirt',
+    bottom: 'trousers',
+    outerwear: null,
   });
 
-  const [selectedLayer, setSelectedLayer] = useState<GarmentLayer>('torso');
+  const [selectedLayer, setSelectedLayer] = useState<GarmentCategory>('top');
   const [carouselColors, setCarouselColors] = useState<string[]>([]);
-  
-  // When capturedColor changes, we apply it to the selected layer
+  const [emblaRef] = useEmblaCarousel({ dragFree: true, containScroll: 'trimSnaps' });
+
+  // Handle incoming captured items from the camera flow
   useEffect(() => {
-    if (capturedColor) {
-      setColors(prev => ({ ...prev, [selectedLayer]: capturedColor }));
+    if (capturedItem) {
+      setEquipped(prev => ({ ...prev, [capturedItem.category]: capturedItem.item }));
+      setColors(prev => ({ ...prev, [capturedItem.category]: capturedItem.hex }));
+      setSelectedLayer(capturedItem.category);
     }
-  }, [capturedColor]);
+  }, [capturedItem]);
 
   // Update carousel colors when the selected layer's color changes
   useEffect(() => {
-    const baseColor = colors[selectedLayer];
+    const baseColor = colors[selectedLayer] !== 'transparent' ? colors[selectedLayer] : '#808080';
     const { monochromatic, analogous, neutrals } = generateFashionPalette(baseColor);
     
     // Combine and deduplicate
@@ -49,100 +56,164 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
     setCarouselColors(newColors);
   }, [colors, selectedLayer]);
 
-  const handleLayerClick = (layer: GarmentLayer) => {
+  const handleLayerClick = (layer: GarmentCategory) => {
     setSelectedLayer(layer);
   };
 
   const handleColorClick = (hex: string) => {
-    // If the chosen layer is not active, activate it
-    if (!activeLayers[selectedLayer]) {
-      setActiveLayers(prev => ({ ...prev, [selectedLayer]: true }));
-    }
-
     setColors(prev => ({ ...prev, [selectedLayer]: hex }));
   };
 
-  const toggleLayer = (layer: GarmentLayer) => {
-    setActiveLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
+  const equipItem = (category: GarmentCategory, item: GarmentType) => {
+    setEquipped(prev => ({ ...prev, [category]: item }));
+    setSelectedLayer(category);
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-start gap-12 p-6 animate-fade-in">
-      {/* Left side: Mannequin & Controls */}
-      <div className="flex-1 w-full flex flex-col items-center">
-        <h2 className="text-2xl font-semibold tracking-tight mb-2">Styling Canvas</h2>
-        <p className="text-sm text-muted-foreground mb-6">Click a layer on the mannequin to edit it, then pick a color.</p>
+    <div className="w-full max-w-5xl mx-auto flex flex-col md:flex-row items-start gap-12 p-6 animate-fade-in">
+      {/* Left side: Wardrobe / Equip Controls */}
+      <div className="w-full md:w-48 flex flex-col gap-6 shrink-0 order-2 md:order-1">
+        <h3 className="text-xl font-medium border-b pb-2">Wardrobe</h3>
         
-        <StylingMannequin
-          colors={colors}
-          activeLayers={activeLayers}
-          onLayerClick={handleLayerClick}
-          selectedLayer={selectedLayer}
-        />
-
-        <div className="flex items-center gap-6 mt-8">
-          <div className="flex items-center space-x-2">
-            <Switch 
-              id="outerwear-toggle" 
-              checked={activeLayers.outerwear} 
-              onCheckedChange={() => toggleLayer('outerwear')} 
-            />
-            <Label htmlFor="outerwear-toggle" className="text-sm font-medium">Outerwear</Label>
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Tops</h4>
+            <div className="flex gap-2">
+              <Button 
+                variant={equipped.top === 'shirt' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => equipItem('top', 'shirt')}
+                className="w-full"
+              >
+                Shirt
+              </Button>
+              <Button 
+                variant={equipped.top === 'tshirt' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => equipItem('top', 'tshirt')}
+                className="w-full"
+              >
+                T-Shirt
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Switch 
-              id="shoes-toggle" 
-              checked={activeLayers.shoes} 
-              onCheckedChange={() => toggleLayer('shoes')} 
-            />
-            <Label htmlFor="shoes-toggle" className="text-sm font-medium">Shoes</Label>
+
+          <div>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Bottoms</h4>
+            <div className="flex gap-2">
+              <Button 
+                variant={equipped.bottom === 'trousers' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => equipItem('bottom', 'trousers')}
+                className="w-full"
+              >
+                Trousers
+              </Button>
+              <Button 
+                variant={equipped.bottom === 'shorts' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => equipItem('bottom', 'shorts')}
+                className="w-full"
+              >
+                Shorts
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Outerwear</h4>
+            <div className="flex gap-2">
+              <Button 
+                variant={equipped.outerwear === 'jacket' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => equipItem('outerwear', 'jacket')}
+                className="w-full"
+              >
+                Jacket
+              </Button>
+              <Button 
+                variant={equipped.outerwear === null ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => equipItem('outerwear', null)}
+                className="w-full"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Right side: Carousel / Matching Palette */}
-      <div className="flex-1 w-full flex flex-col space-y-12">
+      {/* Center: Mannequin */}
+      <div className="flex-1 w-full flex flex-col items-center order-1 md:order-2 bg-surface-container-lowest p-8 rounded-2xl border border-surface-variant shadow-sm">
+        <div className="w-full flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">Styling Canvas</h2>
+            <p className="text-sm text-muted-foreground">Click a garment to edit its color.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Editing: {selectedLayer}</span>
+          </div>
+        </div>
+        
+        <StylingMannequin
+          equipped={equipped}
+          colors={colors}
+          onLayerClick={handleLayerClick}
+          selectedLayer={selectedLayer}
+        />
+      </div>
+
+      {/* Right side: Swipeable Color Carousel / Matches */}
+      <div className="w-full md:w-64 flex flex-col gap-12 shrink-0 order-3">
+        {/* Saved Colors Swiper */}
         <div>
-          <h3 className="text-xl font-medium mb-4">Saved Colors</h3>
+          <h3 className="text-xl font-medium mb-4">My Collection</h3>
           {savedColors.length === 0 ? (
-            <p className="text-sm text-muted-foreground">You haven't saved any colors yet. Tap the camera to capture one.</p>
+            <p className="text-sm text-muted-foreground">No saved colors yet.</p>
           ) : (
-            <div className="flex flex-wrap gap-4">
-              {savedColors.map((sc) => (
-                <div 
-                  key={sc.id}
-                  onClick={() => handleColorClick(sc.hex)}
-                  className="w-16 h-16 rounded-full border border-border cursor-pointer transition-transform hover:scale-110 shadow-sm flex items-center justify-center group"
-                  style={{ backgroundColor: sc.hex }}
-                >
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 text-[10px] px-1 rounded backdrop-blur-sm">
-                    {sc.hex}
+            <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
+              <div className="flex gap-4">
+                {savedColors.map((sc) => (
+                  <div 
+                    key={sc.id}
+                    onClick={() => handleColorClick(sc.hex)}
+                    className="flex-[0_0_auto] w-14 h-14 rounded-full border border-border cursor-pointer transition-transform hover:scale-105 flex items-center justify-center group shrink-0"
+                    style={{ backgroundColor: sc.hex }}
+                  >
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 text-[9px] px-1 rounded backdrop-blur-sm">
+                      {sc.hex}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
 
+        {/* Fashion Matches Swiper */}
         <div>
-          <h3 className="text-xl font-medium mb-4">Fashion Matches</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Safe pairings based on your selected {selectedLayer}.
+          <h3 className="text-xl font-medium mb-2">Fashion Matches</h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Safe pairings for your {equipped[selectedLayer] || selectedLayer}. Swipe to explore.
           </p>
 
-          <div className="flex flex-wrap gap-4">
-            {carouselColors.map((hex, i) => (
-              <div 
-                key={`${hex}-${i}`}
-                onClick={() => handleColorClick(hex)}
-                className="w-16 h-16 rounded-full border border-border cursor-pointer transition-transform hover:scale-110 shadow-sm flex items-center justify-center group"
-                style={{ backgroundColor: hex }}
-              >
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 text-[10px] px-1 rounded backdrop-blur-sm">
-                  {hex}
+          <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
+            <div className="flex gap-4">
+              {carouselColors.map((hex, i) => (
+                <div 
+                  key={`${hex}-${i}`}
+                  onClick={() => handleColorClick(hex)}
+                  className="flex-[0_0_auto] w-14 h-14 rounded-full border border-border cursor-pointer transition-transform hover:scale-105 flex items-center justify-center group shrink-0"
+                  style={{ backgroundColor: hex }}
+                >
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 text-[9px] px-1 rounded backdrop-blur-sm">
+                    {hex}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

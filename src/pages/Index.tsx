@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ColorCapture from "@/components/ColorCapture";
-import FashionStylingBoard from "@/components/FashionStylingBoard";
+import FashionStylingBoard, { CapturedItemConfig } from "@/components/FashionStylingBoard";
+import { GarmentCategory, GarmentType } from "@/components/StylingMannequin";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Camera } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
 import HamburgerMenu from "@/components/HamburgerMenu";
@@ -20,7 +22,8 @@ const Index = () => {
     savedColors,
   } = useHomePage();
 
-  const [capturedColor, setCapturedColor] = useState<string | null>(null);
+  const [pendingHex, setPendingHex] = useState<string | null>(null);
+  const [capturedItem, setCapturedItem] = useState<CapturedItemConfig | null>(null);
   
   useEffect(() => {
     loadUserProfile();
@@ -48,8 +51,20 @@ const Index = () => {
 
   const handleCapture = async (hex: string) => {
     await handleColorCapture(hex);
-    setCapturedColor(hex);
+    setPendingHex(hex);
     setShowCamera(false);
+  };
+
+  const handleSelectCapturedGarment = (category: GarmentCategory, item: GarmentType) => {
+    if (pendingHex) {
+      setCapturedItem({
+        category,
+        item,
+        hex: pendingHex,
+        timestamp: Date.now()
+      });
+      setPendingHex(null);
+    }
   };
 
   return (
@@ -92,11 +107,38 @@ const Index = () => {
               </p>
             </div>
             <FashionStylingBoard 
-              capturedColor={capturedColor} 
+              capturedItem={capturedItem} 
               savedColors={savedColors} 
             />
           </div>
         )}
+
+        <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>What did you capture?</DialogTitle>
+              <DialogDescription>
+                Select the clothing item that matches your captured color.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Tops</h4>
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Bottoms</h4>
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
+              </div>
+              <div className="space-y-2 col-span-2">
+                <h4 className="text-sm font-medium">Outerwear</h4>
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

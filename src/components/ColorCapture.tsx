@@ -99,21 +99,40 @@ const ColorCapture = ({
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
-        canvasRef.current.width = videoRef.current.videoWidth;
-        canvasRef.current.height = videoRef.current.videoHeight;
-        context.drawImage(videoRef.current, 0, 0);
+        let vWidth = videoRef.current.videoWidth;
+        let vHeight = videoRef.current.videoHeight;
+        
+        // Fallback for iOS Safari where videoWidth might not be immediately available
+        if (!vWidth || !vHeight) {
+          vWidth = videoRef.current.clientWidth || 300;
+          vHeight = videoRef.current.clientHeight || 400;
+        }
 
-        const centerX = canvasRef.current.width / 2;
-        const centerY = canvasRef.current.height / 2;
-        const pixel = context.getImageData(centerX, centerY, 1, 1).data;
-        const hex = `#${pixel[0]
-          .toString(16)
-          .padStart(2, '0')}${pixel[1]
-          .toString(16)
-          .padStart(2, '0')}${pixel[2].toString(16).padStart(2, '0')}`.toUpperCase();
+        canvasRef.current.width = vWidth;
+        canvasRef.current.height = vHeight;
+        context.drawImage(videoRef.current, 0, 0, vWidth, vHeight);
 
-        stopCamera();
-        onCapture(hex);
+        const centerX = Math.floor(vWidth / 2);
+        const centerY = Math.floor(vHeight / 2);
+        
+        try {
+          const pixel = context.getImageData(centerX, centerY, 1, 1).data;
+          const hex = `#${pixel[0]
+            .toString(16)
+            .padStart(2, '0')}${pixel[1]
+            .toString(16)
+            .padStart(2, '0')}${pixel[2].toString(16).padStart(2, '0')}`.toUpperCase();
+
+          stopCamera();
+          onCapture(hex);
+        } catch (err) {
+          console.error("Failed to capture image data", err);
+          toast({
+            title: 'Capture Failed',
+            description: 'Could not capture color. Try again.',
+            variant: 'destructive',
+          });
+        }
       }
     }
   };
@@ -125,6 +144,7 @@ const ColorCapture = ({
           ref={videoRef}
           autoPlay
           playsInline
+          muted
           className="w-full h-full object-cover"
         />
         <canvas ref={canvasRef} className="hidden" />
