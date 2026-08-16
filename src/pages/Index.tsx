@@ -112,19 +112,11 @@ const Index = () => {
           <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in relative">
             {savedColors.length === 0 ? (
               <div className="flex flex-col items-center justify-center flex-1 w-full relative">
-                {/* Just the mannequin faintly in the background, or nothing but text */}
-                <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-center opacity-20 pointer-events-none absolute z-0 select-none">
-                  Capture<br/>A Colour
-                </h1>
-                
-                <div className="z-10 mt-8">
-                  <Button 
-                    size="lg" 
-                    className="rounded-full w-24 h-24 flex flex-col items-center justify-center shadow-2xl hover:scale-105 transition-transform"
-                    onClick={() => setShowCamera(true)}
-                  >
-                    <Camera className="w-10 h-10 mb-1" />
-                  </Button>
+                {/* Witty Empty State Text */}
+                <div className="absolute top-1/4 z-10 px-4">
+                  <div className="bg-black/40 backdrop-blur-md text-white px-5 py-2.5 rounded-full border border-white/10 shadow-lg text-sm md:text-base font-medium tracking-wide text-center">
+                    Feed me some color (I promise I have good taste)
+                  </div>
                 </div>
               </div>
             ) : (
@@ -136,16 +128,14 @@ const Index = () => {
               </div>
             )}
 
-            {/* Floating Camera Button (Only if colors exist) */}
-            {savedColors.length > 0 && (
-              <Button 
-                size="icon"
-                className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-2xl hover:scale-105 transition-transform z-50 bg-primary text-primary-foreground"
-                onClick={() => setShowCamera(true)}
-              >
-                <Camera className="w-8 h-8" />
-              </Button>
-            )}
+            {/* Floating Camera Button (Always Visible) */}
+            <Button 
+              size="icon"
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-2xl hover:scale-105 active:scale-95 transition-transform z-50 bg-primary text-primary-foreground"
+              onClick={() => setShowCamera(true)}
+            >
+              <Camera className="w-8 h-8" />
+            </Button>
           </div>
         )}
 

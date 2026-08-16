@@ -139,7 +139,8 @@ const ColorCapture = ({
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col z-50 animate-fade-in">
-      <div className="relative flex-1">
+      {/* Container with onClick to capture anywhere on screen */}
+      <div className="relative flex-1" onClick={captureColor}>
         <video
           ref={videoRef}
           autoPlay
@@ -156,26 +157,33 @@ const ColorCapture = ({
           </div>
         </div>
 
-        {/* Camera controls */}
-        <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-6 bg-gradient-to-b from-black/50 to-transparent">
+        {/* Close Button - Top Right */}
+        <div className="absolute top-4 right-4 z-50">
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20 rounded-full"
-            onClick={handleClose}
+            className="bg-black/50 text-white hover:bg-black/70 hover:text-white rounded-full p-2 w-10 h-10"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClose();
+            }}
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
-        <div className="absolute bottom-24 pb-[env(safe-area-inset-bottom)] left-0 right-0 flex justify-center items-center pointer-events-auto">
-          <Button
-            className="bg-white text-black hover:bg-gray-200 rounded-full w-20 h-20 flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-            onClick={captureColor}
+        {/* Shutter Button - Bottom Center */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+          <button
+            className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white/80 p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={(e) => {
+              e.stopPropagation();
+              captureColor();
+            }}
             disabled={!isStreaming}
           >
-            <Camera className="h-8 w-8" />
-          </Button>
+            <div className="w-full h-full bg-white rounded-full active:scale-90 transition-transform duration-200" />
+          </button>
         </div>
 
         {/* Help: Trouble loading camera? */}
