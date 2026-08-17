@@ -92,55 +92,34 @@ export const fetchProductsByColor = async (
   try {
     const strictHex = hexCode.startsWith('#') ? hexCode : `#${hexCode}`;
     
-    // 1. Identify the broad retail color family (e.g. "pink")
-    const names = colorNamer(strictHex);
-    const basicColor = names.basic[0].name.toLowerCase();
+    // 1. Convert hex to LAB
+    const { hexToLab } = await import('./colorConverter');
+    const lab = hexToLab(strictHex);
     
-    // 2. Expand it to retail synonyms (e.g. "pink | rose | blush")
-    const colorSearchTerm = getRetailColorSynonyms(basicColor);
-
-    // 3. Base Query
-    let query = supabaseProducts
-      .from('products')
-      .select('product_id, name, price, image_url, affiliate_url, hex_code')
-      .not('image_url', 'is', null)
-      .not('affiliate_url', 'is', null);
-
-    // 4. Force Title-Based Color Search! (The Magic Bullet)
-    query = query.textSearch('name', colorSearchTerm);
-    
-    // 5. Strict Brand Whitelist (Matches any trusted brand)
-    const brandQuery = TRUSTED_BRANDS.map(b => `'${b}'`).join(' | ');
-    query = query.textSearch('name', brandQuery);
-
-    // 6. Apply NSFW Blacklist
-    NSFW_BLACKLIST.forEach(keyword => {
-      query = query.not('name', 'ilike', `%${keyword}%`);
-    });
-
-    // 6. Enterprise Gender Match using textSearch
-    if (gender !== 'All' && GENDER_TERMS[gender]) {
-      query = query.textSearch('name', GENDER_TERMS[gender]);
-    }
-
-    // 7. Enterprise Category Match using textSearch
-    if (category !== 'All' && CATEGORY_TERMS[category]) {
-      query = query.textSearch('name', CATEGORY_TERMS[category]);
-    }
-
-    // 8. Execute and return limit
-    const { data, error } = await query.limit(limit);
-
-    if (error) {
-      console.error('Supabase fetch error:', error);
+    if (!lab) {
+      console.warn('Invalid hex provided to fetchProductsByColor:', hexCode);
       return [];
     }
 
-    // Randomize results to keep UI fresh
-    return (data || []).sort(() => Math.random() - 0.5) as Product[];
+    // 2. Call the RPC function to find the closest Delta E matches
+    const { data, error } = await supabaseProducts.rpc('match_products_by_color', {
+      target_l: lab.l,
+      target_a: lab.a,
+      target_b: lab.b,
+      p_gender: gender,
+      p_category: category,
+      p_limit: limit
+    });
+
+    if (error) {
+      console.error('Supabase fetch error via RPC:', error);
+      return [];
+    }
+
+    return (data || []) as Product[];
 
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching products by color:', error);
     return [];
   }
 };

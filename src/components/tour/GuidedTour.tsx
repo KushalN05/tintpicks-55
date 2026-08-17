@@ -18,12 +18,19 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
 
   const step = steps[currentStep];
 
+  // Prevent background scrolling while tour is active
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   useEffect(() => {
     const updatePosition = () => {
       if (!step) return;
       
-      // AppHeader duplicates buttons for mobile/desktop, so getElementById might return the hidden one (0x0).
-      // Query all matching IDs and pick the first one that is actually visible.
       const elements = document.querySelectorAll(`[id="${step.targetId}"]`);
       let el: Element | null = null;
       for (let i = 0; i < elements.length; i++) {
@@ -48,6 +55,7 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
           rect.right <= (window.innerWidth || document.documentElement.clientWidth);
 
         if (!isInViewport) {
+          // Scroll cleanly to center so it's not hidden behind the fixed bottom card
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         setTargetRect(el.getBoundingClientRect());
@@ -76,76 +84,72 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
   const width = targetRect.width + padding * 2;
   const height = targetRect.height + padding * 2;
 
-  // Render popover below if target is near the top, otherwise above
-  const showBelow = targetRect.top < window.innerHeight / 2;
-  
-  // Keep popover on screen horizontally
-  const maxLeft = window.innerWidth - 300 - 20; // 300px width + 20px padding
-  const popoverLeft = Math.max(20, Math.min(targetRect.left, maxLeft));
-
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none">
+    <div className="fixed inset-0 z-[100] pointer-events-none">
       {/* Dimmed backdrop with precise cutout using box-shadow */}
       <div
-        className="absolute transition-all duration-500 ease-in-out border-2 border-white/50"
+        className="absolute transition-all duration-500 ease-in-out ring-4 ring-white/80 ring-offset-2 ring-offset-black/50"
         style={{
           top,
           left,
           width,
           height,
-          boxShadow: '0 0 0 9999px rgba(31, 41, 55, 0.7)',
+          boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
           borderRadius: '12px',
         }}
-      />
-
-      {/* Popover UI */}
-      <div
-        className="absolute z-50 transition-all duration-500 ease-in-out pointer-events-auto"
-        style={{
-          top: showBelow ? top + height + 20 : top - 140, // 140px is approx height of the card
-          left: popoverLeft,
-          width: '300px',
-        }}
       >
-        <div className="relative animate-slide-up">
+        {/* Subtle pulsing pointer indicator */}
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 flex items-center justify-center">
+          <div className="w-3 h-3 bg-white rounded-full animate-pulse shadow-lg" />
+        </div>
+      </div>
+
+      {/* Fixed Anchor Container for Dialogue Card */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-[100] pointer-events-auto">
+        <div className="backdrop-blur-md bg-stone-900/90 text-white rounded-2xl p-5 shadow-2xl border border-white/10 relative animate-in slide-in-from-bottom-8 duration-500">
           
-          {/* Dialogue Bubble */}
-          <div className="minimal-card p-5 bg-white/95 backdrop-blur-xl shadow-2xl relative overflow-visible">
-            {/* Speech bubble tail */}
-            <div 
-              className="absolute w-4 h-4 bg-white/95 border-l border-t border-white/40 transform -rotate-45"
-              style={{
-                top: showBelow ? '-8px' : 'auto',
-                bottom: showBelow ? 'auto' : '-8px',
-                left: '24px'
+          {/* Skip Button */}
+          <button 
+            onClick={onComplete}
+            className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors p-1"
+            aria-label="Skip Tour"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Step Counter */}
+          <div className="text-[10px] font-bold tracking-widest text-white/50 uppercase mb-3">
+            Step {currentStep + 1} of {steps.length}
+          </div>
+          
+          {/* Dialogue Text */}
+          <p className="text-[15px] font-medium mb-6 leading-relaxed pr-6 text-stone-100">
+            {step.text}
+          </p>
+          
+          {/* Controls */}
+          <div className="flex justify-between items-center mt-2">
+            <Button 
+              variant="ghost"
+              onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+              disabled={currentStep === 0}
+              className={`text-white hover:text-white hover:bg-white/10 -ml-2 rounded-full px-4 ${currentStep === 0 ? 'opacity-30' : ''}`}
+            >
+              Previous
+            </Button>
+            
+            <Button 
+              onClick={() => {
+                if (currentStep < steps.length - 1) {
+                  setCurrentStep(currentStep + 1);
+                } else {
+                  onComplete();
+                }
               }}
-            />
-            
-            <p className="text-foreground font-medium mb-4 relative z-10 leading-snug">
-              {step.text}
-            </p>
-            
-            <div className="flex justify-between items-center relative z-10">
-              <button 
-                onClick={onComplete}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium tracking-wide uppercase"
-              >
-                Skip Tour
-              </button>
-              
-              <Button 
-                onClick={() => {
-                  if (currentStep < steps.length - 1) {
-                    setCurrentStep(currentStep + 1);
-                  } else {
-                    onComplete();
-                  }
-                }}
-                className="bg-foreground hover:bg-foreground/10 text-white rounded-full h-8 px-5 text-sm shadow-md transition-all hover:scale-105 active:scale-95"
-              >
-                {currentStep < steps.length - 1 ? 'Next' : 'Got it!'}
-              </Button>
-            </div>
+              className="bg-white text-stone-900 hover:bg-stone-200 rounded-full h-10 px-6 font-semibold shadow-md active:scale-95 transition-transform"
+            >
+              {currentStep < steps.length - 1 ? 'Next' : 'Got it!'}
+            </Button>
           </div>
         </div>
       </div>
