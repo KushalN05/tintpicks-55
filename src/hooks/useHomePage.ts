@@ -36,14 +36,16 @@ export interface UseHomePageProps {
   handleClearColors: () => Promise<void>;
   handleDeleteColor: (id: string) => Promise<void>;
   handleLogout: () => Promise<void>;
-  handleShop: (color: string) => void;
-  handleColorSaveFromDiscover: (color: { hex: string }) => void;
+  handleShop: (color: string, category?: string) => void;
+  selectedShopCategory: string;
+  setSelectedShopCategory: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function useHomePage(): UseHomePageProps {
   const [showCamera, setShowCamera] = React.useState(false);
   const [showShoppingModal, setShowShoppingModal] = React.useState(false);
   const [isTourActive, setIsTourActive] = React.useState(false);
+  const [selectedShopCategory, setSelectedShopCategory] = React.useState("All");
   const [selectedColor, setSelectedColor] = React.useState("");
   const [savedColors, setSavedColors] = React.useState<SavedColor[]>([]);
   const [mascotMood, setMascotMood] = React.useState<MascotMood>("happy");
@@ -202,8 +204,9 @@ export function useHomePage(): UseHomePageProps {
     navigate("/");
   };
 
-  const handleShop = (color: string) => {
+  const handleShop = (color: string, category: string = "All") => {
     setSelectedColor(color);
+    setSelectedShopCategory(category);
     setShowShoppingModal(true);
   };
 
@@ -232,6 +235,8 @@ export function useHomePage(): UseHomePageProps {
     setIsTourActive,
     selectedColor,
     setSelectedColor,
+    selectedShopCategory,
+    setSelectedShopCategory,
     savedColors,
     setSavedColors: (colors) => {
       // Allow external callers (UserProfileInitializer) to set colors

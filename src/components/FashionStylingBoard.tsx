@@ -10,14 +10,18 @@ export interface CapturedItemConfig {
   category: GarmentCategory;
   hex: string;
   timestamp: number; // for tracking new captures
+  desiredCategory?: GarmentCategory;
 }
 
 interface FashionStylingBoardProps {
   capturedItem?: CapturedItemConfig | null;
+  savedColors?: any;
+  onShop?: (color: string, category: string) => void;
 }
 
 const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
   capturedItem,
+  onShop,
 }) => {
   const [colors, setColors] = useState<Record<GarmentCategory, string>>({
     top: '#F5F5DC',
@@ -40,7 +44,19 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
     if (capturedItem) {
       setEquipped(prev => ({ ...prev, [capturedItem.category]: capturedItem.item }));
       setColors(prev => ({ ...prev, [capturedItem.category]: capturedItem.hex }));
-      setSelectedLayer(capturedItem.category);
+      
+      if (capturedItem.desiredCategory) {
+        setSelectedLayer(capturedItem.desiredCategory);
+        // Automatically equip a default item if they want a category but don't have one equipped
+        setEquipped(prev => ({
+          ...prev,
+          [capturedItem.desiredCategory!]: 
+            capturedItem.desiredCategory === 'top' ? 'shirt' : 
+            capturedItem.desiredCategory === 'bottom' ? 'trousers' : 'jacket'
+        }));
+      } else {
+        setSelectedLayer(capturedItem.category);
+      }
     }
   }, [capturedItem]);
 
@@ -178,8 +194,22 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
           />
           
           <div className="flex flex-col gap-3 mt-6">
-            <Button id="tour-shop" className="w-full font-semibold uppercase tracking-wide shadow-md" size="lg">
-              Shop This Complete Look
+            <Button 
+              id="tour-shop" 
+              className="w-full font-semibold uppercase tracking-wide shadow-md" 
+              size="lg"
+              onClick={() => {
+                if (onShop) {
+                  const shopCategoryMap: Record<GarmentCategory, string> = {
+                    top: 'Shirts',
+                    bottom: 'Trousers',
+                    outerwear: 'Jackets'
+                  };
+                  onShop(colors[selectedLayer], shopCategoryMap[selectedLayer]);
+                }
+              }}
+            >
+              Shop This Match
             </Button>
             <Button id="tour-save-wardrobe" variant="outline" className="w-full font-semibold uppercase tracking-wide" size="lg">
               Save Wardrobe

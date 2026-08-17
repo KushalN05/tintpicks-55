@@ -91,16 +91,25 @@ const ShoppingModal = ({
   isOpen,
   onClose,
   color,
+  initialCategory,
 }: {
   isOpen: boolean;
   onClose: () => void;
   color: string;
+  initialCategory?: string;
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [gender, setGender] = useState('All');
-  const [category, setCategory] = useState('All');
+  const [category, setCategory] = useState(initialCategory || 'All');
   const colorName = getColorName(color);
+
+  // Sync category when modal opens with a new initialCategory
+  useEffect(() => {
+    if (isOpen && initialCategory) {
+      setCategory(initialCategory);
+    }
+  }, [isOpen, initialCategory]);
 
   useEffect(() => {
     if (isOpen && color) {

@@ -11,6 +11,7 @@ import { Camera } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
+import ShoppingModal from "@/components/ShoppingModal";
 
 const tourSteps: TourStep[] = [
   {
@@ -48,15 +49,23 @@ const Index = () => {
     setShowCamera,
     isTourActive,
     setIsTourActive,
+    showShoppingModal,
+    setShowShoppingModal,
+    selectedColor,
+    selectedShopCategory,
     handleLogout,
     handleColorAdd,
     handleColorCapture,
+    handleShop,
     savedColors,
   } = useHomePage();
 
   const [pendingHex, setPendingHex] = useState<string | null>(null);
   const [pendingName, setPendingName] = useState<string>("");
   const [capturedItem, setCapturedItem] = useState<CapturedItemConfig | null>(null);
+  const [captureStep, setCaptureStep] = useState<1 | 2>(1);
+  const [capturedCategory, setCapturedCategory] = useState<GarmentCategory | null>(null);
+  const [capturedItemType, setCapturedItemType] = useState<GarmentType | null>(null);
   
   useEffect(() => {
     loadUserProfile();
@@ -90,21 +99,29 @@ const Index = () => {
     // We don't save immediately. We wait for the modal to get the name and garment.
     setPendingHex(hex);
     setPendingName(""); // Reset name
+    setCaptureStep(1);
     setShowCamera(false);
   };
 
-  const handleSelectCapturedGarment = async (category: GarmentCategory, item: GarmentType) => {
-    if (pendingHex) {
+  const handleSelectCapturedGarment = (category: GarmentCategory, item: GarmentType) => {
+    setCapturedCategory(category);
+    setCapturedItemType(item);
+    setCaptureStep(2);
+  };
+
+  const handleSelectDesiredGarment = async (desiredCat: GarmentCategory) => {
+    if (pendingHex && capturedCategory && capturedItemType) {
       const finalName = pendingName.trim() || `Colour #${savedColors.length + 1}`;
       
       // Save to database
       await handleColorCapture(pendingHex, finalName);
 
       setCapturedItem({
-        category,
-        item,
+        category: capturedCategory,
+        item: capturedItemType,
         hex: pendingHex,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        desiredCategory: desiredCat
       });
       setPendingHex(null);
       setPendingName("");
@@ -178,7 +195,8 @@ const Index = () => {
               <div className="w-full h-full pb-24">
                 <FashionStylingBoard 
                   capturedItem={capturedItem} 
-                  savedColors={savedColors} 
+                  savedColors={savedColors}
+                  onShop={handleShop}
                 />
               </div>
             )}
@@ -200,42 +218,69 @@ const Index = () => {
         <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>What did you capture?</DialogTitle>
+              <DialogTitle>
+                {captureStep === 1 ? "What did you capture?" : "What are you looking for?"}
+              </DialogTitle>
               <DialogDescription>
-                Select the clothing item that matches your captured color.
+                {captureStep === 1 
+                  ? "Select the clothing item that matches your captured color."
+                  : "Select what you want to match it with."}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="color-name">Name this color (optional)</Label>
-                <Input 
-                  id="color-name" 
-                  placeholder={`e.g. Navy Blue Jacket`} 
-                  value={pendingName}
-                  onChange={(e) => setPendingName(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
+              {captureStep === 1 && (
+                <div className="space-y-2">
+                  <Label htmlFor="color-name">Name this color (optional)</Label>
+                  <Input 
+                    id="color-name" 
+                    placeholder={`e.g. Navy Blue Jacket`} 
+                    value={pendingName}
+                    onChange={(e) => setPendingName(e.target.value)}
+                    className="col-span-3"
+                  />
+                </div>
+              )}
 
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-muted-foreground">Tops</h4>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
+              {captureStep === 1 ? (
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-muted-foreground">Tops</h4>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-muted-foreground">Bottoms</h4>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <h4 className="text-sm font-medium text-muted-foreground">Outerwear</h4>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-muted-foreground">Bottoms</h4>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 pt-4 border-t">
+                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('top')}>
+                    Tops & Shirts
+                  </Button>
+                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('bottom')}>
+                    Bottoms & Trousers
+                  </Button>
+                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('outerwear')}>
+                    Outerwear & Jackets
+                  </Button>
                 </div>
-                <div className="space-y-2 col-span-2">
-                  <h4 className="text-sm font-medium text-muted-foreground">Outerwear</h4>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
-                </div>
-              </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
+        
+        <ShoppingModal 
+          isOpen={showShoppingModal} 
+          onClose={() => setShowShoppingModal(false)} 
+          color={selectedColor}
+          initialCategory={selectedShopCategory}
+        />
       </main>
     </div>
   );
