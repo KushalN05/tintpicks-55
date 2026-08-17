@@ -74,7 +74,7 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
           <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground bg-primary/10 text-primary px-2 py-1 rounded">Editing: {selectedLayer}</span>
         </div>
         
-        <div className="overflow-hidden cursor-grab active:cursor-grabbing bg-surface-container-lowest p-4 rounded-2xl shadow-sm border border-surface-variant" ref={emblaRef}>
+        <div id="tour-swiper" className="overflow-hidden cursor-grab active:cursor-grabbing bg-surface-container-lowest p-4 rounded-2xl shadow-sm border border-surface-variant" ref={emblaRef}>
           <div className="flex gap-4">
             {carouselColors.map((hex, i) => (
               <div 
@@ -96,7 +96,7 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
       <div className="flex flex-col md:flex-row items-center md:items-start gap-12 w-full justify-center">
         
         {/* Wardrobe / Equip Controls */}
-        <div className="w-full md:w-48 flex flex-col gap-6 shrink-0 bg-surface-container-lowest p-6 rounded-2xl border border-surface-variant shadow-sm">
+        <div id="tour-layers" className="w-full md:w-48 flex flex-col gap-6 shrink-0 bg-surface-container-lowest p-6 rounded-2xl border border-surface-variant shadow-sm">
           <h3 className="text-lg font-medium border-b pb-2">Wardrobe</h3>
           
           <div className="space-y-4">
@@ -169,13 +169,22 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
         </div>
 
         {/* Mannequin */}
-        <div className="w-full max-w-sm">
+        <div id="tour-mannequin" className="w-full max-w-sm">
           <StylingMannequin
             equipped={equipped}
             colors={colors}
             onLayerClick={handleLayerClick}
             selectedLayer={selectedLayer}
           />
+          
+          <div className="flex flex-col gap-3 mt-6">
+            <Button id="tour-shop" className="w-full font-semibold uppercase tracking-wide shadow-md" size="lg">
+              Shop This Complete Look
+            </Button>
+            <Button id="tour-save-wardrobe" variant="outline" className="w-full font-semibold uppercase tracking-wide" size="lg">
+              Save Wardrobe
+            </Button>
+          </div>
         </div>
       </div>
     </div>

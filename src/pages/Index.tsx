@@ -10,6 +10,34 @@ import { Label } from "@/components/ui/label";
 import { Camera } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
+
+const tourSteps: TourStep[] = [
+  {
+    targetId: 'tour-camera-screen',
+    text: "Welcome to TintPicks! To capture a color, you don't need to hunt for a tiny button. Just tap anywhere on the live camera screen or the center crosshair to snap it!",
+  },
+  {
+    targetId: 'tour-mannequin',
+    text: "This is your 2D Interactive Mannequin Canvas. Tap the Top or Bottom layers to apply your captured color directly to the silhouette.",
+  },
+  {
+    targetId: 'tour-swiper',
+    text: "Here is the magic. Swipe this Interactive Garment Swiper left or right to cycle through fashion-safe colors perfectly matched to your base color.",
+  },
+  {
+    targetId: 'tour-layers',
+    text: "Building a full fit? Use these Toggle Layers to add Outerwear jackets or Footwear to the mannequin.",
+  },
+  {
+    targetId: 'tour-shop',
+    text: "Love the look? Tap 'Shop This Complete Look' to instantly find these exact matching items from premium brands.",
+  },
+  {
+    targetId: 'tour-save-wardrobe',
+    text: "Finally, hit Save to store this complete outfit in your personal Cloud Wardrobe for later. Let's get styling!",
+  }
+];
 
 const Index = () => {
   const [userName, setUserName] = useState("");
@@ -18,6 +46,8 @@ const Index = () => {
   const {
     showCamera,
     setShowCamera,
+    isTourActive,
+    setIsTourActive,
     handleLogout,
     handleColorAdd,
     handleColorCapture,
@@ -46,6 +76,10 @@ const Index = () => {
       if (onboardingData) {
         setUserName(onboardingData.display_name || '');
         setUserProfile(onboardingData);
+        // Start tour automatically if not completed
+        if (!onboardingData.onboarding_completed) {
+          setIsTourActive(true);
+        }
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
@@ -77,6 +111,27 @@ const Index = () => {
     }
   };
 
+  const handleTourComplete = async () => {
+    setIsTourActive(false);
+    
+    // Check and update profile if it was their first time
+    if (userProfile && !userProfile.onboarding_completed) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase
+            .from('profiles')
+            .update({ onboarding_completed: true })
+            .eq('id', user.id);
+          
+          setUserProfile({ ...userProfile, onboarding_completed: true });
+        }
+      } catch (error) {
+        console.error('Failed to update onboarding state', error);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground relative flex flex-col">
       {/* Sleek Minimalist Header */}
@@ -98,7 +153,7 @@ const Index = () => {
               onLogout={handleLogout}
               onColorAdd={handleColorAdd}
               onSavedPaletteClick={() => {}}
-              onStartTour={() => {}}
+              onStartTour={() => setIsTourActive(true)}
             />
           </div>
         </div>
@@ -110,7 +165,7 @@ const Index = () => {
           <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
         ) : (
           <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in relative">
-            {savedColors.length === 0 ? (
+            {savedColors.length === 0 && !isTourActive ? (
               <div className="flex flex-col items-center justify-center flex-1 w-full relative">
                 {/* Witty Empty State Text */}
                 <div className="absolute top-1/4 z-10 px-4">
@@ -130,6 +185,7 @@ const Index = () => {
 
             {/* Floating Camera Button (Always Visible) */}
             <Button 
+              id="tour-camera-screen"
               size="icon"
               className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-2xl hover:scale-105 active:scale-95 transition-transform z-50 bg-primary text-primary-foreground"
               onClick={() => setShowCamera(true)}
@@ -138,6 +194,8 @@ const Index = () => {
             </Button>
           </div>
         )}
+
+        {isTourActive && <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />}
 
         <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>
           <DialogContent className="sm:max-w-md">

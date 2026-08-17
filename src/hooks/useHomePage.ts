@@ -18,6 +18,8 @@ export interface UseHomePageProps {
   setShowCamera: React.Dispatch<React.SetStateAction<boolean>>;
   showShoppingModal: boolean;
   setShowShoppingModal: React.Dispatch<React.SetStateAction<boolean>>;
+  isTourActive: boolean;
+  setIsTourActive: React.Dispatch<React.SetStateAction<boolean>>;
   selectedColor: string;
   setSelectedColor: React.Dispatch<React.SetStateAction<string>>;
   savedColors: SavedColor[];
@@ -41,6 +43,7 @@ export interface UseHomePageProps {
 export function useHomePage(): UseHomePageProps {
   const [showCamera, setShowCamera] = React.useState(false);
   const [showShoppingModal, setShowShoppingModal] = React.useState(false);
+  const [isTourActive, setIsTourActive] = React.useState(false);
   const [selectedColor, setSelectedColor] = React.useState("");
   const [savedColors, setSavedColors] = React.useState<SavedColor[]>([]);
   const [mascotMood, setMascotMood] = React.useState<MascotMood>("happy");
@@ -225,6 +228,8 @@ export function useHomePage(): UseHomePageProps {
     setShowCamera,
     showShoppingModal,
     setShowShoppingModal,
+    isTourActive,
+    setIsTourActive,
     selectedColor,
     setSelectedColor,
     savedColors,
