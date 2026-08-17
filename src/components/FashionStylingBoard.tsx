@@ -36,6 +36,7 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
   });
 
   const [selectedLayer, setSelectedLayer] = useState<GarmentCategory>('top');
+  const [anchorColor, setAnchorColor] = useState<string>('#808080');
   const [carouselColors, setCarouselColors] = useState<string[]>([]);
   const [emblaRef] = useEmblaCarousel({ dragFree: true, containScroll: 'trimSnaps' });
 
@@ -44,6 +45,7 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
     if (capturedItem) {
       setEquipped(prev => ({ ...prev, [capturedItem.category]: capturedItem.item }));
       setColors(prev => ({ ...prev, [capturedItem.category]: capturedItem.hex }));
+      setAnchorColor(capturedItem.hex);
       
       if (capturedItem.desiredCategory) {
         setSelectedLayer(capturedItem.desiredCategory);
@@ -60,12 +62,11 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
     }
   }, [capturedItem]);
 
-  // Update carousel colors when the selected layer's color changes
+  // Update carousel colors ONLY when the anchor color changes
   useEffect(() => {
-    const baseColor = colors[selectedLayer] !== 'transparent' ? colors[selectedLayer] : '#808080';
-    const newColors = generateFashionPalette(baseColor);
+    const newColors = generateFashionPalette(anchorColor);
     setCarouselColors(newColors);
-  }, [colors, selectedLayer]);
+  }, [anchorColor]);
 
   const handleLayerClick = (layer: GarmentCategory) => {
     setSelectedLayer(layer);
