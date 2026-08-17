@@ -1,12 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.caa761b3130843fd9a147e6cfc880877',
-  appName: 'tintpicks',
+  appId: 'com.tintpicks.app',
+  appName: 'TintPicks',
   webDir: 'dist',
   server: {
-    url: 'https://caa761b3-1308-43fd-9a14-7e6cfc880877.lovableproject.com?forceHideBadge=true',
-    cleartext: true
+    androidScheme: 'https'
   },
   plugins: {
     SplashScreen: {

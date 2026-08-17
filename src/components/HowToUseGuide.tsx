@@ -95,7 +95,7 @@ const HowToUseGuide = () => {
               <div className="relative w-full md:w-1/3 flex flex-col items-center">
                 <div className="relative animate-fade-in" style={{ animationDuration: '6s' }}>
                   <img 
-                    src="/lovable-uploads/539dce15-cb88-4d10-8ae0-d0a8a0e60874.png" 
+                    src="/uploads/539dce15-cb88-4d10-8ae0-d0a8a0e60874.png" 
                     alt="Tintpicks Character" 
                     className="h-32 mx-auto mb-2"
                   />

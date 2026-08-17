@@ -135,7 +135,7 @@ serve(async (req) => {
               <p>Ready to start exploring? Your personalized dashboard is waiting for you!</p>
               
               <div style="text-align: center;">
-                <a href="${Deno.env.get('SITE_URL') || 'https://tintpicks.lovable.app'}" class="cta-button">
+                <a href="${Deno.env.get('SITE_URL') || 'https://tintpicks.com'}" class="cta-button">
                   Start Exploring Colors →
                 </a>
               </div>

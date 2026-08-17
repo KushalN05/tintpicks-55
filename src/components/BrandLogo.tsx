@@ -85,7 +85,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({
         {/* Main logo image */}
         <div className="relative">
           <img 
-            src="/lovable-uploads/539dce15-cb88-4d10-8ae0-d0a8a0e60874.png" 
+            src="/uploads/539dce15-cb88-4d10-8ae0-d0a8a0e60874.png" 
             alt="TintPicks Logo" 
             className={`${logo} mx-auto relative z-10`}
           />
