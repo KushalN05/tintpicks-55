@@ -5,8 +5,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const ALLOWLIST = ['asos.com', 'zara.com', 'hm.com', 'next.co.uk', 'marksandspencer.com', 'uniqlo.com', 'mango.com', 'shop.mango.com'];
-const BLOCKLIST = ['cushion', 'pillow', 'towel', 'curtain', 'paint', 'fabric', 'rug', 'home', 'kids', 'baby'];
+const ALLOWLIST = [
+  'asos.com', 'zara.com', 'hm.com', 'next.co.uk', 'marksandspencer.com', 'uniqlo.com', 'mango.com', 
+  'boohoo.com', 'riverisland.com', 'primark.com', 'newlook.com', 'jdsports.co.uk', 'urbanoutfitters.com', 
+  'johnlewis.com', 'selfridges.com', 'flannels.com', 'houseoffraser.co.uk', 'matalan.co.uk', 'george.com', 
+  'tuclothing.sainsburys.co.uk', 'very.co.uk', 'schuh.co.uk', 'office.co.uk', 'pullandbear.com', 
+  'bershka.com', 'stradivarius.com', 'massimodutti.com', 'cos.com', 'arketofficial.com', 'weekday.com', 
+  'monki.com', 'stories.com', 'reiss.com', 'phase-eight.com', 'hobbs.com', 'whistles.com', 
+  'sweatybetty.com', 'gymshark.com', 'fatface.com', 'whitestuff.com', 'joules.com', 'bensherman.co.uk', 
+  'fredperry.com', 'frenchconnection.com', 'superdry.com', 'allsaints.com', 'hollisterco.com', 
+  'abercrombie.com', 'levis.com', 'vans.co.uk', 'timberland.co.uk'
+];
+const BLOCKLIST_DOMAINS = ['shein', 'temu', 'aliexpress', 'wish', 'dhgate', 'cider', 'lightinthebox'];
+const BLOCKLIST_TERMS = ['cushion', 'pillow', 'towel', 'curtain', 'paint', 'fabric', 'rug', 'home', 'kids', 'baby'];
+const COLOR_FAMILIES = ['black', 'white', 'grey', 'gray', 'navy', 'blue', 'green', 'olive', 'brown', 'beige', 'cream', 'red', 'burgundy', 'pink', 'yellow', 'mustard', 'orange', 'purple', 'plum', 'teal', 'khaki', 'lilac'];
 
 const CATEGORY_SYNONYMS: Record<string, string[]> = {
   'Shirts': ['shirt', 'top', 't-shirt', 'blouse', 'polo', 'tee'],
@@ -46,7 +58,7 @@ serve(async (req) => {
     // Construct Google Shopping text query
     const genderTerm = gender !== 'All' ? (gender === 'Mens' ? 'Mens' : gender === 'Womens' ? 'Womens' : gender) : '';
     const categoryTerm = category !== 'All' ? category : 'Clothing';
-    const textQuery = `${genderTerm} ${colorName} ${categoryTerm}`.trim().replace(/\s+/g, ' ');
+    const textQuery = `${genderTerm} "${colorName}" ${categoryTerm}`.trim().replace(/\s+/g, ' ');
 
     // Fetch from SerpApi Google Shopping engine
     const searchParams = new URLSearchParams({
@@ -73,13 +85,32 @@ serve(async (req) => {
     const categorySynonyms = CATEGORY_SYNONYMS[category] || [];
 
     // Google Shopping usually provides 'link' and sometimes 'source'
-    const isDomainAllowed = (link: string, source?: string) => 
-      ALLOWLIST.some(domain => 
-        (link && link.toLowerCase().includes(domain)) || 
-        (source && source.toLowerCase().includes(domain.replace('.com', '').replace('.co.uk', '')))
-      );
+    const targetColorWords = colorName.toLowerCase().split(' ');
+    const conflictingColors = COLOR_FAMILIES.filter(c => !targetColorWords.includes(c));
+
+    const isDomainAllowed = (link: string, source?: string) => {
+      const linkLower = link ? link.toLowerCase() : '';
+      const sourceLower = source ? source.toLowerCase() : '';
       
-    const isTitleBlocked = (title: string) => BLOCKLIST.some(blocked => title.toLowerCase().includes(blocked));
+      // Explicitly block dropshippers
+      if (BLOCKLIST_DOMAINS.some(domain => linkLower.includes(domain) || sourceLower.includes(domain))) {
+        return false;
+      }
+
+      return ALLOWLIST.some(domain => 
+        linkLower.includes(domain) || 
+        sourceLower.includes(domain.replace('.com', '').replace('.co.uk', ''))
+      );
+    };
+      
+    const isTitleBlocked = (title: string) => {
+      const lowerTitle = title.toLowerCase();
+      if (BLOCKLIST_TERMS.some(blocked => lowerTitle.includes(blocked))) return true;
+      // Drop results that contain conflicting colors in the title
+      if (conflictingColors.some(color => lowerTitle.includes(` ${color}`) || lowerTitle.startsWith(`${color} `))) return true;
+      return false;
+    };
+    
     const hasCategorySynonym = (title: string) => categorySynonyms.length === 0 || categorySynonyms.some(synonym => title.toLowerCase().includes(synonym));
     // For Google Shopping, price is usually just a string 'price' or a float 'extracted_price'
     const hasPrice = (match: any) => match.price || match.extracted_price !== undefined;
