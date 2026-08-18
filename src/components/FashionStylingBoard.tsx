@@ -72,6 +72,20 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
     setSelectedLayer(layer);
   };
 
+  const handleSaveWardrobe = () => {
+    const outfit = {
+      id: Date.now().toString(),
+      equipped,
+      colors,
+      name: `Saved Outfit ${new Date().toLocaleDateString()}`
+    };
+    const existing = JSON.parse(localStorage.getItem('saved_outfits') || '[]');
+    localStorage.setItem('saved_outfits', JSON.stringify([outfit, ...existing]));
+    
+    // Create a native alert since we don't have useToast imported here yet
+    alert("Outfit Saved! You can view this outfit in your Saved profiles.");
+  };
+
   const handleColorClick = (hex: string) => {
     setColors(prev => ({ ...prev, [selectedLayer]: hex }));
   };
@@ -212,7 +226,13 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
             >
               Shop This Match
             </Button>
-            <Button id="tour-save-wardrobe" variant="outline" className="w-full font-semibold uppercase tracking-wide" size="lg">
+            <Button 
+              id="tour-save-wardrobe" 
+              variant="outline" 
+              className="w-full font-semibold uppercase tracking-wide" 
+              size="lg"
+              onClick={handleSaveWardrobe}
+            >
               Save Wardrobe
             </Button>
           </div>

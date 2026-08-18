@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera, Settings, Share, Plus, Layers, Users, BarChart2 } from "lucide-react";
+import { Camera, Plus, Layers, Bookmark } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
-import { motion } from "framer-motion";
+import HamburgerMenu from "@/components/HamburgerMenu";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const tourSteps: TourStep[] = [
   {
@@ -68,6 +70,7 @@ const Index = () => {
   const [capturedItemType, setCapturedItemType] = useState<GarmentType | null>(null);
   
   const [activeTab, setActiveTab] = useState<'home' | 'wardrobe'>('home');
+  const navigate = useNavigate();
 
   // If they have saved colors but click home, they should see the ring.
   // If they click wardrobe, they see the styling board.
@@ -169,12 +172,18 @@ const Index = () => {
             <div className="flex-1 flex flex-col w-full max-w-md mx-auto relative">
               {/* Top Nav */}
               <div className="w-full px-6 pt-12 flex justify-between items-center z-10">
-                <button onClick={handleLogout} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
-                  <Settings className="w-6 h-6 text-foreground" />
-                </button>
-                <button className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
-                  <Share className="w-6 h-6 text-foreground" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center shadow-sm">
+                    <span className="text-background font-bold text-lg">T</span>
+                  </div>
+                  <span className="font-semibold text-lg tracking-tight">TintPicks</span>
+                </div>
+                <HamburgerMenu
+                  onLogout={handleLogout}
+                  onColorAdd={handleColorAdd}
+                  onSavedPaletteClick={() => navigate('/history')}
+                  onStartTour={() => setIsTourActive(true)}
+                />
               </div>
 
               {/* Greeting */}
@@ -263,15 +272,14 @@ const Index = () => {
             className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'wardrobe' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'} ${savedColors.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
              <Layers className="w-7 h-7" />
-             <span className="text-[11px] font-bold tracking-widest uppercase">Wardrobe</span>
+             <span className="text-[11px] font-bold tracking-widest uppercase">Styling</span>
           </button>
-          <button className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-foreground/80 transition-colors">
-             <Users className="w-7 h-7" />
-             <span className="text-[11px] font-bold tracking-widest uppercase">Friends</span>
-          </button>
-          <button className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-foreground/80 transition-colors">
-             <BarChart2 className="w-7 h-7" />
-             <span className="text-[11px] font-bold tracking-widest uppercase">Analyze</span>
+          <button 
+            onClick={() => navigate('/history')}
+            className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-foreground/80 transition-colors"
+          >
+             <Bookmark className="w-7 h-7" />
+             <span className="text-[11px] font-bold tracking-widest uppercase">Saved</span>
           </button>
         </div>
       )}
