@@ -4,19 +4,18 @@ import ColorCapture from "@/components/ColorCapture";
 import FashionStylingBoard, { CapturedItemConfig } from "@/components/FashionStylingBoard";
 import { GarmentCategory, GarmentType } from "@/components/StylingMannequin";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera } from "lucide-react";
+import { Camera, Home, Heart, Plus, Search, User } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
-import HamburgerMenu from "@/components/HamburgerMenu";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
+import { motion, AnimatePresence } from "framer-motion";
 
 const tourSteps: TourStep[] = [
   {
     targetId: 'tour-camera-screen',
-    text: "Welcome to TintPicks! To capture a color, you don't need to hunt for a tiny button. Just tap anywhere on the live camera screen or the center crosshair to snap it!",
+    text: "Welcome to TintPicks! To capture a color, tap the massive camera button below.",
   },
   {
     targetId: 'tour-mannequin',
@@ -85,7 +84,6 @@ const Index = () => {
       if (onboardingData) {
         setUserName(onboardingData.display_name || '');
         setUserProfile(onboardingData);
-        // Start tour automatically if not completed
         if (!onboardingData.onboarding_completed) {
           setIsTourActive(true);
         }
@@ -96,9 +94,8 @@ const Index = () => {
   };
 
   const handleCapture = (hex: string) => {
-    // We don't save immediately. We wait for the modal to get the name and garment.
     setPendingHex(hex);
-    setPendingName(""); // Reset name
+    setPendingName(""); 
     setCaptureStep(1);
     setShowCamera(false);
   };
@@ -113,7 +110,6 @@ const Index = () => {
     if (pendingHex && capturedCategory && capturedItemType) {
       const finalName = pendingName.trim() || `Colour #${savedColors.length + 1}`;
       
-      // Save to database
       await handleColorCapture(pendingHex, finalName);
 
       setCapturedItem({
@@ -130,8 +126,6 @@ const Index = () => {
 
   const handleTourComplete = async () => {
     setIsTourActive(false);
-    
-    // Check and update profile if it was their first time
     if (userProfile && !userProfile.onboarding_completed) {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -140,7 +134,6 @@ const Index = () => {
             .from('profiles')
             .update({ onboarding_completed: true })
             .eq('id', user.id);
-          
           setUserProfile({ ...userProfile, onboarding_completed: true });
         }
       } catch (error) {
@@ -150,138 +143,220 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative flex flex-col">
-      {/* Sleek Minimalist Header */}
-      <header className="w-full border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-foreground rounded-sm flex items-center justify-center">
+    <div className="min-h-screen bg-background text-foreground relative flex flex-col overflow-hidden font-sans pb-32">
+      
+      {/* iOS-Native Large Header */}
+      {!showCamera && (
+        <header className="w-full px-6 pt-12 pb-4 bg-background z-40">
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center shadow-sm">
               <span className="text-background font-bold text-lg">T</span>
             </div>
             <span className="font-semibold text-lg tracking-tight">TintPicks</span>
           </div>
-
-          <div className="flex items-center gap-4">
-            {userName && <span className="text-sm font-medium text-muted-foreground">Hello, {userName}</span>}
-            <Button variant="ghost" size="icon" onClick={() => setShowCamera(true)} className="rounded-full">
-              <Camera className="h-5 w-5" />
-            </Button>
-            <HamburgerMenu
-              onLogout={handleLogout}
-              onColorAdd={handleColorAdd}
-              onSavedPaletteClick={() => {}}
-              onStartTour={() => setIsTourActive(true)}
-            />
-          </div>
-        </div>
-      </header>
+          
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-4xl font-bold tracking-tighter text-foreground mb-2">
+              Good morning{userName ? `, ${userName.split(' ')[0]}` : ''}
+            </h1>
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+               ☀️ {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            </p>
+          </motion.div>
+        </header>
+      )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-center p-4">
-        {showCamera ? (
-          <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
-        ) : (
-          <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in relative">
-            {savedColors.length === 0 && !isTourActive ? (
-              <div className="flex flex-col items-center justify-center flex-1 w-full relative">
-                {/* Witty Empty State Text */}
-                <div className="absolute top-1/4 z-10 px-4">
-                  <div className="bg-black/40 backdrop-blur-md text-white px-5 py-2.5 rounded-full border border-white/10 shadow-lg text-sm md:text-base font-medium tracking-wide text-center">
-                    Feed me some color (I promise I have good taste)
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full h-full pb-24">
-                <FashionStylingBoard 
-                  capturedItem={capturedItem} 
-                  savedColors={savedColors}
-                  onShop={handleShop}
-                />
-              </div>
-            )}
-
-            {/* Floating Camera Button (Always Visible) */}
-            <Button 
-              id="tour-camera-screen"
-              size="icon"
-              className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-2xl hover:scale-105 active:scale-95 transition-transform z-50 bg-primary text-primary-foreground"
-              onClick={() => setShowCamera(true)}
+      <main className="flex-1 flex flex-col relative w-full h-full">
+        <AnimatePresence mode="wait">
+          {showCamera ? (
+            <motion.div 
+              key="camera"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 bg-background"
             >
-              <Camera className="w-8 h-8" />
-            </Button>
-          </div>
-        )}
+              <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="dashboard"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full flex-1 flex flex-col"
+            >
+              {savedColors.length === 0 && !isTourActive ? (
+                /* Rich Empty State */
+                <div className="w-full flex-1 flex flex-col px-6 pt-6 pb-32 max-w-2xl mx-auto">
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full mb-10">
+                    <button 
+                      onClick={() => setShowCamera(true)}
+                      className="w-full aspect-[2/1] rounded-[2rem] border-2 border-dashed border-border/80 bg-card flex flex-col items-center justify-center hover:bg-card/80 transition-all group shadow-sm"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-foreground flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <Camera className="w-7 h-7 text-background" />
+                      </div>
+                      <h3 className="font-semibold text-foreground text-lg mb-1">Capture a Color</h3>
+                      <p className="text-muted-foreground text-sm">Scan an item to start styling</p>
+                    </button>
+                  </motion.div>
 
-        {isTourActive && <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />}
-
-        <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {captureStep === 1 ? "What did you capture?" : "What are you looking for?"}
-              </DialogTitle>
-              <DialogDescription>
-                {captureStep === 1 
-                  ? "Select the clothing item that matches your captured color."
-                  : "Select what you want to match it with."}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              {captureStep === 1 && (
-                <div className="space-y-2">
-                  <Label htmlFor="color-name">Name this color (optional)</Label>
-                  <Input 
-                    id="color-name" 
-                    placeholder={`e.g. Navy Blue Jacket`} 
-                    value={pendingName}
-                    onChange={(e) => setPendingName(e.target.value)}
-                    className="col-span-3"
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="w-full">
+                    <h3 className="text-xl font-bold tracking-tight mb-4">Discover</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Inspiration Card 1 */}
+                      <div className="aspect-[4/5] rounded-3xl bg-muted overflow-hidden relative group shadow-sm">
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
+                         <div className="absolute inset-0 bg-gradient-to-br from-[#8B7355] to-[#D2B48C] group-hover:scale-105 transition-transform duration-700" />
+                         <div className="absolute bottom-5 left-5 z-20">
+                           <p className="text-white font-bold text-lg leading-tight mb-1">Earth Tones</p>
+                           <p className="text-white/80 text-xs font-medium uppercase tracking-wider">Trending Palettes</p>
+                         </div>
+                      </div>
+                      {/* Inspiration Card 2 */}
+                      <div className="aspect-[4/5] rounded-3xl bg-muted overflow-hidden relative group shadow-sm">
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
+                         <div className="absolute inset-0 bg-gradient-to-br from-[#2C3E50] to-[#3498DB] group-hover:scale-105 transition-transform duration-700" />
+                         <div className="absolute bottom-5 left-5 z-20">
+                           <p className="text-white font-bold text-lg leading-tight mb-1">Styling Navy</p>
+                           <p className="text-white/80 text-xs font-medium uppercase tracking-wider">Style Guides</p>
+                         </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              ) : (
+                /* Active Dashboard State */
+                <div className="w-full h-full pb-24 px-4">
+                  <FashionStylingBoard 
+                    capturedItem={capturedItem} 
+                    savedColors={savedColors}
+                    onShop={handleShop}
                   />
                 </div>
               )}
-
-              {captureStep === 1 ? (
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-muted-foreground">Tops</h4>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-muted-foreground">Bottoms</h4>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
-                  </div>
-                  <div className="space-y-2 col-span-2">
-                    <h4 className="text-sm font-medium text-muted-foreground">Outerwear</h4>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-3 pt-4 border-t">
-                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('top')}>
-                    Tops & Shirts
-                  </Button>
-                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('bottom')}>
-                    Bottoms & Trousers
-                  </Button>
-                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('outerwear')}>
-                    Outerwear & Jackets
-                  </Button>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-        
-        <ShoppingModal 
-          isOpen={showShoppingModal} 
-          onClose={() => setShowShoppingModal(false)} 
-          color={selectedColor}
-          initialCategory={selectedShopCategory}
-        />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
+
+      {/* Glassmorphic Navigation Pill */}
+      {!showCamera && (
+        <div className="fixed bottom-8 inset-x-0 flex justify-center z-40 pointer-events-none">
+          <motion.div 
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="bg-foreground/95 backdrop-blur-md rounded-full px-8 py-4 flex items-center gap-10 shadow-2xl pointer-events-auto border border-white/10"
+          >
+            <button className="text-background hover:text-background/70 transition-colors flex flex-col items-center gap-1">
+               <Home className="w-6 h-6" />
+            </button>
+            <button className="text-background/50 hover:text-background transition-colors flex flex-col items-center gap-1">
+               <Heart className="w-6 h-6" />
+            </button>
+            
+            {/* Prominent Central Capture Button */}
+            <button 
+              id="tour-camera-screen"
+              onClick={() => setShowCamera(true)}
+              className="w-14 h-14 rounded-full bg-background flex items-center justify-center shadow-lg -mt-10 border-4 border-foreground hover:scale-110 active:scale-95 transition-transform duration-200 group"
+            >
+               <Plus className="w-6 h-6 text-foreground group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+            
+            <button className="text-background/50 hover:text-background transition-colors flex flex-col items-center gap-1">
+               <Search className="w-6 h-6" />
+            </button>
+            <button onClick={handleLogout} className="text-background/50 hover:text-background transition-colors flex flex-col items-center gap-1">
+               <User className="w-6 h-6" />
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+      {isTourActive && <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />}
+
+      {/* Slide-Up Bottom Sheet for Color Classification */}
+      <AnimatePresence>
+        {!!pendingHex && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+              onClick={() => setPendingHex(null)}
+            />
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+              className="fixed bottom-0 inset-x-0 bg-card rounded-t-[32px] p-6 pb-safe pt-8 z-50 shadow-2xl flex flex-col max-h-[85vh] overflow-y-auto border-t border-border"
+            >
+              <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-6 absolute top-4 left-1/2 -translate-x-1/2" />
+              
+              <h2 className="text-2xl font-bold text-foreground mb-2 mt-4 tracking-tight">
+                 {captureStep === 1 ? "What did you capture?" : "What are you looking for?"}
+              </h2>
+              <p className="text-muted-foreground mb-8">
+                 {captureStep === 1 ? "Select the clothing item that matches your captured color." : "Select what you want to match it with."}
+              </p>
+
+              <div className="space-y-6">
+                {captureStep === 1 && (
+                  <div className="space-y-3">
+                    <Label htmlFor="color-name" className="text-foreground font-semibold">Name this color (optional)</Label>
+                    <Input 
+                      id="color-name" 
+                      placeholder={`e.g. Navy Blue Jacket`} 
+                      value={pendingName}
+                      onChange={(e) => setPendingName(e.target.value)}
+                      className="bg-background border-border h-12 rounded-xl focus-visible:ring-foreground"
+                    />
+                  </div>
+                )}
+
+                {captureStep === 1 ? (
+                  <div className="grid grid-cols-2 gap-4 border-t border-border pt-6">
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Tops</h4>
+                      <Button variant="outline" className="w-full justify-start h-14 rounded-xl border-border hover:border-foreground hover:bg-background text-foreground font-medium" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
+                      <Button variant="outline" className="w-full justify-start h-14 rounded-xl border-border hover:border-foreground hover:bg-background text-foreground font-medium" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Bottoms</h4>
+                      <Button variant="outline" className="w-full justify-start h-14 rounded-xl border-border hover:border-foreground hover:bg-background text-foreground font-medium" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
+                      <Button variant="outline" className="w-full justify-start h-14 rounded-xl border-border hover:border-foreground hover:bg-background text-foreground font-medium" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
+                    </div>
+                    <div className="space-y-3 col-span-2 mt-2">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Outerwear</h4>
+                      <Button variant="outline" className="w-full justify-start h-14 rounded-xl border-border hover:border-foreground hover:bg-background text-foreground font-medium" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 border-t border-border pt-6">
+                    <Button className="w-full justify-center h-16 rounded-2xl bg-foreground text-background hover:bg-foreground/90 text-lg font-semibold" onClick={() => handleSelectDesiredGarment('top')}>
+                      Tops & Shirts
+                    </Button>
+                    <Button className="w-full justify-center h-16 rounded-2xl bg-foreground text-background hover:bg-foreground/90 text-lg font-semibold" onClick={() => handleSelectDesiredGarment('bottom')}>
+                      Bottoms & Trousers
+                    </Button>
+                    <Button className="w-full justify-center h-16 rounded-2xl bg-foreground text-background hover:bg-foreground/90 text-lg font-semibold" onClick={() => handleSelectDesiredGarment('outerwear')}>
+                      Outerwear & Jackets
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+      
+      <ShoppingModal 
+        isOpen={showShoppingModal} 
+        onClose={() => setShowShoppingModal(false)} 
+        color={selectedColor}
+        initialCategory={selectedShopCategory}
+      />
     </div>
   );
 };
