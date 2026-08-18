@@ -5,7 +5,7 @@ export interface Product {
   name: string;
   price: string | null;
   image_url: string | null;
-  affiliate_url: string | null;
+  link: string | null;
   hex_code: string | null;
 }
 

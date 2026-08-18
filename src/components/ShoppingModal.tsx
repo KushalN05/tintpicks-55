@@ -8,10 +8,11 @@ import { fetchProductsByColor, Product } from '../utils/productService';
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [imgError, setImgError] = useState(false);
+  console.log("Product Data:", product);
 
   return (
     <a 
-      href={product.affiliate_url || '#'}
+      href={product.link || '#'}
       target="_blank"
       rel="noopener noreferrer"
       className="group flex flex-col overflow-hidden transition-all duration-500 cursor-pointer block"
@@ -33,7 +34,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         )}
 
         {/* Hover Overlay — slides up on hover */}
-        {product.affiliate_url && (
+        {product.link && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
             <div className="w-4/5 translate-y-3 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-75 pointer-events-none">
               <div className="flex items-center justify-center w-full bg-white text-stone-900 uppercase tracking-widest text-[10px] font-semibold h-9 shadow-lg">

@@ -90,7 +90,7 @@ serve(async (req) => {
       name: match.title || 'Fashion Item',
       price: match.price || (match.extracted_price ? `$${match.extracted_price}` : ''),
       image_url: match.thumbnail,
-      affiliate_url: match.link,
+      link: match.link || match.product_link,
       hex_code: hexCode
     });
 
