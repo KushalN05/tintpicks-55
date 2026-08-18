@@ -73,19 +73,7 @@ const SkeletonCard = () => (
   </div>
 );
 
-const EmptyState = () => (
-  <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6">
-      <PackageX className="h-8 w-8 text-muted-foreground" />
-    </div>
-    <h3 className="text-base font-sans uppercase tracking-widest text-foreground mb-3">
-      No Items Found
-    </h3>
-    <p className="text-sm text-muted-foreground max-w-[240px] leading-relaxed">
-      We couldn't find exact matches. Try adjusting the category or gender filters to explore more.
-    </p>
-  </div>
-);
+import GuidedRecovery from './GuidedRecovery';
 
 const ShoppingModal = ({
   isOpen,
@@ -102,7 +90,16 @@ const ShoppingModal = ({
   const [loading, setLoading] = useState(false);
   const [gender, setGender] = useState('All');
   const [category, setCategory] = useState(initialCategory || 'All');
-  const colorName = getColorName(color);
+  const [currentColor, setCurrentColor] = useState(color);
+  const colorName = getColorName(currentColor);
+
+  // Sync props when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      if (initialCategory) setCategory(initialCategory);
+      if (color) setCurrentColor(color);
+    }
+  }, [isOpen, initialCategory, color]);
 
   // Sync category when modal opens with a new initialCategory
   useEffect(() => {
@@ -112,10 +109,10 @@ const ShoppingModal = ({
   }, [isOpen, initialCategory]);
 
   useEffect(() => {
-    if (isOpen && color) {
+    if (isOpen && currentColor) {
       setLoading(true);
       setProducts([]);
-      fetchProductsByColor(color, gender, category, 24)
+      fetchProductsByColor(currentColor, gender, category, 24)
         .then((results) => {
           setProducts(Array.isArray(results) ? results : []);
         })
@@ -125,7 +122,7 @@ const ShoppingModal = ({
         })
         .finally(() => setLoading(false));
     }
-  }, [isOpen, color, gender, category]);
+  }, [isOpen, currentColor, gender, category]);
 
   const safeProductsCount = Array.isArray(products) ? products.length : 0;
 
@@ -142,14 +139,14 @@ const ShoppingModal = ({
             <div className="flex flex-col items-center gap-4 text-center">
               <div
                 className="w-12 h-12 rounded-full shadow-sm border border-border"
-                style={{ backgroundColor: color }}
+                style={{ backgroundColor: currentColor }}
               />
               <div>
                 <SheetTitle className="text-foreground font-sans text-xl tracking-wide">
                   Shop {colorName}
                 </SheetTitle>
                 <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground mt-1.5">
-                  {color} · {safeProductsCount} items
+                  {currentColor} · {safeProductsCount} items
                 </SheetDescription>
               </div>
             </div>
@@ -211,9 +208,14 @@ const ShoppingModal = ({
               ))}
             </div>
           ) : (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <EmptyState />
-            </div>
+            <GuidedRecovery 
+              color={currentColor}
+              colorName={colorName}
+              category={category}
+              gender={gender}
+              onColorPivot={(newColor) => setCurrentColor(newColor)}
+              onCategoryPivot={() => setCategory('All')}
+            />
           )}
         </div>
       </SheetContent>
