@@ -53,7 +53,7 @@ serve(async (req) => {
       engine: 'google_shopping',
       q: textQuery,
       api_key: SERPAPI_KEY,
-      gl: 'us', // Geolocation
+      gl: 'uk', // Geolocation
       hl: 'en'  // Language
     });
 

@@ -1,4 +1,5 @@
 import ntc from './ntc';
+import { getCommercialColorName } from './commercialColorMapping';
 
 export interface ColorInfo {
   name: string;
@@ -73,12 +74,11 @@ export const getColorsByCategory = (): ColorCategories => {
 };
 
 export const getColorName = (hex: string): string => {
-  // Ensure we have a proper hex code
   let cleanHex = hex.trim().toUpperCase();
   if (!cleanHex.startsWith('#')) cleanHex = '#' + cleanHex;
   
-  const match = ntc.name(cleanHex);
-  return match[1]; // match is [hex_value, name, exact_match_boolean]
+  // Use commercial color mapping via Delta-E matching
+  return getCommercialColorName(cleanHex);
 };
 
 export const getClosestNamedColor = getColorName;
