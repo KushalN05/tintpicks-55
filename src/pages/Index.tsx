@@ -12,12 +12,11 @@ import { useHomePage } from "@/hooks/useHomePage";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
-import UploadActionSheet from "@/components/UploadActionSheet";
 
 const tourSteps: TourStep[] = [
   {
     targetId: 'tour-camera-screen',
-    text: "Welcome to TintPicks! To capture a color, you don't need to hunt for a tiny button. Just tap anywhere on the live camera screen to snap it!",
+    text: "Welcome to TintPicks! To capture a color, you don't need to hunt for a tiny button. Just tap anywhere on the live camera screen or the center crosshair to snap it!",
   },
   {
     targetId: 'tour-mannequin',
@@ -68,8 +67,6 @@ const Index = () => {
   const [capturedCategory, setCapturedCategory] = useState<GarmentCategory | null>(null);
   const [capturedItemType, setCapturedItemType] = useState<GarmentType | null>(null);
   
-  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
-
   useEffect(() => {
     loadUserProfile();
   }, []);
@@ -99,8 +96,9 @@ const Index = () => {
   };
 
   const handleCapture = (hex: string) => {
+    // We don't save immediately. We wait for the modal to get the name and garment.
     setPendingHex(hex);
-    setPendingName(""); 
+    setPendingName(""); // Reset name
     setCaptureStep(1);
     setShowCamera(false);
   };
@@ -115,6 +113,7 @@ const Index = () => {
     if (pendingHex && capturedCategory && capturedItemType) {
       const finalName = pendingName.trim() || `Colour #${savedColors.length + 1}`;
       
+      // Save to database
       await handleColorCapture(pendingHex, finalName);
 
       setCapturedItem({
@@ -131,6 +130,8 @@ const Index = () => {
 
   const handleTourComplete = async () => {
     setIsTourActive(false);
+    
+    // Check and update profile if it was their first time
     if (userProfile && !userProfile.onboarding_completed) {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -149,40 +150,49 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-gray-50 flex flex-col relative overflow-hidden font-sans">
-      {/* Header */}
-      <header className="bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between z-40 shrink-0">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          Good morning{userName ? `, ${userName.split(' ')[0]}` : ''}
-        </h1>
-        <HamburgerMenu
-          onLogout={handleLogout}
-          onColorAdd={handleColorAdd}
-          onSavedPaletteClick={() => {}}
-          onStartTour={() => setIsTourActive(true)}
-        />
+    <div className="min-h-screen bg-background text-foreground relative flex flex-col">
+      {/* Sleek Minimalist Header */}
+      <header className="w-full border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-foreground rounded-sm flex items-center justify-center">
+              <span className="text-background font-bold text-lg">T</span>
+            </div>
+            <span className="font-semibold text-lg tracking-tight">TintPicks</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {userName && <span className="text-sm font-medium text-muted-foreground">Hello, {userName}</span>}
+            <Button variant="ghost" size="icon" onClick={() => setShowCamera(true)} className="rounded-full">
+              <Camera className="h-5 w-5" />
+            </Button>
+            <HamburgerMenu
+              onLogout={handleLogout}
+              onColorAdd={handleColorAdd}
+              onSavedPaletteClick={() => {}}
+              onStartTour={() => setIsTourActive(true)}
+            />
+          </div>
+        </div>
       </header>
 
-      {/* Content Area */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 relative">
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col items-center justify-center p-4">
         {showCamera ? (
           <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
         ) : (
-          <div className="w-full flex flex-col items-center pb-32 animate-fade-in relative">
+          <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in relative">
             {savedColors.length === 0 && !isTourActive ? (
-              <div className="flex flex-col items-center justify-center min-h-[40vh] w-full mt-12">
-                 <div className="text-center space-y-4">
-                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
-                     <Camera className="w-8 h-8 text-gray-400" />
-                   </div>
-                   <h3 className="text-xl font-semibold text-gray-900">Your Wardrobe is Empty</h3>
-                   <p className="text-gray-500 text-sm max-w-[250px] mx-auto">
-                     Tap the button below to scan an item and start building your style board.
-                   </p>
-                 </div>
+              <div className="flex flex-col items-center justify-center flex-1 w-full relative">
+                {/* Witty Empty State Text */}
+                <div className="absolute top-1/4 z-10 px-4">
+                  <div className="bg-black/40 backdrop-blur-md text-white px-5 py-2.5 rounded-full border border-white/10 shadow-lg text-sm md:text-base font-medium tracking-wide text-center">
+                    Feed me some color (I promise I have good taste)
+                  </div>
+                </div>
               </div>
             ) : (
-              <div className="w-full max-w-md mx-auto">
+              <div className="w-full h-full pb-24">
                 <FashionStylingBoard 
                   capturedItem={capturedItem} 
                   savedColors={savedColors}
@@ -190,19 +200,28 @@ const Index = () => {
                 />
               </div>
             )}
+
+            {/* Floating Camera Button (Always Visible) */}
+            <Button 
+              id="tour-camera-screen"
+              size="icon"
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-2xl hover:scale-105 active:scale-95 transition-transform z-50 bg-primary text-primary-foreground"
+              onClick={() => setShowCamera(true)}
+            >
+              <Camera className="w-8 h-8" />
+            </Button>
           </div>
         )}
-        
-        {/* Modals and Dialogs */}
+
         {isTourActive && <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />}
 
         <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>
-          <DialogContent className="sm:max-w-md bg-white border-none shadow-2xl rounded-2xl">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-gray-900 text-xl">
+              <DialogTitle>
                 {captureStep === 1 ? "What did you capture?" : "What are you looking for?"}
               </DialogTitle>
-              <DialogDescription className="text-gray-500">
+              <DialogDescription>
                 {captureStep === 1 
                   ? "Select the clothing item that matches your captured color."
                   : "Select what you want to match it with."}
@@ -211,45 +230,45 @@ const Index = () => {
             <div className="space-y-4 py-4">
               {captureStep === 1 && (
                 <div className="space-y-2">
-                  <Label htmlFor="color-name" className="text-gray-900 font-medium">Name this color (optional)</Label>
+                  <Label htmlFor="color-name">Name this color (optional)</Label>
                   <Input 
                     id="color-name" 
                     placeholder={`e.g. Navy Blue Jacket`} 
                     value={pendingName}
                     onChange={(e) => setPendingName(e.target.value)}
-                    className="col-span-3 border-gray-200 bg-gray-50 focus-visible:ring-black"
+                    className="col-span-3"
                   />
                 </div>
               )}
 
               {captureStep === 1 ? (
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Tops</h4>
-                    <button className="w-full text-left px-4 py-3 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-medium" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</button>
-                    <button className="w-full text-left px-4 py-3 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-medium" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</button>
+                    <h4 className="text-sm font-medium text-muted-foreground">Tops</h4>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Bottoms</h4>
-                    <button className="w-full text-left px-4 py-3 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-medium" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</button>
-                    <button className="w-full text-left px-4 py-3 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-medium" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</button>
+                    <h4 className="text-sm font-medium text-muted-foreground">Bottoms</h4>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
                   </div>
-                  <div className="space-y-2 col-span-2 mt-2">
-                    <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Outerwear</h4>
-                    <button className="w-full text-left px-4 py-3 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-medium" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</button>
+                  <div className="space-y-2 col-span-2">
+                    <h4 className="text-sm font-medium text-muted-foreground">Outerwear</h4>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-3 pt-4 border-t border-gray-100">
-                  <button className="w-full text-center px-4 py-4 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-semibold" onClick={() => handleSelectDesiredGarment('top')}>
+                <div className="grid grid-cols-1 gap-3 pt-4 border-t">
+                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('top')}>
                     Tops & Shirts
-                  </button>
-                  <button className="w-full text-center px-4 py-4 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-semibold" onClick={() => handleSelectDesiredGarment('bottom')}>
+                  </Button>
+                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('bottom')}>
                     Bottoms & Trousers
-                  </button>
-                  <button className="w-full text-center px-4 py-4 border border-gray-200 rounded-xl hover:border-black hover:bg-gray-50 transition-colors text-gray-900 font-semibold" onClick={() => handleSelectDesiredGarment('outerwear')}>
+                  </Button>
+                  <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={() => handleSelectDesiredGarment('outerwear')}>
                     Outerwear & Jackets
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -263,32 +282,6 @@ const Index = () => {
           initialCategory={selectedShopCategory}
         />
       </main>
-
-      {/* Sticky Bottom Container / Upload Trigger */}
-      {!showCamera && (
-        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-white via-white to-transparent pb-safe pt-12 px-6 pb-8 z-30">
-          <button 
-            onClick={() => setIsActionSheetOpen(true)}
-            className="w-full rounded-full bg-black py-4 text-white font-semibold text-lg text-center shadow-lg active:scale-[0.98] transition-transform"
-          >
-            Scan an Item
-          </button>
-        </div>
-      )}
-
-      <UploadActionSheet 
-        isOpen={isActionSheetOpen}
-        onClose={() => setIsActionSheetOpen(false)}
-        onSelectCamera={() => setShowCamera(true)}
-        onSelectLibrary={() => {
-          // Placeholder for future library upload logic
-          alert("Photo Library integration coming soon!");
-        }}
-        onSelectFile={() => {
-          // Placeholder for future file picker logic
-          alert("File picker integration coming soon!");
-        }}
-      />
     </div>
   );
 };
