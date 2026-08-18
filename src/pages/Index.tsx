@@ -168,13 +168,12 @@ const Index = () => {
       ) : (
         <>
           {activeTab === 'home' ? (
-            /* Gradient Ring Dashboard UI */
-            <div className="flex-1 flex flex-col w-full max-w-md mx-auto relative">
-              {/* Top Nav */}
-              <div className="w-full px-6 pt-12 flex justify-between items-center z-10">
+            <div className="flex-1 flex flex-col w-full max-w-7xl mx-auto">
+              {/* Top Nav (Full Width) */}
+              <div className="w-full px-6 pt-12 pb-4 flex justify-between items-center z-10 lg:px-8">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center shadow-sm">
-                    <span className="text-background font-bold text-lg">T</span>
+                  <div className="w-8 h-8 rounded-md flex items-center justify-center shadow-sm overflow-hidden">
+                    <img src="/favicon.png" alt="TintPicks" className="w-full h-full object-cover" />
                   </div>
                   <span className="font-semibold text-lg tracking-tight">TintPicks</span>
                 </div>
@@ -186,61 +185,113 @@ const Index = () => {
                 />
               </div>
 
-              {/* Greeting */}
-              <motion.h1 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-4xl md:text-5xl font-bold text-foreground text-center max-w-[320px] leading-tight tracking-tight mx-auto mt-8 mb-16 font-serif"
-              >
-                How are you styling this morning?
-              </motion.h1>
+              {/* Desktop Grid */}
+              <div className="flex-1 flex flex-col lg:grid lg:grid-cols-3 gap-8 px-4 lg:px-8 pt-4">
+                 
+                 {/* Left Panel: Style Radar (Hidden on mobile) */}
+                 <div className="hidden lg:flex flex-col h-full border-r border-border/50 pr-8">
+                   <h2 className="text-xl font-bold font-serif mb-6 px-1">Trending Styles</h2>
+                   {/* CSS Snap Carousel */}
+                   <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      <style dangerouslySetInnerHTML={{__html: `
+                        .flex::-webkit-scrollbar { display: none; }
+                      `}} />
+                      {[
+                        { bg: "#3b82f6", name: "Azure Core", hex: "#3b82f6" },
+                        { bg: "#eab308", name: "Sunlit Denim", hex: "#eab308" },
+                        { bg: "#ef4444", name: "Crimson Accent", hex: "#ef4444" }
+                      ].map((item, i) => (
+                        <div key={i} className="snap-start shrink-0 w-[85%] flex flex-col gap-3 group cursor-pointer">
+                          <div className="w-full aspect-square rounded-3xl shadow-sm transition-transform group-hover:scale-[0.98] border border-border/50" style={{ backgroundColor: item.bg }} />
+                          <div className="px-1">
+                            <span className="font-semibold block text-base">{item.name}</span>
+                            <span className="text-xs text-muted-foreground uppercase tracking-widest">{item.hex}</span>
+                          </div>
+                        </div>
+                      ))}
+                   </div>
+                 </div>
 
-              {/* Massive Gradient Ring */}
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", bounce: 0.4, duration: 0.8, delay: 0.1 }}
-                className="w-full flex justify-center mb-16 px-4"
-              >
-                <div 
-                  id="tour-camera-screen"
-                  className="relative w-[300px] h-[300px] md:w-[340px] md:h-[340px] rounded-full flex items-center justify-center shadow-2xl"
-                  style={{
-                    background: "conic-gradient(from 180deg, #3b82f6, #8b5cf6, #ef4444, #f97316, #eab308, #22c55e, #3b82f6)",
-                    padding: "24px" // Thickness of the ring
-                  }}
-                >
-                  <button 
-                    onClick={() => setShowCamera(true)}
-                    className="w-full h-full bg-background rounded-full flex flex-col items-center justify-center shadow-inner hover:scale-95 active:scale-90 transition-transform duration-300 group"
-                  >
-                    <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center mb-3 group-hover:bg-foreground group-hover:text-background transition-colors">
-                      <Plus className="w-8 h-8" />
-                    </div>
-                    <span className="text-xl font-medium text-foreground tracking-wide">Capture</span>
-                  </button>
-                </div>
-              </motion.div>
+                 {/* Center Column: The Gradient Ring Dashboard */}
+                 <div className="flex flex-col w-full max-w-md mx-auto relative lg:col-span-1">
+                    {/* Greeting */}
+                    <motion.h1 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-4xl md:text-5xl font-bold text-foreground text-center max-w-[320px] leading-tight tracking-tight mx-auto mt-4 mb-16 font-serif"
+                    >
+                      How are you styling this morning?
+                    </motion.h1>
 
-              {/* Stat Pills */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="flex gap-4 px-6 mb-8"
-              >
-                <div className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors">
-                  <span className="text-4xl font-serif text-foreground mb-1">{savedColors.length}</span>
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">Saved<br/>Colors</span>
-                </div>
-                <div 
-                  className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors cursor-pointer"
-                  onClick={() => savedColors.length > 0 && setActiveTab('wardrobe')}
-                >
-                  <span className="text-4xl font-serif text-foreground mb-1">{savedColors.length > 0 ? "1" : "0"}</span>
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">Active<br/>Outfit</span>
-                </div>
-              </motion.div>
+                    {/* Massive Gradient Ring */}
+                    <motion.div 
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", bounce: 0.4, duration: 0.8, delay: 0.1 }}
+                      className="w-full flex justify-center mb-16 px-4"
+                    >
+                      <div 
+                        id="tour-camera-screen"
+                        className="relative w-[300px] h-[300px] md:w-[340px] md:h-[340px] rounded-full flex items-center justify-center shadow-2xl"
+                        style={{
+                          background: "conic-gradient(from 180deg, #3b82f6, #8b5cf6, #ef4444, #f97316, #eab308, #22c55e, #3b82f6)",
+                          padding: "24px" // Thickness of the ring
+                        }}
+                      >
+                        <button 
+                          onClick={() => setShowCamera(true)}
+                          className="w-full h-full bg-background rounded-full flex flex-col items-center justify-center shadow-inner hover:scale-95 active:scale-90 transition-transform duration-300 group"
+                        >
+                          <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center mb-3 group-hover:bg-foreground group-hover:text-background transition-colors">
+                            <Plus className="w-8 h-8" />
+                          </div>
+                          <span className="text-xl font-medium text-foreground tracking-wide">Capture</span>
+                        </button>
+                      </div>
+                    </motion.div>
+
+                    {/* Stat Pills */}
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="flex gap-4 px-6 mb-8"
+                    >
+                      <div className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors">
+                        <span className="text-4xl font-serif text-foreground mb-1">{savedColors.length}</span>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">Saved<br/>Colors</span>
+                      </div>
+                      <div 
+                        className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors cursor-pointer"
+                        onClick={() => savedColors.length > 0 && setActiveTab('wardrobe')}
+                      >
+                        <span className="text-4xl font-serif text-foreground mb-1">{savedColors.length > 0 ? "1" : "0"}</span>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">Active<br/>Outfit</span>
+                      </div>
+                    </motion.div>
+                 </div>
+
+                 {/* Right Panel: Color Math (Hidden on mobile) */}
+                 <div className="hidden lg:flex flex-col h-full border-l border-border/50 pl-8">
+                   <h2 className="text-xl font-bold font-serif mb-6 px-1">Color Math</h2>
+                   <div className="flex flex-col gap-6">
+                      <div className="p-6 bg-card/60 backdrop-blur-md rounded-[2rem] border border-border/50 shadow-sm">
+                         <h3 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-3">Harmony</h3>
+                         <p className="text-sm font-medium leading-relaxed">
+                           <span className="font-bold">Analogous</span>. These colors sit next to each other on the color wheel, creating a serene and comfortable aesthetic.
+                         </p>
+                      </div>
+                      <div className="p-6 bg-card/60 backdrop-blur-md rounded-[2rem] border border-border/50 shadow-sm">
+                         <h3 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-3">Contrast</h3>
+                         <div className="flex items-center gap-4 mt-2">
+                           <div className="text-4xl font-serif font-bold">4.2</div>
+                           <div className="text-sm font-medium leading-relaxed">Good contrast ratio for balanced layering.</div>
+                         </div>
+                      </div>
+                   </div>
+                 </div>
+
+              </div>
             </div>
           ) : (
             /* Active Styling Board */

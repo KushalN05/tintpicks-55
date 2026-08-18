@@ -47,8 +47,8 @@ const LandingPage = () => {
       <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center">
-              <span className="text-background font-bold text-lg">T</span>
+            <div className="w-8 h-8 rounded-md flex items-center justify-center overflow-hidden">
+              <img src="/favicon.png" alt="TintPicks" className="w-full h-full object-cover" />
             </div>
             <span className="font-semibold text-lg tracking-tight">TintPicks</span>
           </div>
@@ -257,8 +257,8 @@ const LandingPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
             <div className="col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center">
-                  <span className="text-background font-bold text-lg">T</span>
+                <div className="w-8 h-8 rounded-md flex items-center justify-center overflow-hidden">
+                  <img src="/favicon.png" alt="TintPicks" className="w-full h-full object-cover" />
                 </div>
                 <span className="font-semibold text-xl tracking-tight">TintPicks</span>
               </div>
