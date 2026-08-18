@@ -16,6 +16,7 @@ export type Database = {
           email: string
           id: string
           onboarding_completed: boolean
+          saved_wardrobe: Json | null
         }
         Insert: {
           created_at?: string
@@ -23,6 +24,7 @@ export type Database = {
           email?: string
           id: string
           onboarding_completed?: boolean
+          saved_wardrobe?: Json | null
         }
         Update: {
           created_at?: string
@@ -30,6 +32,7 @@ export type Database = {
           email?: string
           id?: string
           onboarding_completed?: boolean
+          saved_wardrobe?: Json | null
         }
         Relationships: []
       }

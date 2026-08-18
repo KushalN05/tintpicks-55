@@ -12,6 +12,7 @@ import { useHomePage } from "@/hooks/useHomePage";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const tourSteps: TourStep[] = [
   {
@@ -66,6 +67,7 @@ const Index = () => {
   const [captureStep, setCaptureStep] = useState<1 | 2>(1);
   const [capturedCategory, setCapturedCategory] = useState<GarmentCategory | null>(null);
   const [capturedItemType, setCapturedItemType] = useState<GarmentType | null>(null);
+  const [isStylingBoardOpen, setIsStylingBoardOpen] = useState(false);
   
   useEffect(() => {
     loadUserProfile();
@@ -125,6 +127,7 @@ const Index = () => {
       });
       setPendingHex(null);
       setPendingName("");
+      setIsStylingBoardOpen(true);
     }
   };
 
@@ -176,44 +179,59 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-center p-4">
+      {/* Main Content Area - Inspiration Board */}
+      <main className="flex-1 overflow-y-auto w-full p-4 md:p-6 pb-24 relative">
         {showCamera ? (
-          <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
+          <div className="absolute inset-0 z-40 bg-background">
+            <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
+          </div>
         ) : (
-          <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in relative">
-            {savedColors.length === 0 && !isTourActive ? (
-              <div className="flex flex-col items-center justify-center flex-1 w-full relative">
-                {/* Witty Empty State Text */}
-                <div className="absolute top-1/4 z-10 px-4">
-                  <div className="bg-black/40 backdrop-blur-md text-white px-5 py-2.5 rounded-full border border-white/10 shadow-lg text-sm md:text-base font-medium tracking-wide text-center">
-                    Feed me some color (I promise I have good taste)
-                  </div>
+          <div className="w-full max-w-7xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-bold font-serif mb-6 text-foreground tracking-tight">
+              Inspiration
+            </h1>
+            
+            {/* Masonry Grid for Inspiration Board */}
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+              {/* High-quality placeholder images representing fashion outfits */}
+              {[
+                "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80",
+                "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=600&q=80",
+                "https://images.unsplash.com/photo-1434389678232-04ce6c43420a?w=600&q=80",
+                "https://images.unsplash.com/photo-1495385794356-15371f348c31?w=600&q=80",
+                "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80",
+                "https://images.unsplash.com/photo-1550614000-4b95d466f916?w=600&q=80",
+                "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=600&q=80",
+                "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=600&q=80",
+                "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
+                "https://images.unsplash.com/photo-1485231183945-fd660d740c01?w=600&q=80",
+              ].map((src, i) => (
+                <div key={i} className="break-inside-avoid overflow-hidden rounded-xl bg-stone-100 group cursor-pointer relative">
+                  <img 
+                    src={src} 
+                    alt="Fashion Inspiration" 
+                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-              </div>
-            ) : (
-              <div className="w-full h-full pb-24">
-                <FashionStylingBoard 
-                  capturedItem={capturedItem} 
-                  savedColors={savedColors}
-                  onShop={handleShop}
-                />
-              </div>
-            )}
+              ))}
+            </div>
 
             {/* Floating Camera Button (Always Visible) */}
             <Button 
               id="tour-camera-screen"
               size="icon"
-              className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-2xl hover:scale-105 active:scale-95 transition-transform z-50 bg-primary text-primary-foreground"
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full w-16 h-16 shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all z-50 bg-foreground text-background border border-border"
               onClick={() => setShowCamera(true)}
             >
-              <Camera className="w-8 h-8" />
+              <Camera className="w-7 h-7" />
             </Button>
           </div>
         )}
 
         {isTourActive && <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />}
+
 
         <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>
           <DialogContent className="sm:max-w-md">
@@ -281,6 +299,21 @@ const Index = () => {
           color={selectedColor}
           initialCategory={selectedShopCategory}
         />
+
+        {/* Fashion Styling Board Modal */}
+        <Sheet open={isStylingBoardOpen} onOpenChange={setIsStylingBoardOpen}>
+          <SheetContent side="bottom" className="h-[90vh] w-full p-0 rounded-t-3xl border-t-0 shadow-2xl flex flex-col overflow-hidden bg-background">
+            <div className="flex-1 overflow-y-auto pb-6">
+              {capturedItem && (
+                <FashionStylingBoard 
+                  capturedItem={capturedItem} 
+                  savedColors={savedColors}
+                  onShop={handleShop}
+                />
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
       </main>
     </div>
   );

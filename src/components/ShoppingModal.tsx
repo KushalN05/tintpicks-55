@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, ExternalLink, PackageX } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,11 +9,54 @@ import { fetchProductsByColor, Product } from '../utils/productService';
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [imgError, setImgError] = useState(false);
-  console.log("Product Data:", product);
+  const handleProductClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    // Open immediately for good UX
+    if (product.link) {
+      window.open(product.link, '_blank', 'noopener,noreferrer');
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error: fetchError } = await supabase
+        .from('profiles')
+        .select('saved_wardrobe')
+        .eq('id', user.id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      let wardrobe = (data?.saved_wardrobe as unknown as Product[]) || [];
+      
+      // Remove duplicate if it exists (bump to top)
+      wardrobe = wardrobe.filter(p => p.product_id !== product.product_id);
+      
+      // Add new to front
+      wardrobe.unshift(product);
+      
+      // Keep only 5
+      if (wardrobe.length > 5) {
+        wardrobe = wardrobe.slice(0, 5);
+      }
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ saved_wardrobe: wardrobe as any })
+        .eq('id', user.id);
+        
+      if (updateError) throw updateError;
+    } catch (error) {
+      console.error('Failed to save to wardrobe:', error);
+    }
+  };
 
   return (
     <a 
       href={product.link || '#'}
+      onClick={handleProductClick}
       target="_blank"
       rel="noopener noreferrer"
       className="group flex flex-col overflow-hidden transition-all duration-500 cursor-pointer block"

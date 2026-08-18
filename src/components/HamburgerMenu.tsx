@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Menu, X, LogOut, CreditCard, Palette, Hash,
-  PlayCircle, ChevronRight, Plus, History
+  PlayCircle, ChevronRight, Plus, History, ShoppingBag
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,8 @@ interface HamburgerMenuProps {
   onSavedPaletteClick: () => void;
   onStartTour: () => void;
 }
+
+import SavedWardrobeModal from './SavedWardrobeModal';
 
 /* ── Section label ── */
 const SectionLabel = ({ label }: { label: string }) => (
@@ -66,6 +68,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onStartTour,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
   const [hexValue, setHexValue] = useState('');
   const [hexError, setHexError] = useState('');
   const hexInputRef = useRef<HTMLInputElement>(null);
@@ -145,9 +148,13 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             {/* ─ Scrollable Body ─ */}
             <div className="flex-1 overflow-y-auto">
 
-              {/* ACCOUNT */}
               <SectionLabel label="Account" />
               <div className="px-2 space-y-0.5">
+                <MenuRow
+                  icon={ShoppingBag}
+                  label="Saved Wardrobe"
+                  onClick={() => { close(); setIsWardrobeOpen(true); }}
+                />
                 <MenuRow
                   icon={History}
                   label="Colour History"
@@ -220,6 +227,11 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
         </>,
         document.body
       )}
+
+      <SavedWardrobeModal 
+        isOpen={isWardrobeOpen} 
+        onClose={() => setIsWardrobeOpen(false)} 
+      />
     </>
   );
 };
