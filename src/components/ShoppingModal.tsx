@@ -112,7 +112,7 @@ const ShoppingModal = ({
     if (isOpen && currentColor) {
       setLoading(true);
       setProducts([]);
-      fetchProductsByColor(currentColor, gender, category, 24)
+      fetchProductsByColor(currentColor, colorName, gender, category, 24)
         .then((results) => {
           setProducts(Array.isArray(results) ? results : []);
         })

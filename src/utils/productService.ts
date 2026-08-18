@@ -11,6 +11,7 @@ export interface Product {
 
 export const fetchProductsByColor = async (
   hexCode: string,
+  colorName: string,
   gender: string = 'All',
   category: string = 'All',
   limit: number = 24
@@ -21,7 +22,8 @@ export const fetchProductsByColor = async (
     // Invoke the Zero-Database Visual Search Edge Function
     const { data, error } = await supabase.functions.invoke('visual-search', {
       body: { 
-        hexCode: strictHex, 
+        hexCode: strictHex,
+        colorName,
         gender, 
         category, 
         limit 

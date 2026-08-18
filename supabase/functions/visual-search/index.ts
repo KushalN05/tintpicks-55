@@ -34,7 +34,7 @@ serve(async (req) => {
       throw new Error('SERPAPI_KEY is not set')
     }
 
-    const { hexCode, gender = 'All', category = 'All', limit = 24 } = await req.json()
+    const { hexCode, colorName = 'Color', gender = 'All', category = 'All', limit = 24 } = await req.json()
 
     if (!hexCode) {
       return new Response(JSON.stringify({ error: 'hexCode is required' }), {
@@ -43,23 +43,19 @@ serve(async (req) => {
       })
     }
 
-    const cleanHex = hexCode.replace('#', '');
-    // Generate synthetic solid color block URL
-    const syntheticImageUrl = `https://placehold.co/500x500/${cleanHex}/${cleanHex}.png`;
-    
-    // Construct Google Lens text query constraint
-    const textQuery = [gender !== 'All' ? gender : '', category !== 'All' ? category : ''].filter(Boolean).join(' ').trim();
+    // Construct Google Shopping text query
+    const genderTerm = gender !== 'All' ? (gender === 'Mens' ? 'Mens' : gender === 'Womens' ? 'Womens' : gender) : '';
+    const categoryTerm = category !== 'All' ? category : 'Clothing';
+    const textQuery = `${genderTerm} ${colorName} ${categoryTerm}`.trim().replace(/\s+/g, ' ');
 
-    // Fetch from SerpApi Google Lens engine
+    // Fetch from SerpApi Google Shopping engine
     const searchParams = new URLSearchParams({
-      engine: 'google_lens',
-      url: syntheticImageUrl,
-      api_key: SERPAPI_KEY
+      engine: 'google_shopping',
+      q: textQuery,
+      api_key: SERPAPI_KEY,
+      gl: 'us', // Geolocation
+      hl: 'en'  // Language
     });
-    
-    if (textQuery) {
-      searchParams.append('q', textQuery);
-    }
 
     const serpapiRes = await fetch(`https://serpapi.com/search.json?${searchParams.toString()}`);
     
@@ -70,31 +66,38 @@ serve(async (req) => {
     }
 
     const serpapiData = await serpapiRes.json();
-    const visualMatches = serpapiData.visual_matches || [];
+    const shoppingMatches = serpapiData.shopping_results || [];
 
     // The Progressive Relaxation Filter
     let results: any[] = [];
     const categorySynonyms = CATEGORY_SYNONYMS[category] || [];
 
-    const isDomainAllowed = (link: string) => ALLOWLIST.some(domain => link.toLowerCase().includes(domain));
+    // Google Shopping usually provides 'link' and sometimes 'source'
+    const isDomainAllowed = (link: string, source?: string) => 
+      ALLOWLIST.some(domain => 
+        (link && link.toLowerCase().includes(domain)) || 
+        (source && source.toLowerCase().includes(domain.replace('.com', '').replace('.co.uk', '')))
+      );
+      
     const isTitleBlocked = (title: string) => BLOCKLIST.some(blocked => title.toLowerCase().includes(blocked));
     const hasCategorySynonym = (title: string) => categorySynonyms.length === 0 || categorySynonyms.some(synonym => title.toLowerCase().includes(synonym));
-    const hasPrice = (match: any) => match.price && match.price.extracted_value !== undefined;
+    // For Google Shopping, price is usually just a string 'price' or a float 'extracted_price'
+    const hasPrice = (match: any) => match.price || match.extracted_price !== undefined;
 
     // Map to normalized Product format used by frontend
     const mapToProduct = (match: any) => ({
       product_id: match.position?.toString() || Math.random().toString(36).substring(7),
       name: match.title || 'Fashion Item',
-      price: match.price?.extracted_value?.toString() || match.price?.currency + match.price?.value || '',
+      price: match.price || (match.extracted_price ? `$${match.extracted_price}` : ''),
       image_url: match.thumbnail,
       affiliate_url: match.link,
       hex_code: hexCode
     });
 
     // Pass 1: Strict Mode (Price, Allowlist, No Blocklist, Category Synonym)
-    const pass1 = visualMatches.filter((match: any) => 
+    const pass1 = shoppingMatches.filter((match: any) => 
       hasPrice(match) && 
-      isDomainAllowed(match.link || '') && 
+      isDomainAllowed(match.link || '', match.source || '') && 
       !isTitleBlocked(match.title || '') &&
       hasCategorySynonym(match.title || '')
     );
@@ -104,9 +107,9 @@ serve(async (req) => {
       results = pass1;
     } else {
       // Pass 2: Loosen Category (Price, Allowlist, No Blocklist)
-      const pass2 = visualMatches.filter((match: any) => 
+      const pass2 = shoppingMatches.filter((match: any) => 
         hasPrice(match) && 
-        isDomainAllowed(match.link || '') && 
+        isDomainAllowed(match.link || '', match.source || '') && 
         !isTitleBlocked(match.title || '')
       );
       
@@ -115,7 +118,7 @@ serve(async (req) => {
         results = pass2;
       } else {
         // Pass 3: Expand Domain Net (Price, No Blocklist)
-        const pass3 = visualMatches.filter((match: any) => 
+        const pass3 = shoppingMatches.filter((match: any) => 
           hasPrice(match) && 
           !isTitleBlocked(match.title || '')
         );
