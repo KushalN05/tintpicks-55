@@ -12,33 +12,50 @@ import { useHomePage } from "@/hooks/useHomePage";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import InteractiveColorRing, { angleToHex } from "@/components/InteractiveColorRing";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 const tourSteps: TourStep[] = [
   {
+    targetId: 'hamburger-menu-btn',
+    text: 'Welcome to TintPicks! Tap here to access your account, manually add hex codes, and view your colour history.'
+  },
+  {
+    targetId: 'tour-camera-btn',
+    text: 'This is the heart of the app. Tap the center to open the camera and capture your physical garments.'
+  },
+  {
     targetId: 'tour-camera-screen',
-    text: "Welcome to TintPicks! To capture a color, tap the massive gradient ring.",
+    text: 'You can also drag these two thumbs around the color wheel to manually explore different palettes!'
   },
   {
-    targetId: 'tour-mannequin',
-    text: "This is your 2D Interactive Mannequin Canvas. Tap the Top or Bottom layers to apply your captured color directly to the silhouette.",
+    targetId: 'tour-color-math',
+    text: 'As you pick colors, our engine instantly calculates the harmony to show you exactly how well they match.'
   },
   {
-    targetId: 'tour-swiper',
-    text: "Here is the magic. Swipe this Interactive Garment Swiper left or right to cycle through fashion-safe colors perfectly matched to your base color.",
+    targetId: 'tour-tab-styling',
+    text: 'Once you have some colors, head over to the Styling board to build your outfit.'
   },
   {
     targetId: 'tour-layers',
-    text: "Building a full fit? Use these Toggle Layers to add Outerwear jackets or Footwear to the mannequin.",
+    text: 'Use these layer controls to equip different types of tops, bottoms, and outerwear.'
   },
   {
-    targetId: 'tour-shop',
-    text: "Love the look? Tap 'Shop This Complete Look' to instantly find these exact matching items from premium brands.",
+    targetId: 'tour-mannequin',
+    text: 'Tap on any part of the mannequin to assign your colors to that specific layer.'
+  },
+  {
+    targetId: 'tour-swiper',
+    text: 'Swipe through curated fashion matches generated dynamically from your base color.'
   },
   {
     targetId: 'tour-save-wardrobe',
-    text: "Finally, hit Save to store this complete outfit in your personal Cloud Wardrobe for later. Let's get styling!",
+    text: 'When you are happy with your outfit, save it to your Wardrobe.'
+  },
+  {
+    targetId: 'tour-tab-saved',
+    text: 'You can view all your saved beautiful mannequin profiles anytime here in the Saved tab!'
   }
 ];
 
@@ -71,6 +88,22 @@ const Index = () => {
   
   const [activeTab, setActiveTab] = useState<'home' | 'wardrobe'>('home');
   const navigate = useNavigate();
+
+  const [ringAngles, setRingAngles] = useState<[number, number]>([30, 210]); // Default to complementary
+
+  // Math for harmony
+  const getHarmonyInfo = (a1: number, a2: number) => {
+    let diff = Math.abs(a1 - a2);
+    if (diff > 180) diff = 360 - diff;
+
+    if (diff < 15) return { name: "Monochromatic", desc: "Variations of the same hue, offering a cohesive, soothing look." };
+    if (diff > 15 && diff <= 45) return { name: "Analogous", desc: "Adjacent colors on the wheel, creating a serene and comfortable aesthetic." };
+    if (diff > 150) return { name: "Complementary", desc: "Opposite colors creating high contrast and high impact." };
+    if (diff > 105 && diff <= 135) return { name: "Triadic", desc: "Evenly spaced colors offering vibrant but balanced contrast." };
+    return { name: "Contrasting", desc: "A bold pairing that brings dynamic energy to an outfit." };
+  };
+
+  const harmony = getHarmonyInfo(ringAngles[0], ringAngles[1]);
 
   // If they have saved colors but click home, they should see the ring.
   // If they click wardrobe, they see the styling board.
@@ -185,35 +218,11 @@ const Index = () => {
                 />
               </div>
 
-              {/* Desktop Grid */}
-              <div className="flex-1 flex flex-col lg:grid lg:grid-cols-3 gap-8 px-4 lg:px-8 pt-4">
-                 
-                 {/* Left Panel: Style Radar (Hidden on mobile) */}
-                 <div className="hidden lg:flex flex-col h-full border-r border-border/50 pr-8">
-                   <h2 className="text-xl font-bold font-serif mb-6 px-1">Trending Styles</h2>
-                   {/* CSS Snap Carousel */}
-                   <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                      <style dangerouslySetInnerHTML={{__html: `
-                        .flex::-webkit-scrollbar { display: none; }
-                      `}} />
-                      {[
-                        { bg: "#3b82f6", name: "Azure Core", hex: "#3b82f6" },
-                        { bg: "#eab308", name: "Sunlit Denim", hex: "#eab308" },
-                        { bg: "#ef4444", name: "Crimson Accent", hex: "#ef4444" }
-                      ].map((item, i) => (
-                        <div key={i} className="snap-start shrink-0 w-[85%] flex flex-col gap-3 group cursor-pointer">
-                          <div className="w-full aspect-square rounded-3xl shadow-sm transition-transform group-hover:scale-[0.98] border border-border/50" style={{ backgroundColor: item.bg }} />
-                          <div className="px-1">
-                            <span className="font-semibold block text-base">{item.name}</span>
-                            <span className="text-xs text-muted-foreground uppercase tracking-widest">{item.hex}</span>
-                          </div>
-                        </div>
-                      ))}
-                   </div>
-                 </div>
+              {/* Desktop Grid (80/20 Split) */}
+              <div className="flex-1 flex flex-col lg:grid lg:grid-cols-5 gap-8 px-4 lg:px-8 pt-4">
 
-                 {/* Center Column: The Gradient Ring Dashboard */}
-                 <div className="flex flex-col w-full max-w-md mx-auto relative lg:col-span-1">
+                 {/* Center Column: The Gradient Ring Dashboard (80%) */}
+                 <div className="flex flex-col w-full mx-auto relative lg:col-span-4 lg:max-w-2xl">
                     {/* Greeting */}
                     <motion.h1 
                       initial={{ opacity: 0, y: 10 }}
@@ -223,31 +232,25 @@ const Index = () => {
                       How are you styling this morning?
                     </motion.h1>
 
-                    {/* Massive Gradient Ring */}
+                    {/* Massive Interactive Gradient Ring */}
                     <motion.div 
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", bounce: 0.4, duration: 0.8, delay: 0.1 }}
                       className="w-full flex justify-center mb-16 px-4"
                     >
-                      <div 
-                        id="tour-camera-screen"
-                        className="relative w-[300px] h-[300px] md:w-[340px] md:h-[340px] rounded-full flex items-center justify-center shadow-2xl"
-                        style={{
-                          background: "conic-gradient(from 180deg, #3b82f6, #8b5cf6, #ef4444, #f97316, #eab308, #22c55e, #3b82f6)",
-                          padding: "24px" // Thickness of the ring
-                        }}
-                      >
+                      <InteractiveColorRing angles={ringAngles} onChange={setRingAngles}>
                         <button 
+                          id="tour-camera-btn"
                           onClick={() => setShowCamera(true)}
-                          className="w-full h-full bg-background rounded-full flex flex-col items-center justify-center shadow-inner hover:scale-95 active:scale-90 transition-transform duration-300 group"
+                          className="w-full h-full rounded-full flex flex-col items-center justify-center hover:bg-black/5 active:bg-black/10 transition-colors duration-300 group"
                         >
                           <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center mb-3 group-hover:bg-foreground group-hover:text-background transition-colors">
                             <Plus className="w-8 h-8" />
                           </div>
                           <span className="text-xl font-medium text-foreground tracking-wide">Capture</span>
                         </button>
-                      </div>
+                      </InteractiveColorRing>
                     </motion.div>
 
                     {/* Stat Pills */}
@@ -255,13 +258,14 @@ const Index = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="flex gap-4 px-6 mb-8"
+                      className="flex gap-4 px-6 mb-8 max-w-md mx-auto w-full"
                     >
                       <div className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors">
                         <span className="text-4xl font-serif text-foreground mb-1">{savedColors.length}</span>
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">Saved<br/>Colors</span>
                       </div>
                       <div 
+                        id="tour-active-outfit-btn"
                         className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors cursor-pointer"
                         onClick={() => savedColors.length > 0 && setActiveTab('wardrobe')}
                       >
@@ -271,22 +275,28 @@ const Index = () => {
                     </motion.div>
                  </div>
 
-                 {/* Right Panel: Color Math (Hidden on mobile) */}
-                 <div className="hidden lg:flex flex-col h-full border-l border-border/50 pl-8">
+                 {/* Right Panel: Color Math (20%) */}
+                 <div id="tour-color-math" className="hidden lg:flex flex-col h-full border-l border-border/50 pl-8 lg:col-span-1">
                    <h2 className="text-xl font-bold font-serif mb-6 px-1">Color Math</h2>
                    <div className="flex flex-col gap-6">
+                      
+                      <div className="p-6 bg-card/60 backdrop-blur-md rounded-[2rem] border border-border/50 shadow-sm">
+                         <h3 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Current Selection</h3>
+                         <div className="flex items-center gap-4 mb-3">
+                           <div className="w-8 h-8 rounded-full border border-border shadow-inner" style={{ backgroundColor: angleToHex(ringAngles[0]) }} />
+                           <span className="font-mono text-sm tracking-wider uppercase">{angleToHex(ringAngles[0])}</span>
+                         </div>
+                         <div className="flex items-center gap-4">
+                           <div className="w-8 h-8 rounded-full border border-border shadow-inner" style={{ backgroundColor: angleToHex(ringAngles[1]) }} />
+                           <span className="font-mono text-sm tracking-wider uppercase">{angleToHex(ringAngles[1])}</span>
+                         </div>
+                      </div>
+
                       <div className="p-6 bg-card/60 backdrop-blur-md rounded-[2rem] border border-border/50 shadow-sm">
                          <h3 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-3">Harmony</h3>
                          <p className="text-sm font-medium leading-relaxed">
-                           <span className="font-bold">Analogous</span>. These colors sit next to each other on the color wheel, creating a serene and comfortable aesthetic.
+                           <span className="font-bold">{harmony.name}</span>. {harmony.desc}
                          </p>
-                      </div>
-                      <div className="p-6 bg-card/60 backdrop-blur-md rounded-[2rem] border border-border/50 shadow-sm">
-                         <h3 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-3">Contrast</h3>
-                         <div className="flex items-center gap-4 mt-2">
-                           <div className="text-4xl font-serif font-bold">4.2</div>
-                           <div className="text-sm font-medium leading-relaxed">Good contrast ratio for balanced layering.</div>
-                         </div>
                       </div>
                    </div>
                  </div>
@@ -310,6 +320,7 @@ const Index = () => {
       {!showCamera && (
         <div className="fixed bottom-0 inset-x-0 h-[100px] bg-background/80 backdrop-blur-2xl border-t border-border flex justify-around items-center px-6 pb-safe z-40">
           <button 
+            id="tour-tab-capture"
             onClick={() => setActiveTab('home')}
             className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'home' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}
           >
@@ -317,6 +328,7 @@ const Index = () => {
              <span className="text-[11px] font-bold tracking-widest uppercase">Capture</span>
           </button>
           <button 
+            id="tour-tab-styling"
             onClick={() => {
               if (savedColors.length > 0) setActiveTab('wardrobe');
             }}
@@ -326,6 +338,7 @@ const Index = () => {
              <span className="text-[11px] font-bold tracking-widest uppercase">Styling</span>
           </button>
           <button 
+            id="tour-tab-saved"
             onClick={() => navigate('/history')}
             className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-foreground/80 transition-colors"
           >

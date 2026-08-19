@@ -151,16 +151,6 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               <SectionLabel label="Account" />
               <div className="px-2 space-y-0.5">
                 <MenuRow
-                  icon={ShoppingBag}
-                  label="Saved Wardrobe"
-                  onClick={() => { close(); setIsWardrobeOpen(true); }}
-                />
-                <MenuRow
-                  icon={History}
-                  label="Colour History"
-                  onClick={() => { close(); navigate('/history'); }}
-                />
-                <MenuRow
                   icon={CreditCard}
                   label="Subscriptions"
                   badge="Coming Soon"
