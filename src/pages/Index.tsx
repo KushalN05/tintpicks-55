@@ -87,6 +87,7 @@ const Index = () => {
   const [capturedItemType, setCapturedItemType] = useState<GarmentType | null>(null);
   
   const [activeTab, setActiveTab] = useState<'home' | 'wardrobe'>('home');
+  const [gender, setGender] = useState<'unisex' | 'mens' | 'womens'>('unisex');
   const navigate = useNavigate();
 
   const [ringAngles, setRingAngles] = useState<[number, number]>([30, 210]); // Default to complementary
@@ -202,20 +203,29 @@ const Index = () => {
         <>
           {activeTab === 'home' ? (
             <div className="flex-1 flex flex-col w-full max-w-7xl mx-auto">
-              {/* Top Nav (Full Width) */}
-              <div className="w-full px-6 pt-12 pb-4 flex justify-between items-center z-10 lg:px-8">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 bg-background/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-md flex items-center justify-center shadow-sm overflow-hidden">
-                    <img src="/favicon.png" alt="TintPicks" className="w-full h-full object-cover" />
-                  </div>
-                  <span className="font-semibold text-lg tracking-tight">TintPicks</span>
+                  <img src="/favicon.png" alt="TintPicks" className="w-8 h-8 rounded-lg" />
+                  <span className="font-bold text-lg tracking-tight font-serif">TintPicks</span>
                 </div>
-                <HamburgerMenu
-                  onLogout={handleLogout}
-                  onColorAdd={handleColorAdd}
-                  onSavedPaletteClick={() => navigate('/history')}
-                  onStartTour={() => setIsTourActive(true)}
-                />
+                <div className="flex items-center gap-3">
+                  <select 
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value as any)}
+                    className="bg-card text-xs font-semibold uppercase tracking-widest px-3 py-2 rounded-full border border-border focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="unisex">Unisex</option>
+                    <option value="mens">Mens</option>
+                    <option value="womens">Womens</option>
+                  </select>
+                  <HamburgerMenu
+                    onLogout={handleLogout}
+                    onColorAdd={handleColorAdd}
+                    onSavedPaletteClick={() => navigate('/history')}
+                    onStartTour={() => setIsTourActive(true)}
+                  />
+                </div>
               </div>
 
               {/* Desktop Grid (80/20 Split) */}
@@ -276,7 +286,7 @@ const Index = () => {
                  </div>
 
                  {/* Right Panel: Color Math (20%) */}
-                 <div id="tour-color-math" className="hidden lg:flex flex-col h-full border-l border-border/50 pl-8 lg:col-span-1">
+                 <div id="tour-color-math" className="flex flex-col h-full lg:border-l border-t lg:border-t-0 border-border/50 lg:pl-8 pt-8 lg:pt-0 lg:col-span-1 mb-32 lg:mb-0">
                    <h2 className="text-xl font-bold font-serif mb-6 px-1">Color Math</h2>
                    <div className="flex flex-col gap-6">
                       
