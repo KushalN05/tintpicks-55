@@ -14,9 +14,13 @@ import ShoppingModal from "@/components/ShoppingModal";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import InteractiveColorRing, { angleToHex } from "@/components/InteractiveColorRing";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const tourSteps: TourStep[] = [
+  {
+    targetId: 'tour-gender-selector',
+    text: 'Before we start, select your styling gender here! This helps us find the most accurate fashion matches and optimizes your experience.'
+  },
   {
     targetId: 'hamburger-menu-btn',
     text: 'Welcome to TintPicks! Tap here to access your account, manually add hex codes, and view your colour history.'
@@ -35,7 +39,7 @@ const tourSteps: TourStep[] = [
   },
   {
     targetId: 'tour-tab-styling',
-    text: 'Once you have some colors, head over to the Styling board to build your outfit.'
+    text: 'After you capture or save a color, you will automatically be brought to the Styling board to build your outfit.'
   },
   {
     targetId: 'tour-layers',
@@ -87,8 +91,21 @@ const Index = () => {
   const [capturedItemType, setCapturedItemType] = useState<GarmentType | null>(null);
   
   const [activeTab, setActiveTab] = useState<'home' | 'wardrobe'>('home');
-  const [gender, setGender] = useState<'unisex' | 'mens' | 'womens'>('unisex');
+  const [gender, setGender] = useState<'unisex' | 'mens' | 'womens' | ''>('');
+  const [loadedOutfit, setLoadedOutfit] = useState<any>(null);
+
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Load outfit from history if present
+  useEffect(() => {
+    if (location.state?.loadOutfit) {
+      setLoadedOutfit(location.state.loadOutfit);
+      setActiveTab('wardrobe');
+      // Clear history state so refresh doesn't trigger it again
+      navigate('.', { replace: true, state: {} });
+    }
+  }, [location.state, navigate]);
 
   const [ringAngles, setRingAngles] = useState<[number, number]>([30, 210]); // Default to complementary
 
@@ -211,10 +228,12 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <select 
+                    id="tour-gender-selector"
                     value={gender}
                     onChange={(e) => setGender(e.target.value as any)}
-                    className="bg-card text-xs font-semibold uppercase tracking-widest px-3 py-2 rounded-full border border-border focus:outline-none focus:ring-2 focus:ring-ring"
+                    className={`bg-card text-xs font-semibold uppercase tracking-widest px-3 py-2 rounded-full border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-colors ${!gender ? 'animate-pulse ring-2 ring-red-500 border-red-500 text-red-500' : ''}`}
                   >
+                    <option value="" disabled>Set Gender</option>
                     <option value="unisex">Unisex</option>
                     <option value="mens">Mens</option>
                     <option value="womens">Womens</option>
@@ -252,7 +271,13 @@ const Index = () => {
                       <InteractiveColorRing angles={ringAngles} onChange={setRingAngles}>
                         <button 
                           id="tour-camera-btn"
-                          onClick={() => setShowCamera(true)}
+                          onClick={() => {
+                            if (!gender) {
+                              alert("Please select your gender at the top first!");
+                              return;
+                            }
+                            setShowCamera(true);
+                          }}
                           className="w-full h-full rounded-full flex flex-col items-center justify-center hover:bg-black/5 active:bg-black/10 transition-colors duration-300 group"
                         >
                           <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center mb-3 group-hover:bg-foreground group-hover:text-background transition-colors">
@@ -319,6 +344,8 @@ const Index = () => {
               <FashionStylingBoard 
                 capturedItem={capturedItem} 
                 savedColors={savedColors}
+                initialOutfit={loadedOutfit}
+                gender={gender}
                 onShop={handleShop}
               />
             </div>
@@ -340,9 +367,13 @@ const Index = () => {
           <button 
             id="tour-tab-styling"
             onClick={() => {
-              if (savedColors.length > 0) setActiveTab('wardrobe');
+              if (!gender) {
+                alert("Please select your gender at the top first!");
+                return;
+              }
+              if (savedColors.length > 0 || loadedOutfit) setActiveTab('wardrobe');
             }}
-            className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'wardrobe' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'} ${savedColors.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'wardrobe' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'} ${(savedColors.length === 0 && !loadedOutfit) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
              <Layers className="w-7 h-7" />
              <span className="text-[11px] font-bold tracking-widest uppercase">Styling</span>
@@ -422,11 +453,12 @@ const Index = () => {
       </Dialog>
       
       <ShoppingModal 
-        isOpen={showShoppingModal} 
-        onClose={() => setShowShoppingModal(false)} 
-        color={selectedColor}
-        initialCategory={selectedShopCategory}
-      />
+          isOpen={showShoppingModal} 
+          onClose={() => setShowShoppingModal(false)}
+          color={selectedColor}
+          initialCategory={selectedShopCategory}
+          initialGender={gender === 'unisex' ? 'Unisex' : gender === 'mens' ? 'Mens' : gender === 'womens' ? 'Womens' : 'All'}
+        />
     </div>
   );
 };

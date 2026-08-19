@@ -16,11 +16,15 @@ export interface CapturedItemConfig {
 interface FashionStylingBoardProps {
   capturedItem?: CapturedItemConfig | null;
   savedColors?: any;
+  initialOutfit?: any;
+  gender?: string;
   onShop?: (color: string, category: string) => void;
 }
 
 const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
   capturedItem,
+  initialOutfit,
+  gender,
   onShop,
 }) => {
   const [colors, setColors] = useState<Record<GarmentCategory, string>>({
@@ -39,6 +43,17 @@ const FashionStylingBoard: React.FC<FashionStylingBoardProps> = ({
   const [anchorColor, setAnchorColor] = useState<string>('#808080');
   const [carouselColors, setCarouselColors] = useState<string[]>([]);
   const [emblaRef] = useEmblaCarousel({ dragFree: true, containScroll: 'trimSnaps' });
+
+  // Load initial outfit
+  useEffect(() => {
+    if (initialOutfit) {
+      if (initialOutfit.colors) setColors(initialOutfit.colors);
+      if (initialOutfit.equipped) setEquipped(initialOutfit.equipped);
+      if (initialOutfit.colors.top && initialOutfit.colors.top !== 'transparent') {
+        setAnchorColor(initialOutfit.colors.top);
+      }
+    }
+  }, [initialOutfit]);
 
   // Handle incoming captured items from the camera flow
   useEffect(() => {

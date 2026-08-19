@@ -53,7 +53,7 @@ const History = () => {
               <div 
                 key={outfit.id} 
                 className="group relative flex flex-col gap-4 bg-card p-6 rounded-[2rem] border border-border shadow-sm hover:shadow-md transition-all cursor-pointer hover:-translate-y-1"
-                onClick={() => navigate("/app")}
+                onClick={() => navigate("/app", { state: { loadOutfit: outfit } })}
               >
                 <div className="w-full aspect-square rounded-[1.5rem] bg-muted/30 flex items-center justify-center p-4 relative overflow-hidden">
                   <div className="w-3/4 h-full pointer-events-none flex items-center justify-center">
