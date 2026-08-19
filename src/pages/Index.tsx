@@ -389,7 +389,20 @@ const Index = () => {
         </div>
       )}
 
-      {isTourActive && <GuidedTour steps={tourSteps} onComplete={handleTourComplete} />}
+      {isTourActive && (
+        <GuidedTour 
+          steps={tourSteps} 
+          onComplete={handleTourComplete} 
+          onStepChange={(stepIndex) => {
+            const targetId = tourSteps[stepIndex]?.targetId;
+            if (['tour-tab-styling', 'tour-layers', 'tour-mannequin', 'tour-swiper', 'tour-save-wardrobe', 'tour-shop'].includes(targetId)) {
+              setActiveTab('wardrobe');
+            } else {
+              setActiveTab('home');
+            }
+          }}
+        />
+      )}
 
       {/* Dialog for Capture (Unchanged standard Dialog, as we reverted the bottom sheet previously) */}
       <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>

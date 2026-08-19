@@ -10,9 +10,10 @@ export interface TourStep {
 interface GuidedTourProps {
   steps: TourStep[];
   onComplete: () => void;
+  onStepChange?: (stepIndex: number) => void;
 }
 
-const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
+const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete, onStepChange }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
@@ -26,6 +27,11 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ steps, onComplete }) => {
       document.body.style.overflow = originalOverflow;
     };
   }, []);
+
+  // Notify parent of step changes
+  useEffect(() => {
+    onStepChange?.(currentStep);
+  }, [currentStep, onStepChange]);
 
   useEffect(() => {
     const updatePosition = () => {
