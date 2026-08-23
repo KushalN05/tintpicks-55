@@ -13,6 +13,8 @@ import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import InteractiveColorRing, { angleToHex } from "@/components/InteractiveColorRing";
+import UpgradeModal from "@/components/UpgradeModal";
+import { useSearchLimit } from "@/hooks/useSearchLimit";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -67,19 +69,31 @@ const Index = () => {
   const [userName, setUserName] = useState("");
   const [userProfile, setUserProfile] = useState<any>(null);
   
+  const [showShoppingModal, setShowShoppingModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedShopCategory, setSelectedShopCategory] = useState("All");
+
+  const { incrementSearch } = useSearchLimit();
+
+  const handleShop = (color: string, category: string) => {
+    if (!incrementSearch()) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setSelectedColor(color);
+    setSelectedShopCategory(category);
+    setShowShoppingModal(true);
+  };
+
   const {
     showCamera,
     setShowCamera,
     isTourActive,
     setIsTourActive,
-    showShoppingModal,
-    setShowShoppingModal,
-    selectedColor,
-    selectedShopCategory,
     handleLogout,
     handleColorAdd,
     handleColorCapture,
-    handleShop,
     savedColors,
   } = useHomePage();
 
@@ -472,6 +486,11 @@ const Index = () => {
           initialCategory={selectedShopCategory}
           initialGender={gender === 'unisex' ? 'Unisex' : gender === 'mens' ? 'Mens' : gender === 'womens' ? 'Womens' : 'All'}
         />
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
     </div>
   );
 };
