@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera, Plus, Layers, Bookmark } from "lucide-react";
+import { Camera, Plus, Layers, Bookmark, Search, CheckCircle2, Zap, Palette } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
@@ -74,7 +74,7 @@ const Index = () => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedShopCategory, setSelectedShopCategory] = useState("All");
 
-  const { incrementSearch } = useSearchLimit();
+  const { searchCount, SEARCH_LIMIT, isPro, incrementSearch } = useSearchLimit();
 
   const handleShop = (color: string, category: string) => {
     if (!incrementSearch()) {
@@ -111,35 +111,29 @@ const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load outfit from history if present
   useEffect(() => {
     if (location.state?.loadOutfit) {
       setLoadedOutfit(location.state.loadOutfit);
       setActiveTab('wardrobe');
-      // Clear history state so refresh doesn't trigger it again
       navigate('.', { replace: true, state: {} });
     }
   }, [location.state, navigate]);
 
-  const [ringAngles, setRingAngles] = useState<[number, number]>([30, 210]); // Default to complementary
+  const [ringAngles, setRingAngles] = useState<[number, number]>([30, 210]);
 
-  // Math for harmony
   const getHarmonyInfo = (a1: number, a2: number) => {
     let diff = Math.abs(a1 - a2);
     if (diff > 180) diff = 360 - diff;
 
-    if (diff < 15) return { name: "Monochromatic", desc: "Variations of the same hue, offering a cohesive, soothing look." };
-    if (diff > 15 && diff <= 45) return { name: "Analogous", desc: "Adjacent colors on the wheel, creating a serene and comfortable aesthetic." };
-    if (diff > 150) return { name: "Complementary", desc: "Opposite colors creating high contrast and high impact." };
-    if (diff > 105 && diff <= 135) return { name: "Triadic", desc: "Evenly spaced colors offering vibrant but balanced contrast." };
-    return { name: "Contrasting", desc: "A bold pairing that brings dynamic energy to an outfit." };
+    if (diff < 15) return { name: "Monochromatic", desc: "Variations of the same hue." };
+    if (diff > 15 && diff <= 45) return { name: "Analogous", desc: "Adjacent colors on the wheel." };
+    if (diff > 150) return { name: "Complementary", desc: "High contrast and high impact." };
+    if (diff > 105 && diff <= 135) return { name: "Triadic", desc: "Vibrant but balanced contrast." };
+    return { name: "Contrasting", desc: "Bold pairing bringing dynamic energy." };
   };
 
   const harmony = getHarmonyInfo(ringAngles[0], ringAngles[1]);
 
-  // If they have saved colors but click home, they should see the ring.
-  // If they click wardrobe, they see the styling board.
-  // Force switch to wardrobe if they capture something new.
   useEffect(() => {
     if (capturedItem) {
       setActiveTab('wardrobe');
@@ -231,152 +225,176 @@ const Index = () => {
           <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
         </div>
       ) : (
-        <>
-          {activeTab === 'home' ? (
-            <div className="flex-1 flex flex-col w-full max-w-7xl mx-auto">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="flex items-center gap-2">
-                  <img src="/favicon.png" alt="TintPicks" className="w-8 h-8 rounded-lg" />
-                  <span className="font-bold text-lg tracking-tight font-serif">TintPicks</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <select 
-                    id="tour-gender-selector"
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value as any)}
-                    className={`bg-card text-xs font-semibold uppercase tracking-widest px-3 py-2 rounded-full border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-colors ${!gender ? 'animate-pulse ring-2 ring-red-500 border-red-500 text-red-500' : ''}`}
-                  >
-                    <option value="" disabled>Set Gender</option>
-                    <option value="unisex">Unisex</option>
-                    <option value="mens">Mens</option>
-                    <option value="womens">Womens</option>
-                  </select>
-                  <HamburgerMenu
-                    onLogout={handleLogout}
-                    onColorAdd={handleColorAdd}
-                    onSavedPaletteClick={() => navigate('/history')}
-                    onStartTour={() => setIsTourActive(true)}
-                  />
-                </div>
+        <div className="flex flex-col gap-10 px-4 py-6 md:px-8 md:py-10 max-w-7xl mx-auto w-full">
+          
+          {/* Header */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-3 mb-2">
+                <img src="/favicon.png" alt="TintPicks" className="w-8 h-8 rounded-lg" />
+                <h1 className="font-serif text-3xl md:text-4xl leading-snug tracking-tight text-foreground">
+                  TintPicks Studio
+                </h1>
               </div>
-
-              {/* Desktop Grid (80/20 Split) */}
-              <div className="flex-1 flex flex-col lg:grid lg:grid-cols-5 gap-8 px-4 lg:px-8 pt-4">
-
-                 {/* Center Column: The Gradient Ring Dashboard (80%) */}
-                 <div className="flex flex-col w-full mx-auto relative lg:col-span-4 lg:max-w-2xl">
-                    {/* Greeting */}
-                    <motion.h1 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-4xl md:text-5xl font-bold text-foreground text-center max-w-[320px] leading-tight tracking-tight mx-auto mt-4 mb-16 font-serif"
-                    >
-                      How are you styling this morning?
-                    </motion.h1>
-
-                    {/* Massive Interactive Gradient Ring */}
-                    <motion.div 
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", bounce: 0.4, duration: 0.8, delay: 0.1 }}
-                      className="w-full flex justify-center mb-16 px-4"
-                    >
-                      <InteractiveColorRing angles={ringAngles} onChange={setRingAngles}>
-                        <button 
-                          id="tour-camera-btn"
-                          onClick={() => {
-                            if (!gender) {
-                              alert("Please select your gender at the top first!");
-                              return;
-                            }
-                            setShowCamera(true);
-                          }}
-                          className="w-full h-full rounded-full flex flex-col items-center justify-center hover:bg-black/5 active:bg-black/10 transition-colors duration-300 group"
-                        >
-                          <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center mb-3 group-hover:bg-foreground group-hover:text-background transition-colors">
-                            <Plus className="w-8 h-8" />
-                          </div>
-                          <span className="text-xl font-medium text-foreground tracking-wide">Capture</span>
-                        </button>
-                      </InteractiveColorRing>
-                    </motion.div>
-
-                    {/* Stat Pills */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="flex gap-4 px-6 mb-8 max-w-md mx-auto w-full"
-                    >
-                      <div className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors">
-                        <span className="text-4xl font-serif text-foreground mb-1">{savedColors.length}</span>
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">Saved<br/>Colors</span>
-                      </div>
-                      <div 
-                        id="tour-active-outfit-btn"
-                        className="flex-1 bg-card/60 backdrop-blur-md border border-border/50 rounded-[2.5rem] p-6 flex flex-col items-center justify-center shadow-sm hover:bg-card transition-colors cursor-pointer"
-                        onClick={() => savedColors.length > 0 && setActiveTab('wardrobe')}
-                      >
-                        <span className="text-4xl font-serif text-foreground mb-1">{savedColors.length > 0 ? "1" : "0"}</span>
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">Active<br/>Outfit</span>
-                      </div>
-                    </motion.div>
-                 </div>
-
-                 {/* Right Panel: Color Math (20%) */}
-                 <div id="tour-color-math" className="flex flex-col h-full lg:border-l border-t lg:border-t-0 border-border/50 lg:pl-8 pt-8 lg:pt-0 lg:col-span-1 mb-32 lg:mb-0">
-                   <h2 className="text-xl font-bold font-serif mb-6 px-1">Color Math</h2>
-                   <div className="flex flex-col gap-6">
-                      
-                      <div className="p-6 bg-card/60 backdrop-blur-md rounded-[2rem] border border-border/50 shadow-sm">
-                         <h3 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Current Selection</h3>
-                         <div className="flex items-center gap-4 mb-3">
-                           <div className="w-8 h-8 rounded-full border border-border shadow-inner" style={{ backgroundColor: angleToHex(ringAngles[0]) }} />
-                           <span className="font-mono text-sm tracking-wider uppercase">{angleToHex(ringAngles[0])}</span>
-                         </div>
-                         <div className="flex items-center gap-4">
-                           <div className="w-8 h-8 rounded-full border border-border shadow-inner" style={{ backgroundColor: angleToHex(ringAngles[1]) }} />
-                           <span className="font-mono text-sm tracking-wider uppercase">{angleToHex(ringAngles[1])}</span>
-                         </div>
-                      </div>
-
-                      <div className="p-6 bg-card/60 backdrop-blur-md rounded-[2rem] border border-border/50 shadow-sm">
-                         <h3 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-3">Harmony</h3>
-                         <p className="text-sm font-medium leading-relaxed">
-                           <span className="font-bold">{harmony.name}</span>. {harmony.desc}
-                         </p>
-                      </div>
-                   </div>
-                 </div>
-
-              </div>
+              <p className="text-lg text-muted-foreground">
+                AI-Powered Fashion Styling
+              </p>
             </div>
-          ) : (
-            /* Active Styling Board */
-            <div className="w-full h-full pb-24 pt-12 px-4">
-              <FashionStylingBoard 
-                capturedItem={capturedItem} 
-                savedColors={savedColors}
-                initialOutfit={loadedOutfit}
-                gender={gender}
-                onShop={handleShop}
+
+            <div className="flex flex-wrap items-center gap-3">
+              <select 
+                id="tour-gender-selector"
+                value={gender}
+                onChange={(e) => setGender(e.target.value as any)}
+                className={`bg-card text-xs font-semibold uppercase tracking-widest px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary transition-colors ${!gender ? 'animate-pulse ring-2 ring-destructive border-destructive text-destructive' : ''}`}
+              >
+                <option value="" disabled>Set Gender</option>
+                <option value="unisex">Unisex</option>
+                <option value="mens">Mens</option>
+                <option value="womens">Womens</option>
+              </select>
+              <HamburgerMenu
+                onLogout={handleLogout}
+                onColorAdd={handleColorAdd}
+                onSavedPaletteClick={() => navigate('/history')}
+                onStartTour={() => setIsTourActive(true)}
               />
             </div>
-          )}
-        </>
+          </div>
+
+          {/* Metrics Section (Tallie-inspired) */}
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-medium">Metrics</h2>
+            <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+              
+              <div className="flex h-32 flex-col justify-between rounded-xl border border-border bg-card p-4">
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <Bookmark className="w-5 h-5" />
+                  <span className="text-sm font-medium tracking-tight">Saved Colors</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-3xl leading-none font-medium text-foreground">{savedColors.length}</p>
+                </div>
+              </div>
+
+              <div id="tour-active-outfit-btn" className="flex h-32 flex-col justify-between rounded-xl border border-border bg-card p-4 cursor-pointer hover:bg-card/80 transition-colors" onClick={() => savedColors.length > 0 && setActiveTab('wardrobe')}>
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <Layers className="w-5 h-5" />
+                  <span className="text-sm font-medium tracking-tight">Active Outfit</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-3xl leading-none font-medium text-foreground">
+                    {savedColors.length > 0 ? "1" : "0"}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs">
+                    {savedColors.length > 0 ? (
+                      <span className="flex items-center text-primary"><CheckCircle2 className="w-3 h-3 mr-1"/> Ready</span>
+                    ) : (
+                      <span className="text-muted-foreground">Empty</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div id="tour-color-math" className="flex h-32 flex-col justify-between rounded-xl border border-border bg-card p-4">
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <Palette className="w-5 h-5" />
+                  <span className="text-sm font-medium tracking-tight">Harmony</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-2xl leading-none font-medium text-foreground truncate">{harmony.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{harmony.desc}</p>
+                </div>
+              </div>
+
+              <div className="flex h-32 flex-col justify-between rounded-xl border border-border bg-card p-4">
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <Search className="w-5 h-5" />
+                  <span className="text-sm font-medium tracking-tight">Searches</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-3xl leading-none font-medium text-foreground">
+                    {isPro ? "Unlimited" : `${SEARCH_LIMIT - searchCount} left`}
+                  </p>
+                  {!isPro && (
+                    <div className="flex items-center gap-1 text-xs text-primary cursor-pointer hover:underline" onClick={() => setShowUpgradeModal(true)}>
+                      <Zap className="w-3 h-3"/> Upgrade to Pro
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          {/* Main Area */}
+          <section className="flex flex-col gap-5 mt-4">
+            {activeTab === 'home' ? (
+              <div className="w-full max-w-2xl mx-auto flex flex-col items-center py-8">
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", bounce: 0.4 }}
+                  className="w-full flex justify-center px-4"
+                >
+                  <InteractiveColorRing angles={ringAngles} onChange={setRingAngles}>
+                    <button 
+                      id="tour-camera-btn"
+                      onClick={() => {
+                        if (!gender) {
+                          alert("Please select your gender at the top first!");
+                          return;
+                        }
+                        setShowCamera(true);
+                      }}
+                      className="w-full h-full rounded-full flex flex-col items-center justify-center hover:bg-black/5 active:bg-black/10 transition-colors duration-300 group"
+                    >
+                      <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors group-hover:border-primary">
+                        <Plus className="w-8 h-8" />
+                      </div>
+                      <span className="text-xl font-medium text-foreground tracking-wide">Capture</span>
+                    </button>
+                  </InteractiveColorRing>
+                </motion.div>
+                
+                <div className="mt-12 w-full flex items-center justify-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-full border border-border shadow-inner" style={{ backgroundColor: angleToHex(ringAngles[0]) }} />
+                    <span className="font-mono text-sm tracking-wider uppercase text-muted-foreground">{angleToHex(ringAngles[0])}</span>
+                  </div>
+                  <span className="text-muted-foreground">+</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-full border border-border shadow-inner" style={{ backgroundColor: angleToHex(ringAngles[1]) }} />
+                    <span className="font-mono text-sm tracking-wider uppercase text-muted-foreground">{angleToHex(ringAngles[1])}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-full min-h-[60vh] pb-8 pt-4">
+                <FashionStylingBoard 
+                  capturedItem={capturedItem} 
+                  savedColors={savedColors}
+                  initialOutfit={loadedOutfit}
+                  gender={gender}
+                  onShop={handleShop}
+                />
+              </div>
+            )}
+          </section>
+
+        </div>
       )}
 
       {/* Bottom Navigation */}
       {!showCamera && (
-        <div className="fixed bottom-0 inset-x-0 h-[100px] bg-background/80 backdrop-blur-2xl border-t border-border flex justify-around items-center px-6 pb-safe z-40">
+        <div className="fixed bottom-0 inset-x-0 h-[80px] md:h-[100px] bg-card/90 backdrop-blur-2xl border-t border-border flex justify-around items-center px-6 pb-safe z-40">
           <button 
             id="tour-tab-capture"
             onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'home' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}
+            className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'home' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
           >
-             <Plus className={`w-7 h-7 ${activeTab === 'home' ? 'text-[#f97316]' : ''}`} />
-             <span className="text-[11px] font-bold tracking-widest uppercase">Capture</span>
+             <Plus className="w-6 h-6 md:w-7 md:h-7" />
+             <span className="text-[10px] md:text-[11px] font-bold tracking-widest uppercase">Capture</span>
           </button>
           <button 
             id="tour-tab-styling"
@@ -387,18 +405,18 @@ const Index = () => {
               }
               if (savedColors.length > 0 || loadedOutfit) setActiveTab('wardrobe');
             }}
-            className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'wardrobe' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'} ${(savedColors.length === 0 && !loadedOutfit) ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`flex flex-col items-center gap-1.5 transition-colors ${activeTab === 'wardrobe' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'} ${(savedColors.length === 0 && !loadedOutfit) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-             <Layers className="w-7 h-7" />
-             <span className="text-[11px] font-bold tracking-widest uppercase">Styling</span>
+             <Layers className="w-6 h-6 md:w-7 md:h-7" />
+             <span className="text-[10px] md:text-[11px] font-bold tracking-widest uppercase">Styling</span>
           </button>
           <button 
             id="tour-tab-saved"
             onClick={() => navigate('/history')}
-            className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-foreground/80 transition-colors"
+            className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
           >
-             <Bookmark className="w-7 h-7" />
-             <span className="text-[11px] font-bold tracking-widest uppercase">Saved</span>
+             <Bookmark className="w-6 h-6 md:w-7 md:h-7" />
+             <span className="text-[10px] md:text-[11px] font-bold tracking-widest uppercase">Saved</span>
           </button>
         </div>
       )}
@@ -418,9 +436,9 @@ const Index = () => {
         />
       )}
 
-      {/* Dialog for Capture (Unchanged standard Dialog, as we reverted the bottom sheet previously) */}
+      {/* Capture Dialog */}
       <Dialog open={!!pendingHex} onOpenChange={(open) => !open && setPendingHex(null)}>
-        <DialogContent className="sm:max-w-md bg-background border-border">
+        <DialogContent className="sm:max-w-md bg-card border-border">
           <DialogHeader>
             <DialogTitle className="text-foreground">
               {captureStep === 1 ? "What did you capture?" : "What are you looking for?"}
@@ -437,10 +455,10 @@ const Index = () => {
                 <Label htmlFor="color-name" className="text-foreground">Name this color (optional)</Label>
                 <Input 
                   id="color-name" 
-                  placeholder={`e.g. Navy Blue Jacket`} 
+                  placeholder={`e.g. Mint Green Jacket`} 
                   value={pendingName}
                   onChange={(e) => setPendingName(e.target.value)}
-                  className="bg-card border-border text-foreground focus-visible:ring-foreground"
+                  className="bg-background border-border text-foreground focus-visible:ring-primary"
                 />
               </div>
             )}
@@ -449,28 +467,28 @@ const Index = () => {
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium text-muted-foreground">Tops</h4>
-                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-card" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
-                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-card" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
+                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-background" onClick={() => handleSelectCapturedGarment('top', 'shirt')}>Shirt</Button>
+                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-background" onClick={() => handleSelectCapturedGarment('top', 'tshirt')}>T-Shirt</Button>
                 </div>
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium text-muted-foreground">Bottoms</h4>
-                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-card" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
-                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-card" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
+                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-background" onClick={() => handleSelectCapturedGarment('bottom', 'trousers')}>Trousers</Button>
+                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-background" onClick={() => handleSelectCapturedGarment('bottom', 'shorts')}>Shorts</Button>
                 </div>
                 <div className="space-y-2 col-span-2">
                   <h4 className="text-sm font-medium text-muted-foreground">Outerwear</h4>
-                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-card" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
+                  <Button variant="outline" className="w-full justify-start border-border text-foreground hover:bg-background" onClick={() => handleSelectCapturedGarment('outerwear', 'jacket')}>Jacket</Button>
                 </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-3 pt-4 border-t border-border">
-                <Button variant="outline" className="w-full justify-center h-12 text-base border-border text-foreground hover:bg-card" onClick={() => handleSelectDesiredGarment('top')}>
+                <Button variant="outline" className="w-full justify-center h-12 text-base border-border text-foreground hover:bg-background" onClick={() => handleSelectDesiredGarment('top')}>
                   Tops & Shirts
                 </Button>
-                <Button variant="outline" className="w-full justify-center h-12 text-base border-border text-foreground hover:bg-card" onClick={() => handleSelectDesiredGarment('bottom')}>
+                <Button variant="outline" className="w-full justify-center h-12 text-base border-border text-foreground hover:bg-background" onClick={() => handleSelectDesiredGarment('bottom')}>
                   Bottoms & Trousers
                 </Button>
-                <Button variant="outline" className="w-full justify-center h-12 text-base border-border text-foreground hover:bg-card" onClick={() => handleSelectDesiredGarment('outerwear')}>
+                <Button variant="outline" className="w-full justify-center h-12 text-base border-border text-foreground hover:bg-background" onClick={() => handleSelectDesiredGarment('outerwear')}>
                   Outerwear & Jackets
                 </Button>
               </div>
