@@ -138,7 +138,7 @@ const Login = () => {
       <div className="relative hidden w-full flex-col p-4 lg:flex lg:min-h-screen lg:w-1/2">
         <div className="relative h-full w-full overflow-hidden rounded-[24px] bg-card shadow-xl">
           <img
-            src="/app-mockup.jpg"
+            src="/login-mockup.png"
             alt="TintPicks App Preview"
             className="absolute inset-0 h-full w-full object-cover"
           />

@@ -128,21 +128,22 @@ const ShoppingModal = ({
   onClose: () => void;
   color: string;
   initialCategory?: string;
+  initialGender?: string;
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  const [gender, setGender] = useState('All');
+  const [gender, setGender] = useState(initialGender || 'All');
   const [category, setCategory] = useState(initialCategory || 'All');
   const [currentColor, setCurrentColor] = useState(color);
   const colorName = getColorName(currentColor);
 
-  // Sync props when modal opens
   useEffect(() => {
     if (isOpen) {
       if (initialCategory) setCategory(initialCategory);
+      if (initialGender) setGender(initialGender);
       if (color) setCurrentColor(color);
     }
-  }, [isOpen, initialCategory, color]);
+  }, [isOpen, initialCategory, initialGender, color]);
 
   // Sync category when modal opens with a new initialCategory
   useEffect(() => {
