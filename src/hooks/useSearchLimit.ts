@@ -22,11 +22,15 @@ export const useSearchLimit = () => {
   const incrementSearch = () => {
     if (isPro) return true; // Pro users have unlimited searches
     
+    if (searchCount >= SEARCH_LIMIT) {
+      return false;
+    }
+    
     const newCount = searchCount + 1;
     setSearchCount(newCount);
     localStorage.setItem('tintpicks_search_count', newCount.toString());
     
-    return newCount <= SEARCH_LIMIT;
+    return true;
   };
 
   const hasReachedLimit = !isPro && searchCount >= SEARCH_LIMIT;
