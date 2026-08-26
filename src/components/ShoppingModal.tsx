@@ -123,6 +123,7 @@ const ShoppingModal = ({
   onClose,
   color,
   initialCategory,
+  initialGender,
 }: {
   isOpen: boolean;
   onClose: () => void;
