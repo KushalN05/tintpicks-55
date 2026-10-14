@@ -3,7 +3,7 @@ import { SearchResult, FilterOptions, GarmentCategory, GarmentColour, SearchMode
 import { FeaturedMatchCard } from './FeaturedMatchCard';
 import { ProductCard } from './ProductCard';
 import { MatchFilters } from './MatchFilters';
-import { RefreshCw, SlidersHorizontal, ArrowLeft, AlertCircle, RotateCcw } from 'lucide-react';
+import { RefreshCw, SlidersHorizontal, ArrowLeft, AlertCircle, RotateCcw, Camera } from 'lucide-react';
 
 interface SearchResultsViewProps {
   queryImageUrl: string;
@@ -11,6 +11,7 @@ interface SearchResultsViewProps {
   results: SearchResult[];
   searchMode: SearchMode;
   onChangePhoto: () => void;
+  onTakeAnotherPhoto?: () => void;
   onSelectProduct: (result: SearchResult) => void;
   isSaved: (productId: string) => boolean;
   onToggleSave: (productId: string) => void;
@@ -22,6 +23,7 @@ export const SearchResultsView: React.FC<SearchResultsViewProps> = ({
   results,
   searchMode,
   onChangePhoto,
+  onTakeAnotherPhoto,
   onSelectProduct,
   isSaved,
   onToggleSave,
@@ -123,17 +125,28 @@ export const SearchResultsView: React.FC<SearchResultsViewProps> = ({
               {filteredResults.length} matching {filteredResults.length === 1 ? 'item' : 'items'}
             </span>
             <span className="text-[10px] text-[#77736F]">
-              {searchMode === 'demo' ? 'Seeded visual search' : 'Live pgvector embedding'}
+              {searchMode === 'demo' ? 'Curated visual vector match' : 'Gemini 2 Visual Embedding'}
             </span>
           </div>
 
+          {/* Primary Take another photograph CTA */}
+          <button
+            type="button"
+            onClick={onTakeAnotherPhoto || onChangePhoto}
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-md bg-[#285C47] text-white text-xs font-semibold hover:bg-[#1F4A39] transition-all shadow-xs"
+          >
+            <Camera className="w-3.5 h-3.5" />
+            <span>Take another photograph</span>
+          </button>
+
+          {/* Secondary Change / upload photo button */}
           <button
             type="button"
             onClick={onChangePhoto}
-            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-md border border-[#E6E2DC] bg-[#FAF9F6] text-xs font-medium text-[#191919] hover:bg-white hover:border-[#CCC7BE] transition-colors"
+            className="inline-flex items-center space-x-1 px-3 py-2 rounded-md border border-[#E6E2DC] bg-[#FAF9F6] text-xs font-medium text-[#77736F] hover:text-[#191919] hover:bg-white transition-colors"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-[#285C47]" />
-            <span>Change photo</span>
+            <RefreshCw className="w-3 h-3" />
+            <span>Change</span>
           </button>
 
           {/* Mobile Filter Trigger Button */}
