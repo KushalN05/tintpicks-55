@@ -10,8 +10,7 @@ export const hexToLab = (hex: string): { l: number; a: number; b: number } | nul
     const cleanHex = hex.replace('#', '');
     const [l, a, b] = convert.hex.lab(cleanHex);
     return { l, a, b };
-  } catch (error) {
-    console.error('Failed to convert hex to LAB:', hex, error);
+  } catch {
     return null;
   }
 };

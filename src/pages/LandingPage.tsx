@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Check, Eye, Wand2, Star, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Eye, Wand2, Sparkles } from 'lucide-react';
 import {
   ImageComparison,
   ImageComparisonImage,
@@ -97,27 +97,7 @@ const LandingPage = () => {
             </a>
           </motion.div>
 
-          {/* Social Proof */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-12 flex items-center gap-4 text-sm text-muted-foreground"
-          >
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-card flex items-center justify-center overflow-hidden">
-                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col items-start">
-              <div className="flex items-center gap-1 text-primary">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-              </div>
-              <span>Loved by 10,000+ stylists</span>
-            </div>
-          </motion.div>
+
         </div>
       </section>
 

@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Menu, X, LogOut, CreditCard, Palette, Hash,
-  PlayCircle, ChevronRight, Plus, History, ShoppingBag
+  Menu, X, LogOut, CreditCard,
+  PlayCircle, ChevronRight, Plus
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+
 
 interface HamburgerMenuProps {
   onLogout: () => void;
@@ -13,7 +13,7 @@ interface HamburgerMenuProps {
   onStartTour: () => void;
 }
 
-import SavedWardrobeModal from './SavedWardrobeModal';
+
 
 /* ── Section label ── */
 const SectionLabel = ({ label }: { label: string }) => (
@@ -68,11 +68,9 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onStartTour,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
   const [hexValue, setHexValue] = useState('');
   const [hexError, setHexError] = useState('');
   const hexInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
 
   const [mounted, setMounted] = useState(false);
   
@@ -124,7 +122,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           <div
             className={`
               fixed top-0 right-0 z-[9999] h-full w-80
-              bg-white shadow-2xl border-l border-border
+              bg-card shadow-2xl border-l border-border
               flex flex-col
               transition-transform duration-300 ease-in-out
               ${isOpen ? 'translate-x-0' : 'translate-x-full'}
@@ -179,13 +177,13 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                       value={hexValue}
                       onChange={(e) => { setHexValue(e.target.value); setHexError(''); }}
                       maxLength={7}
-                      className="flex-1 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-muted-foreground bg-white focus:outline-none focus:ring-2 focus:ring-ring focus:border-border transition"
+                      className="flex-1 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-muted-foreground bg-card focus:outline-none focus:ring-2 focus:ring-ring focus:border-border transition"
                     />
                   </div>
                   {hexError && <p className="text-xs text-red-500">{hexError}</p>}
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2  text-white text-sm font-medium py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+                    className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground text-sm font-medium py-2.5 rounded-lg hover:opacity-90 transition-opacity"
                   >
                     <Plus className="h-4 w-4" />
                     Add Color
@@ -218,10 +216,6 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
         document.body
       )}
 
-      <SavedWardrobeModal 
-        isOpen={isWardrobeOpen} 
-        onClose={() => setIsWardrobeOpen(false)} 
-      />
     </>
   );
 };

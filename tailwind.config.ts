@@ -48,9 +48,42 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // ThreadFind Specific Named Tokens
+        ivory: {
+          DEFAULT: "#FAF9F6",
+          dark: "#F4F1EA",
+        },
+        charcoal: {
+          DEFAULT: "#191919",
+          light: "#2B2B2B",
+          dark: "#0F0F0F",
+        },
+        warmgrey: {
+          DEFAULT: "#77736F",
+          light: "#9A9590",
+          dark: "#57534F",
+        },
+        forest: {
+          DEFAULT: "#285C47",
+          hover: "#1F4A39",
+          light: "#3A785E",
+          subtle: "#EDF4F0",
+        },
+        sage: {
+          DEFAULT: "#E8EFE9",
+          light: "#F2F6F3",
+          border: "#D3E0D6",
+        },
+        stone: {
+          DEFAULT: "#E6E2DC",
+          light: "#F0ECE6",
+          dark: "#CCC7BE",
+        },
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["'Plus Jakarta Sans'", "Inter", "-apple-system", "sans-serif"],
+        serif: ["'Cormorant Garamond'", "'Playfair Display'", "Georgia", "serif"],
+        editorial: ["'Playfair Display'", "'Cormorant Garamond'", "Georgia", "serif"],
       },
       keyframes: {
         "accordion-down": {

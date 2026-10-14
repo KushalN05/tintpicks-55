@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera, Plus, Layers, Bookmark, Search, CheckCircle2, Zap, Palette } from "lucide-react";
+import { Plus, Layers, Bookmark, Search, CheckCircle2, Zap, Palette } from "lucide-react";
 import { useHomePage } from "@/hooks/useHomePage";
 import GuidedTour, { TourStep } from "@/components/tour/GuidedTour";
 import ShoppingModal from "@/components/ShoppingModal";
@@ -15,8 +15,9 @@ import HamburgerMenu from "@/components/HamburgerMenu";
 import InteractiveColorRing, { angleToHex } from "@/components/InteractiveColorRing";
 import UpgradeModal from "@/components/UpgradeModal";
 import { useSearchLimit } from "@/hooks/useSearchLimit";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const tourSteps: TourStep[] = [
   {
@@ -162,8 +163,7 @@ const Index = () => {
           setIsTourActive(true);
         }
       }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
+    } catch {
     }
   };
 
@@ -211,8 +211,7 @@ const Index = () => {
             .eq('id', user.id);
           setUserProfile({ ...userProfile, onboarding_completed: true });
         }
-      } catch (error) {
-        console.error('Failed to update onboarding state', error);
+      } catch {
       }
     }
   };
@@ -222,7 +221,9 @@ const Index = () => {
       
       {showCamera ? (
         <div className="absolute inset-0 z-50 bg-background">
-          <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
+          <ErrorBoundary>
+            <ColorCapture onCapture={handleCapture} onClose={() => setShowCamera(false)} />
+          </ErrorBoundary>
         </div>
       ) : (
         <div className="flex flex-col gap-10 px-4 py-6 md:px-8 md:py-10 max-w-7xl mx-auto w-full">
@@ -314,7 +315,7 @@ const Index = () => {
                 </div>
                 <div className="flex flex-col gap-3">
                   <p className="text-3xl leading-none font-medium text-foreground">
-                    {isPro ? "Unlimited" : `${SEARCH_LIMIT - searchCount} left`}
+                    {isPro ? "Unlimited" : `${Math.max(0, SEARCH_LIMIT - searchCount)} left`}
                   </p>
                   {!isPro && (
                     <div className="flex items-center gap-1 text-xs text-primary cursor-pointer hover:underline" onClick={() => setShowUpgradeModal(true)}>
@@ -371,13 +372,15 @@ const Index = () => {
               </div>
             ) : (
               <div className="w-full h-full min-h-[60vh] pb-8 pt-4">
-                <FashionStylingBoard 
-                  capturedItem={capturedItem} 
-                  savedColors={savedColors}
-                  initialOutfit={loadedOutfit}
-                  gender={gender}
-                  onShop={handleShop}
-                />
+                <ErrorBoundary>
+                  <FashionStylingBoard 
+                    capturedItem={capturedItem} 
+                    savedColors={savedColors}
+                    initialOutfit={loadedOutfit}
+                    gender={gender}
+                    onShop={handleShop}
+                  />
+                </ErrorBoundary>
               </div>
             )}
           </section>
@@ -497,13 +500,15 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       
-      <ShoppingModal 
+      <ErrorBoundary>
+        <ShoppingModal 
           isOpen={showShoppingModal} 
           onClose={() => setShowShoppingModal(false)}
           color={selectedColor}
           initialCategory={selectedShopCategory}
           initialGender={gender === 'unisex' ? 'Unisex' : gender === 'mens' ? 'Mens' : gender === 'womens' ? 'Womens' : 'All'}
         />
+      </ErrorBoundary>
 
       <UpgradeModal
         isOpen={showUpgradeModal}

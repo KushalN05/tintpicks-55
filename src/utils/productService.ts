@@ -31,14 +31,13 @@ export const fetchProductsByColor = async (
     });
 
     if (error) {
-      console.error('Supabase Edge Function fetch error:', error);
+
       return [];
     }
 
     return (data || []) as Product[];
 
-  } catch (error) {
-    console.error('Error fetching products via visual search:', error);
+  } catch {
     return [];
   }
 };

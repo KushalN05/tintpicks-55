@@ -94,7 +94,7 @@ export function useHomePage(): UseHomePageProps {
       .single();
 
     if (error || !data) {
-      console.error("Error inserting color:", error);
+
       toast({
         title: "Error",
         description: "Failed to save the color.",
@@ -130,7 +130,7 @@ export function useHomePage(): UseHomePageProps {
       .single();
 
     if (error || !data) {
-      console.error("Error inserting color:", error);
+
       toast({
         title: "Error",
         description: "Failed to save the color.",
@@ -184,7 +184,7 @@ export function useHomePage(): UseHomePageProps {
       .eq("user_id", session.user.id); // belt-and-suspenders RLS guard
 
     if (error) {
-      console.error("Error deleting color:", error);
+
       toast({
         title: "Error",
         description: "Failed to remove the color.",

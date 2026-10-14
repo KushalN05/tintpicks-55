@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, type Variants } from 'framer-motion';
-import { Eye, EyeOff } from 'lucide-react';
 
 // Google SVG Icon
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -81,7 +80,7 @@ const Login = () => {
       },
     });
     if (error) {
-      console.error('OAuth error:', error.message);
+
       setGoogleLoading(false);
     }
   };
