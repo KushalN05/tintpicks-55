@@ -1,54 +1,60 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
 }
 
 interface State {
   hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = { hasError: false };
-
-  public static getDerivedStateFromError(): State {
-    return { hasError: true };
-  }
-
-  public componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
-    // Silently catch — no console output during demo
-  }
-
-  private handleReset = () => {
-    this.setState({ hasError: false });
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null,
   };
+
+  public static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true, error, errorInfo: null };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Uncaught error:', error, errorInfo);
+    this.setState({
+      error,
+      errorInfo,
+    });
+  }
 
   public render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
       return (
-        <div className="w-full min-h-[240px] flex items-center justify-center p-6 bg-card border border-border rounded-2xl">
-          <div className="text-center max-w-sm">
-            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
-              <span className="text-lg">⚡</span>
-            </div>
-            <h2 className="text-sm font-semibold tracking-tight text-foreground mb-1">
-              Unable to display component
-            </h2>
-            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-              An unexpected render issue occurred.
-            </p>
-            <button
-              onClick={this.handleReset}
-              className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity active:scale-95"
-            >
-              Retry
-            </button>
+        <div style={{
+          padding: '2rem',
+          margin: '2rem',
+          backgroundColor: '#ffebee',
+          border: '2px solid #ef5350',
+          borderRadius: '8px',
+          color: '#c62828',
+          fontFamily: 'monospace',
+          overflowX: 'auto'
+        }}>
+          <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', fontWeight: 'bold' }}>
+            Fatal React Error
+          </h1>
+          <div style={{ marginBottom: '1rem' }}>
+            <strong>Message:</strong> {this.state.error?.message}
           </div>
+          <details style={{ whiteSpace: 'pre-wrap', backgroundColor: '#ffcdd2', padding: '1rem', borderRadius: '4px' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 'bold', marginBottom: '0.5rem' }}>View Stack Trace</summary>
+            {this.state.error?.stack}
+            <br />
+            {this.state.errorInfo?.componentStack}
+          </details>
         </div>
       );
     }

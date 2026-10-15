@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import History from "./pages/History";
-
+import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import React from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -60,8 +60,6 @@ const RedirectIfAuthed = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-import { ThreadFindApp } from "./pages/ThreadFindApp";
-
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -71,16 +69,39 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              {/* Primary ThreadFind Visual Search App */}
-              <Route path="/" element={<ThreadFindApp />} />
-              <Route path="/threadfind" element={<ThreadFindApp />} />
+              {/* Public route */}
+              <Route
+                path="/"
+                element={
+                  <RedirectIfAuthed>
+                    <LandingPage />
+                  </RedirectIfAuthed>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <RedirectIfAuthed>
+                    <Login />
+                  </RedirectIfAuthed>
+                }
+              />
 
-              {/* Legacy / Optional routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/app" element={<Index />} />
-              <Route path="/history" element={<History />} />
+              {/* Protected routes */}
+              <Route element={<RequireAuth />}>
+                <Route
+                  path="/onboarding"
+                  element={
+                    <React.Suspense fallback={null}>
+                      <OnboardingLazy />
+                    </React.Suspense>
+                  }
+                />
+                <Route path="/app" element={<Index />} />
+                <Route path="/history" element={<History />} />
+              </Route>
 
-              {/* Catch-all → ThreadFind */}
+              {/* Catch-all → root */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>

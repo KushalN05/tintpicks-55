@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { X, RefreshCw } from 'lucide-react';
+import { Camera, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -125,7 +125,8 @@ const ColorCapture = ({
 
           stopCamera();
           onCapture(hex);
-        } catch {
+        } catch (err) {
+          console.error("Failed to capture image data", err);
           toast({
             title: 'Capture Failed',
             description: 'Could not capture color. Try again.',

@@ -29,8 +29,9 @@ export const useOnboarding = () => {
       setUserProfile(profileData);
       // Use the canonical `onboarding_completed` flag now that it exists in types.ts
       setIsNewUser(!profileData?.onboarding_completed);
-    } catch {
-      setIsNewUser(true);
+    } catch (error) {
+      console.error('Error checking user status:', error);
+      setIsNewUser(true); // Default to new user if there's an error
     }
   };
 
@@ -57,7 +58,8 @@ export const useOnboarding = () => {
 
       setIsNewUser(false);
       return true;
-    } catch {
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
       return false;
     }
   };
@@ -69,7 +71,11 @@ export const useOnboarding = () => {
         body: { email, name }
       });
 
-    } catch {
+      if (error) {
+        console.error('Error sending welcome email:', error);
+      }
+    } catch (error) {
+      console.error('Error calling email function:', error);
     }
   };
 

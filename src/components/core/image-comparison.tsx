@@ -84,7 +84,10 @@ export function ImageComparisonImage({ src, alt, position, className }: ImageCom
   if (!context) throw new Error('ImageComparisonImage must be used within ImageComparison');
   
   const { sliderX } = context;
-  const clipPath = useTransform(sliderX, (val) => `inset(0 ${100 - (val as number)}% 0 0)`);
+
+  // For the left image, we clip the right side based on the slider position.
+  // For the right image, it just sits underneath (or we clip the left side).
+  // Actually, easiest is: Right image is static background. Left image is clipped by slider.
 
   if (position === 'right') {
     return (
@@ -93,6 +96,9 @@ export function ImageComparisonImage({ src, alt, position, className }: ImageCom
       </div>
     );
   }
+
+  // Left image is clipped
+  const clipPath = useTransform(sliderX, (val) => `inset(0 ${100 - (val as number)}% 0 0)`);
 
   return (
     <motion.div 

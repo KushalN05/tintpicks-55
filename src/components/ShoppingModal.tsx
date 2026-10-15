@@ -48,7 +48,8 @@ const ProductCard = ({ product }: { product: Product }) => {
         .eq('id', user.id);
         
       if (updateError) throw updateError;
-    } catch {
+    } catch (error) {
+      console.error('Failed to save to wardrobe:', error);
     }
   };
 
@@ -160,7 +161,8 @@ const ShoppingModal = ({
         .then((results) => {
           setProducts(Array.isArray(results) ? results : []);
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('Product fetch error:', err);
           setProducts([]); 
         })
         .finally(() => setLoading(false));
