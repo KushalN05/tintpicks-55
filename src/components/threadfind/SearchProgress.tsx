@@ -55,12 +55,12 @@ export const SearchProgress: React.FC<SearchProgressProps> = ({ queryImageUrl })
 
       {/* Primary Stage Status */}
       <div className="mb-6">
-        <h2 className="font-editorial text-2xl sm:text-3xl text-[#191919]">
-          Searching for similar items
-        </h2>
-        <p className="text-xs uppercase tracking-wider text-[#285C47] font-semibold mt-1.5 transition-all">
+        <span className="text-xs uppercase tracking-wider text-[#285C47] font-semibold">
+          Visual Vector Pipeline
+        </span>
+        <h2 className="font-editorial text-2xl text-[#191919] mt-1 transition-all">
           {SEARCH_STAGES[currentStageIndex]}
-        </p>
+        </h2>
       </div>
 
       {/* 4 Step Progress Indicators */}

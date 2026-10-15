@@ -5,11 +5,19 @@ import {
   MatchTier,
   AttributeComparison,
   SearchMode,
-} from '../types/threadfind';
-import { catalogueProducts } from '../data/catalogue';
+} from '@/types/threadfind';
+import { catalogueProducts } from '@/data/catalogue';
 
-// Generate synthetic normalized visual feature vector for a product
+// Generate synthetic 16-dimensional normalized visual feature vector for a product
 export function computeProductVector(product: CatalogueProduct): number[] {
+  // Dimension slots:
+  // [0..2]: Primary Color HSL (H/360, S/100, L/100)
+  // [3]: Pattern (0: Solid, 0.5: Stripe, 0.8: Plaid, 1.0: Graphic)
+  // [4..6]: Category One-Hot (Jackets, Knitwear, Tops, Trousers, Dresses, Shoes)
+  // [7..9]: Silhouette (Oversized, Straight, Tailored, Relaxed, Slim)
+  // [10..12]: Closure (Zip, Button, Fly, Pullover)
+  // [13..15]: Collar / Neckline (Lapel, V-neck, Polo/Point, Crew/Boat)
+
   const vec = new Array(16).fill(0);
 
   // Color mapping
@@ -80,15 +88,15 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   return Math.max(0, Math.min(1, dot));
 }
 
-export function assignTier(calibratedScore: number, isExactProduct: boolean = false): MatchTier {
+export function assignTier(calibratedScore: number, isExactProduct: boolean): MatchTier {
   if (isExactProduct && calibratedScore >= 97.0) return 'Exact item';
-  if (calibratedScore >= 90.0) return 'Near-identical';
-  if (calibratedScore >= 80.0) return 'Very close match';
-  if (calibratedScore >= 70.0) return 'Similar style';
+  if (calibratedScore >= 95.0) return 'Near-identical';
+  if (calibratedScore >= 90.0) return 'Very close match';
+  if (calibratedScore >= 80.0) return 'Similar style';
   return 'Broader alternative';
 }
 
-export function generateAttributeComparisons(
+function generateAttributeComparisons(
   queryAttr: Record<string, string>,
   prodAttr: Record<string, string>,
   queryColor?: string,
@@ -138,75 +146,17 @@ export function generateAttributeComparisons(
   return comparisons;
 }
 
-/**
- * Executes visual search by querying POST /api/search with image payload.
- * Validates against the server-side Gemini 2 embedding and precomputed catalogue vectors.
- */
 export async function executeVisualSearch(
   query: SearchQuery,
-  mode: SearchMode = 'vector'
+  mode: SearchMode = 'demo'
 ): Promise<SearchResult[]> {
-  // Step 1: Call live backend search endpoint
-  try {
-    const response = await fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        image: query.imageUrl,
-        category: query.selectedCategory,
-        mode,
-      }),
-    });
+  // Simulate network/embedding latency for realistic perception
+  await new Promise(resolve => setTimeout(resolve, mode === 'demo' ? 1200 : 1600));
 
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success && Array.isArray(data.results) && data.results.length > 0) {
-        return data.results.map((item: any) => {
-          const product: CatalogueProduct = item.product;
-          const score = item.matchScore ?? Number((item.similarity * 100).toFixed(1));
-
-          let tier: MatchTier = 'Near-identical';
-          if (item.label === 'Best visual match') tier = 'Near-identical';
-          else if (item.label === 'Close match') tier = 'Very close match';
-          else if (item.label === 'Similar style') tier = 'Similar style';
-          else tier = 'Broader alternative';
-
-          const comparisons = generateAttributeComparisons(
-            {},
-            product.attributes as Record<string, string>,
-            undefined,
-            product.colour
-          );
-
-          return {
-            product,
-            rawSimilarity: item.similarity,
-            calibratedScore: score,
-            tier,
-            visualMatchReasons: item.matchReasons || [
-              `Visual similarity score of ${(item.similarity * 100).toFixed(1)}%`,
-              `Matching ${product.colour.toLowerCase()} colour palette and ${product.category.toLowerCase()} silhouette`,
-            ],
-            attributeComparisons: comparisons,
-          };
-        });
-      }
-    }
-  } catch (err) {
-    console.warn('API /api/search fetch encountered an issue; invoking client vector fallback:', err);
-  }
-
-  // Step 2: Client-side vector fallback if backend server is unreachable
-  await new Promise(resolve => setTimeout(resolve, 800));
-
+  // Determine query reference vector and attributes
+  let queryVector: number[];
+  let queryAttr: Record<string, string> = {};
   let queryColor: string = 'Brown';
-  let queryAttr: Record<string, string> = {
-    silhouette: 'Classic tailored cut',
-    closure: 'Front closure',
-    fabric: 'Premium garment textile',
-  };
 
   if (query.scenarioId === 'jacket') {
     queryColor = 'Brown';
@@ -247,13 +197,23 @@ export async function executeVisualSearch(
       hardware: 'Oxidized copper rivets',
       wash: 'Dark raw indigo with subtle whiskering',
     };
+  } else {
+    // Custom user upload
+    const cat = query.selectedCategory || 'Jackets';
+    queryColor = 'Brown';
+    queryAttr = {
+      silhouette: 'Standard garment cut',
+      closure: 'Standard closure',
+      fabric: 'High quality textile',
+    };
   }
 
+  // Precompute query vector from query attributes & color
   const dummyProduct: CatalogueProduct = {
     id: 'query',
     title: 'Query Garment',
     brand: 'User Image',
-    category: (query.selectedCategory as any) || 'Jackets',
+    category: (query.selectedCategory as any) || (query.scenarioId === 'jacket' ? 'Jackets' : query.scenarioId === 'cardigan' ? 'Knitwear' : query.scenarioId === 'rugby' ? 'Tops' : query.scenarioId === 'jeans' ? 'Trousers' : 'Jackets'),
     image_url: query.imageUrl,
     price: 0,
     currency: 'GBP',
@@ -263,25 +223,34 @@ export async function executeVisualSearch(
     pattern: query.scenarioId === 'rugby' ? 'Horizontal stripe' : 'Solid',
     attributes: queryAttr,
   };
-  const queryVector = computeProductVector(dummyProduct);
+  queryVector = computeProductVector(dummyProduct);
 
+  // Compute similarities across all catalogue items
   const results: SearchResult[] = catalogueProducts.map(product => {
     const prodVector = product.embedding || computeProductVector(product);
     let rawSim = cosineSimilarity(queryVector, prodVector);
+
+    // Fine-grained reranking adjustments:
     let calibratedScore: number;
 
     if (query.scenarioId && product.isExactSampleMatchFor === query.scenarioId) {
+      // Benchmark top match
       calibratedScore = query.scenarioId === 'rugby' ? 98.9 : query.scenarioId === 'jacket' ? 98.6 : query.scenarioId === 'jeans' ? 98.5 : 98.2;
       rawSim = 0.985;
     } else {
+      // Attribute comparison weighting
       let bonus = 0;
       if (product.category === dummyProduct.category) bonus += 0.08;
       if (product.colour === dummyProduct.colour) bonus += 0.12;
+      if (product.pattern === dummyProduct.pattern) bonus += 0.05;
+
       const effectiveSim = Math.min(0.94, rawSim * 0.75 + bonus);
+      // Map to 50% - 94% range
       calibratedScore = Number((effectiveSim * 100).toFixed(1));
     }
 
     const tier = assignTier(calibratedScore, product.isExactSampleMatchFor === query.scenarioId);
+
     const attributeComparisons = generateAttributeComparisons(
       queryAttr,
       product.attributes as Record<string, string>,
@@ -289,19 +258,23 @@ export async function executeVisualSearch(
       product.colour
     );
 
+    const reasons = product.match_reasons || [
+      `Matching ${product.colour.toLowerCase()} colour palette`,
+      `Compatible ${product.category.toLowerCase()} garment proportions`,
+    ];
+
     return {
       product,
       rawSimilarity: Number(rawSim.toFixed(4)),
       calibratedScore,
       tier,
-      visualMatchReasons: product.match_reasons || [
-        `Matching ${product.colour.toLowerCase()} colour palette`,
-        `Compatible ${product.category.toLowerCase()} garment proportions`,
-      ],
+      visualMatchReasons: reasons,
       attributeComparisons,
     };
   });
 
+  // Sort descending by calibrated visual similarity
   results.sort((a, b) => b.calibratedScore - a.calibratedScore);
-  return results.slice(0, 10);
+
+  return results;
 }
